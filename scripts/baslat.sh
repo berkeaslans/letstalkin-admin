@@ -120,6 +120,16 @@ DB_URL="postgresql://letstalkin:devpassword123@127.0.0.1:${PG_PORT}/letstalkin_d
 ok "Veritabanı ve Redis hazır (port ${PG_PORT})"
 
 # ---------- 2. Backend ----------
+# 3000 portunda eski bir backend varsa sağlık kontrolü onu "hazır" sanar;
+# tohum veri bir veritabanına, sorgular başkasına gider. Baştan durdur.
+if port_open 3000; then
+  die "3000 portu dolu — orada eski bir backend çalışıyor.
+    Onu kapatmadan devam edilemez, yoksa panel yanlış veritabanına bağlanır:
+      lsof -ti:3000 | xargs kill      (macOS/Linux)
+      netstat -ano | findstr :3000    (Windows)
+    Sonra bu komutu tekrar çalıştır."
+fi
+
 cd "$API_DIR"
 [ -d node_modules ] || { info "Backend paketleri kuruluyor (bir kerelik, birkaç dakika)…"; npm install --no-audit --no-fund; }
 
@@ -140,8 +150,16 @@ ok "Veritabanı şeması güncel"
 
 if [ "$SEED" = 1 ]; then
   info "Örnek veri ekleniyor…"
-  npm run seed:demo --silent || npm run seed:demo
-  ok "Örnek kullanıcılar, odalar ve gönderiler eklendi"
+  if npm run seed:demo; then
+    ok "Örnek kullanıcılar, odalar ve gönderiler eklendi"
+  else
+    die "Örnek veri eklenemedi. En olası sebep: bu veritabanında zaten var.
+    Varsa örnek veriyi tekrar eklemeye gerek yok, parametresiz başlat:
+      npm run baslat
+    Sıfırdan kurmak istersen veritabanını boşalt:
+      docker rm -f lt-pg && docker volume rm lt-pgdata     (Docker yolu)
+      dropdb -p ${PG_PORT} letstalkin_dev                  (Homebrew yolu)"
+  fi
 fi
 
 info "Backend açılıyor (http://localhost:3000)…"
