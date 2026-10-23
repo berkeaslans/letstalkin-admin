@@ -146,7 +146,7 @@ find / -name docker-compose.yml -path '*letstalkin*' 2>/dev/null
 Alan adı panelinde A kaydı aç — sertifikayı ortak Caddy kendisi alır:
 
 ```
-yonetim.letstalkin.com   A   <sunucu-ip>
+admin.letstalkin.com   A   <sunucu-ip>
 ```
 
 Bunu en başta yap — alan adı panelinden, sunucuya bağlanmadan. Yayılması
@@ -154,7 +154,7 @@ dakikalar sürebilir; Caddy'ye sıra geldiğinde kayıt hazır olur ve sertifika
 ilk denemede çıkar.
 
 ```bash
-dig +short yonetim.letstalkin.com    # sunucu IP'sini döndürmeli
+dig +short admin.letstalkin.com    # sunucu IP'sini döndürmeli
 ```
 
 ### b) Backend `.env` — iki satır
@@ -162,7 +162,7 @@ dig +short yonetim.letstalkin.com    # sunucu IP'sini döndürmeli
 ```bash
 # Panel tarayıcıdan API'ye gidiyor; bu köken yoksa giriş çalışmaz.
 # Mevcut satıra EKLE, üzerine yazma:
-CORS_ORIGINS=https://letstalkin.com,https://yonetim.letstalkin.com
+CORS_ORIGINS=https://letstalkin.com,https://admin.letstalkin.com
 
 # Panelin derlenirken gömeceği API adresi.
 ADMIN_API_URL=https://api.letstalkin.com
@@ -206,7 +206,7 @@ Hazır blok `deploy/caddy/letstalkin.caddy` dosyasının sonunda duruyor;
 ortak Caddyfile'a ekle:
 
 ```caddyfile
-yonetim.letstalkin.com {
+admin.letstalkin.com {
 	encode zstd gzip
 	reverse_proxy letstalkin-admin:80
 	header {
@@ -267,12 +267,12 @@ yenileyemez. Her değişiklik **Sistem → Denetim kaydı**'na düşer.
 ### h) Kontrol
 
 ```bash
-curl -I https://yonetim.letstalkin.com     # 200 + x-robots-tag: noindex
+curl -I https://admin.letstalkin.com     # 200 + x-robots-tag: noindex
 docker compose ps api worker admin         # üçü de Up
 docker compose logs --tail 30 api          # migration hatası olmasın
 ```
 
-Tarayıcıdan `https://yonetim.letstalkin.com` → kendi hesabınla gir →
+Tarayıcıdan `https://admin.letstalkin.com` → kendi hesabınla gir →
 **Sistem → Durum**: veritabanı, Redis, kuyruklar ve worker yeşil olmalı.
 Worker satırı "hiç worker bağlı değil" diyorsa `docker compose ps worker`
 ile bak; zamanlanmış duyurular ve quiz ilerletme ona bağlı.
@@ -294,7 +294,7 @@ Yalnız panelde değişiklik varsa sondaki listeyi `admin` ile sınırlayabilirs
 | Panel açılıyor, giriş "ağ hatası" | `CORS_ORIGINS`'e panel adresi eklenmemiş. Ekle, `docker compose up -d api`. |
 | Giriş oluyor, "yönetim yetkisi yok" | Rol verilmemiş. Adım (f)'yi çalıştır; 15 saniye içinde geçer. |
 | `admin` servisi derlenmiyor | `../letstalkin-admin` klasörü yok ya da eski. Klonla / `git pull`. |
-| Sertifika çıkmıyor | DNS henüz yayılmamış. `dig yonetim.letstalkin.com` ile bak, bekle. |
+| Sertifika çıkmıyor | DNS henüz yayılmamış. `dig admin.letstalkin.com` ile bak, bekle. |
 | API migration'da duruyor | `docker compose logs api`. Yedekten dönmek için: `docker compose exec -T db psql -U letstalkin letstalkin < ~/yedek-....sql`. |
 
 ## Unutulmaması gerekenler

@@ -80,7 +80,7 @@ Geliştirmede `/api` istekleri ve `/socket.io` (WebSocket) Vite üzerinden yerel
 
 ## Yayına alma
 
-1. **Backend:** `CORS_ORIGINS` env'ine panelin adresini ekle, ör. `https://yonetim.letstalkin.com`
+1. **Backend:** `CORS_ORIGINS` env'ine panelin adresini ekle, ör. `https://admin.letstalkin.com`
    (boşsa production'da tarayıcıdan hiçbir köken kabul edilmez). Aynı ayar gerçek zamanlı
    bağlantıyı (Socket.IO) da kapsar; API önündeki vekil WebSocket'i (`/socket.io/`) geçirmeli.
    Google ekranı için backend'e `GOOGLE_SERVICE_ACCOUNT_JSON`, `GA4_PROPERTY_ID`,

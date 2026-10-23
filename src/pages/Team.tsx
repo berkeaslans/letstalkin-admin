@@ -23,7 +23,8 @@ const label = 'mb-1.5 block text-[12.5px] font-semibold text-sub';
 /** Üretilen giriş bilgileri: bir daha gösterilmez, kopyalanabilir. */
 function Credentials({ cred, onClose }: { cred: StaffCredentials; onClose: () => void }) {
   const [kopyalandi, setKopyalandi] = useState(false);
-  const metin = `Panel: https://yonetim.letstalkin.com\nKullanıcı adı: ${cred.username}\nŞifre: ${cred.password}`;
+  // Panelin kendi adresi: yerelde localhost, canlıda gerçek alan adı.
+  const metin = `Panel: ${window.location.origin}\nKullanıcı adı: ${cred.username}\nŞifre: ${cred.password}`;
   return (
     <div className="mx-[18px] mb-4 rounded-option bg-yellow/10 p-4 shadow-[inset_0_0_0_0.5px_rgb(255_216_0/0.35)]">
       <p className="flex items-center gap-1.5 text-[13.5px] font-bold text-yellow">
