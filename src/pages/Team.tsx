@@ -258,9 +258,12 @@ export function Team() {
     },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
-  const sifreYenile = useMutation({
-    mutationFn: (id: string) => adminApi.resetStaffPassword(id),
-    onSuccess: (c) => setCred(c),
+  const sifreUret = useMutation({
+    mutationFn: ({ id, note }: { id: string; note: string }) => adminApi.tempPassword(id, note),
+    onSuccess: (c) => {
+      setCred(c);
+      if (c.sessionsRevoked) toast(`${c.sessionsRevoked} oturum kapatıldı`, 'info', 'Yeni şifreyle tekrar girmesi gerekiyor');
+    },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
 
@@ -319,7 +322,7 @@ export function Team() {
                     </a>
                     {r.isSelf && <Tag>sen</Tag>}
                     {r.panelAccount && (
-                      <span title="Hesabı panel açtı; şifresi buradan yenilenebilir">
+                      <span title="Hesabı panel açtı">
                         <Icon name="lock" size={13} className="text-faint" />
                       </span>
                     )}
@@ -341,25 +344,24 @@ export function Team() {
                     >
                       {r.role === 'admin' ? 'Moderatör yap' : 'Admin yap'}
                     </Button>
-                    {r.panelAccount && (
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        icon="lock"
-                        busy={sifreYenile.isPending}
-                        title="Yeni şifre üret"
-                        onClick={async () => {
-                          const c = await confirmAction({
-                            title: `@${r.username} için yeni şifre üretilsin mi?`,
-                            body: 'Eski şifre geçersiz olur ve yenisi bir kez gösterilir.',
-                            ok: 'Üret',
-                          });
-                          if (c.ok) sifreYenile.mutate(r.id);
-                        }}
-                      >
-                        Şifre
-                      </Button>
-                    )}
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      icon="lock"
+                      busy={sifreUret.isPending}
+                      title="Geçici şifre üret"
+                      onClick={async () => {
+                        const c = await confirmAction({
+                          title: `@${r.username} için geçici şifre üretilsin mi?`,
+                          body: 'Eski şifre geçersiz olur, açık oturumları kapanır, yeni şifre bir kez gösterilir. Gerekçe denetim kaydına yazılır.',
+                          ok: 'Üret',
+                          note: 'required',
+                        });
+                        if (c.ok) sifreUret.mutate({ id: r.id, note: c.note });
+                      }}
+                    >
+                      Şifre
+                    </Button>
                     <Button
                       size="xs"
                       variant="ghost"

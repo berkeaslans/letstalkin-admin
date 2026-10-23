@@ -59,7 +59,7 @@ export function ConfirmDialog() {
             onChange={(e) => setNote(e.target.value)}
             maxLength={300}
             placeholder={
-              req.note === 'required' ? 'Gerekçe (zorunlu, kullanıcıya iletilir)' : 'Gerekçe (isteğe bağlı, denetim kaydına yazılır)'
+              req.note === 'required' ? 'Gerekçe (zorunlu, denetim kaydına yazılır)' : 'Gerekçe (isteğe bağlı, denetim kaydına yazılır)'
             }
             className="h-11 w-full rounded-option bg-elev px-3.5 text-[14px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]"
           />

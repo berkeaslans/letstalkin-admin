@@ -144,6 +144,16 @@ export interface StaffCredentials {
   password: string;
 }
 
+export interface OnlineUser {
+  id: string;
+  username: string;
+  displayName: string | null;
+  avatarPath: string | null;
+  tick: 'none' | 'yellow' | 'blue';
+  role: 'user' | 'moderator' | 'admin';
+  lastActiveAt: string | null;
+}
+
 export const adminApi = {
   overview: () => api.get<Overview>('/admin/overview'),
 
@@ -235,6 +245,7 @@ export const adminApi = {
   // Canlı ve akış
   activity: (kind?: ActivityKind, limit = 200) => api.get<Activity[]>('/admin/activity', { kind, limit }),
   live: () => api.get<LiveNow>('/admin/live'),
+  online: (limit = 60) => api.get<{ total: number; users: OnlineUser[] }>('/admin/live/online', { limit }),
   endStream: (id: string, note?: string) => api.post<{ ok: boolean }>(`/admin/live/streams/${id}/end`, { note: note || undefined }),
 
   // Duyuru
@@ -324,7 +335,9 @@ export const adminApi = {
   staff: () => api.get<StaffRow[]>('/admin/staff'),
   createStaff: (body: { username: string; email: string; role: 'moderator' | 'admin'; displayName?: string; note?: string }) =>
     api.post<StaffCredentials>('/admin/staff', body),
-  resetStaffPassword: (id: string, note?: string) => api.post<StaffCredentials>(`/admin/staff/${id}/password`, { note: note || undefined }),
+  /** Geçici şifre: gerekçe zorunlu, hesabın tüm oturumları kapanır. */
+  tempPassword: (id: string, note: string) =>
+    api.post<StaffCredentials & { sessionsRevoked: number }>(`/admin/users/${id}/temp-password`, { note }),
   setStaffRole: (id: string, role: 'user' | 'moderator' | 'admin', note?: string) =>
     api.post<StaffRow[]>(`/admin/staff/${id}/role`, { role, note: note || undefined }),
 

@@ -8,7 +8,7 @@ import { Icon } from '@/components/ui/Icon';
 import type { IconName } from '@/components/ui/icon-names';
 import { Card, EmptyState, ErrorState, LiveTag, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Pills } from '@/components/ui/Tabs';
-import { type Activity, type ActivityKind, adminApi } from '@/lib/api/admin';
+import { type Activity, type ActivityKind, adminApi, type OnlineUser } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { fmt, timeAgo } from '@/lib/format';
@@ -126,6 +126,71 @@ export function LiveFeed() {
         </div>
       </div>
     </div>
+  );
+}
+
+/** Şu an bağlı hesaplar. Presence anahtarı soket açıkken tazelenir, bağlantı
+ *  düşünce 90 saniye içinde listeden çıkar — yani "şu an açık olan" demek. */
+function OnlineNow() {
+  const [hepsi, setHepsi] = useState(false);
+  const q = useQuery({ queryKey: ['admin', 'online'], queryFn: () => adminApi.online(hepsi ? 200 : 20), refetchInterval: 15_000 });
+  const ROL: Record<OnlineUser['role'], string | null> = { user: null, moderator: 'Moderatör', admin: 'Admin' };
+
+  return (
+    <Card
+      title="Şu an bağlı"
+      sub={q.data ? `${fmt(q.data.total)} hesap` : undefined}
+      right={
+        <Button size="xs" variant="ghost" icon="refresh" busy={q.isFetching} onClick={() => q.refetch()}>
+          Yenile
+        </Button>
+      }
+    >
+      {q.isError ? (
+        <ErrorState error={q.error} retry={() => q.refetch()} />
+      ) : q.isPending ? (
+        <Rows n={4} />
+      ) : !q.data.users.length ? (
+        <EmptyState
+          icon="person"
+          title="Şu an kimse bağlı değil"
+          body="Uygulamayı açık tutan biri olduğunda adı burada anında belirir. Kim ne zaman girmiş diye bakmak için Kullanıcılar ekranında 'Son aktif' sıralamasını kullan."
+        />
+      ) : (
+        <>
+          <div className="flex flex-col">
+            {q.data.users.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                className="flex items-center gap-2.5 border-line/60 border-t px-[18px] py-2.5 text-left first:border-t-0 hover:bg-elev2"
+                onClick={() => go(paths.user(u.id))}
+              >
+                <span className="relative">
+                  <Avatar src={u.avatarPath} name={u.username} size={30} />
+                  <span className="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full bg-live shadow-[0_0_0_2px_var(--color-elev)]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5">
+                    <span className="truncate text-[13.5px] font-semibold">@{u.username}</span>
+                    {u.tick !== 'none' && <Icon name="verified" size={13} className={u.tick === 'blue' ? 'text-blue' : 'text-yellow'} />}
+                  </span>
+                  {u.displayName && <span className="block truncate text-[12px] text-sub">{u.displayName}</span>}
+                </span>
+                {ROL[u.role] && <Tag tone={u.role === 'admin' ? 'yellow' : undefined}>{ROL[u.role]}</Tag>}
+              </button>
+            ))}
+          </div>
+          {q.data.total > q.data.users.length && (
+            <div className="px-[18px] py-2.5">
+              <Button size="xs" variant="ghost" onClick={() => setHepsi(true)}>
+                {fmt(q.data.total - q.data.users.length)} kişi daha
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </Card>
   );
 }
 
@@ -278,21 +343,24 @@ export function LiveNow() {
           </div>
         </div>
 
-        <Card
-          title="Akış"
-          sub="son olaylar"
-          right={
-            <Button size="xs" variant="ghost" onClick={() => go('/canli/akis')}>
-              Tümü
-            </Button>
-          }
-        >
-          {events.length ? (
-            events.slice(0, 14).map((e, i) => <FeedRow key={`${e.at}${e.text}`} e={e} fresh={i < 2} />)
-          ) : (
-            <EmptyState icon="bolt" title="Henüz olay yok" body="Uygulamada olan her şey burada anında belirir." />
-          )}
-        </Card>
+        <div className="flex flex-col gap-3.5">
+          <OnlineNow />
+          <Card
+            title="Akış"
+            sub="son olaylar"
+            right={
+              <Button size="xs" variant="ghost" onClick={() => go('/canli/akis')}>
+                Tümü
+              </Button>
+            }
+          >
+            {events.length ? (
+              events.slice(0, 14).map((e, i) => <FeedRow key={`${e.at}${e.text}`} e={e} fresh={i < 2} />)
+            ) : (
+              <EmptyState icon="bolt" title="Henüz olay yok" body="Uygulamada olan her şey burada anında belirir." />
+            )}
+          </Card>
+        </div>
       </div>
     </>
   );

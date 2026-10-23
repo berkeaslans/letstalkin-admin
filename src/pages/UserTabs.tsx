@@ -269,6 +269,15 @@ export function AccountTab({ u }: { u: UserDetail }) {
   const device = useAct(u, (id: string) => adminApi.removeDevice(u.id, id), 'Cihaz kaldırıldı');
   const email = useAct(u, (a: 'mark_verified' | 'resend') => adminApi.email(u.id, a), 'Tamam');
   const del = useAct(u, (note: string) => adminApi.deletion(u.id, 'request', note), 'Silme talebi başlatıldı');
+  const [sifre, setSifre] = useState<{ username: string; password: string } | null>(null);
+  const gecici = useMutation({
+    mutationFn: (args: [string]) => adminApi.tempPassword(u.id, args[0]),
+    onSuccess: (c) => {
+      setSifre({ username: c.username, password: c.password });
+      if (c.sessionsRevoked) toast(`${c.sessionsRevoked} oturum kapatıldı`, 'info', 'Yeni şifreyle tekrar girmesi gerekiyor');
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
 
   if (q.isLoading) return <Rows n={5} />;
   if (q.isError) return <ErrorState error={q.error} retry={() => q.refetch()} />;
@@ -311,6 +320,50 @@ export function AccountTab({ u }: { u: UserDetail }) {
           >
             {a.hasPassword ? 'Sıfırlama kodu gönder' : 'Şifre oluşturma kodu gönder'}
           </Button>
+          <p className="mt-3 text-[12.5px] text-sub">
+            E-posta gönderimi kapalıysa kod gitmez. O durumda geçici şifre üretip kişiye kendin ilet:
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-2 self-start"
+            disabled={u.isBanned}
+            busy={gecici.isPending}
+            onClick={async () => {
+              const c = await confirmAction({
+                title: `@${u.username} için geçici şifre üretilsin mi?`,
+                body: 'Eski şifre geçersiz olur, açık oturumları kapanır, yeni şifre bir kez gösterilir. Gerekçe denetim kaydına yazılır.',
+                ok: 'Üret',
+                note: 'required',
+              });
+              if (c.ok) gecici.mutate([c.note]);
+            }}
+          >
+            Geçici şifre üret
+          </Button>
+          {sifre && (
+            <div className="mt-3 rounded-option bg-yellow/10 p-3.5 shadow-[inset_0_0_0_0.5px_rgb(255_216_0/0.35)]">
+              <p className="text-[12.5px] text-sub">Bu şifre bir daha gösterilmez — şimdi ilet, ilk girişten sonra değiştirmesini söyle.</p>
+              <pre className="mt-2 overflow-x-auto rounded-option bg-black/30 p-3 text-[13px] leading-relaxed">{`Panel: ${window.location.origin}\nKullanıcı adı: ${sifre.username}\nŞifre: ${sifre.password}`}</pre>
+              <div className="mt-2 flex items-center gap-2">
+                <Button
+                  size="xs"
+                  variant="primary"
+                  onClick={() =>
+                    navigator.clipboard
+                      .writeText(`Panel: ${window.location.origin}\nKullanıcı adı: ${sifre.username}\nŞifre: ${sifre.password}`)
+                      .then(() => toast('Kopyalandı'))
+                      .catch(() => toast('Kopyalanamadı, elle seç', 'error'))
+                  }
+                >
+                  Kopyala
+                </Button>
+                <Button size="xs" variant="ghost" onClick={() => setSifre(null)}>
+                  Kapat
+                </Button>
+              </div>
+            </div>
+          )}
         </Section>
       )}
 
