@@ -18,6 +18,20 @@ const KIND: Record<string, [string, IconName, 'yellow' | 'blue' | 'live' | 'up' 
   report: ['Şikayet', 'crisis_alert', 'live'],
   verification: ['Mavi tik', 'verified', 'blue'],
   series_page: ['Dizi sayfası', 'movie', 'yellow'],
+  password_reset: ['Şifre sıfırlama', 'lock', 'blue'],
+  sessions: ['Oturum', 'logout', undefined],
+  email: ['E-posta', 'info', undefined],
+  profile: ['Profil', 'person', undefined],
+  account_type: ['Hesap türü', 'person', 'yellow'],
+  trusted: ['Güvenilirlik', 'workspace_premium', 'blue'],
+  deletion: ['Silme', 'remove_circle', 'live'],
+  auto_hide: ['Otomatik gizleme', 'visibility_off', 'live'],
+  content: ['İçerik kaldırma', 'visibility_off', 'live'],
+  restore: ['Geri alma', 'refresh', 'up'],
+  room: ['Oda', 'groups', undefined],
+  match: ['Eşleşme', 'person', undefined],
+  blocklist: ['Kara liste', 'shield', undefined],
+  setting: ['Ayar', 'settings', undefined],
 };
 const TICK: Record<string, string> = { none: 'tik yok', yellow: 'sarı', blue: 'mavi' };
 const ROLE: Record<string, string> = { user: 'kullanıcı', moderator: 'moderatör', admin: 'admin' };
@@ -45,6 +59,44 @@ export function describe(a: AuditRow): string {
       return `${d.targetType} şikayeti · ${REPORT_ACTION[String(d.action)] ?? d.status}`;
     case 'verification':
       return d.approve ? 'mavi tik onaylandı' : 'başvuru reddedildi';
+    case 'password_reset':
+      return 'sıfırlama kodu e-postayla gönderildi';
+    case 'sessions':
+      return d.device
+        ? 'bildirim cihazı kaldırıldı'
+        : d.family === 'all'
+          ? `tüm oturumlar kapatıldı (${d.revoked})`
+          : 'bir oturum kapatıldı';
+    case 'email':
+      return d.action === 'resend' ? 'doğrulama kodu yeniden gönderildi' : 'e-posta doğrulanmış sayıldı';
+    case 'profile':
+      return d.cleared
+        ? `temizlendi: ${(d.cleared as string[]).join(', ')}`
+        : `düzenlendi: ${((d.changed as string[]) ?? []).join(', ')}${d.usernameTo ? ` (@${d.usernameFrom} → @${d.usernameTo})` : ''}`;
+    case 'account_type':
+      return `${d.from} → ${d.to}`;
+    case 'trusted':
+      return d.manual === null ? 'otomatik kademeye döndü' : d.manual ? 'elle güvenilir yapıldı' : 'güvenilirlik elle alındı';
+    case 'deletion':
+      return d.action === 'request' ? 'silme talebi başlatıldı' : 'hesap geri yüklendi';
+    case 'auto_hide':
+      return `${d.reporters} farklı şikayetle otomatik gizlendi (eşik ${d.threshold})`;
+    case 'content':
+      return `${d.kind} kaldırıldı`;
+    case 'restore':
+      return `${d.kind} geri alındı`;
+    case 'room':
+      return d.op === 'remove_member'
+        ? 'odadan çıkarıldı'
+        : d.op === 'owner'
+          ? 'oda sahipliği devredildi'
+          : `oda ${d.to === 'archived' ? 'arşivlendi' : 'yeniden açıldı'}`;
+    case 'match':
+      return d.active ? 'eşleşme profili açıldı' : 'eşleşme profili kapatıldı';
+    case 'blocklist':
+      return `${d.op === 'add' ? 'eklendi' : 'çıkarıldı'}: ${d.pattern}`;
+    case 'setting':
+      return `${a.targetId}: ${d.from} → ${d.to}`;
     case 'series_page':
       return `${d.kind === 'official' ? 'resmi' : 'fan'} sayfa ${d.revoked ? 'kaldırıldı' : d.approve ? 'onaylandı' : 'reddedildi'}`;
     default:
@@ -58,7 +110,11 @@ export function AuditList({ items, compact }: { items: AuditRow[]; compact?: boo
     <div>
       {items.map((a) => {
         const k = KIND[a.action] ?? ['İşlem', 'bolt', undefined];
-        const target = a.action === 'flag' ? a.targetId : a.targetUsername ? `@${a.targetUsername}` : 'silinmiş hesap';
+        const target = a.targetUsername
+          ? `@${a.targetUsername}`
+          : ['flag', 'setting', 'blocklist', 'auto_hide', 'restore'].includes(a.action)
+            ? ''
+            : 'silinmiş hesap';
         return (
           <div key={a.id} className="flex items-start gap-3 px-[18px] py-3 shadow-[inset_0_0.5px_0_var(--color-line)]">
             <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-elev2 text-sub">
@@ -66,7 +122,7 @@ export function AuditList({ items, compact }: { items: AuditRow[]; compact?: boo
             </span>
             <div className="min-w-0 flex-1 text-[13px] leading-[1.45]">
               <p>
-                <b className="font-semibold">@{a.actor?.username ?? '?'}</b>
+                <b className="font-semibold">{a.actor ? `@${a.actor.username}` : 'Sistem'}</b>
                 {!compact && (
                   <>
                     {' '}

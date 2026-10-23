@@ -111,7 +111,7 @@ async function parseError(res: Response): Promise<ApiError> {
 
 export async function request<T>(
   path: string,
-  opts: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE'; body?: unknown; query?: Query; anonymous?: boolean } = {},
+  opts: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown; query?: Query; anonymous?: boolean } = {},
 ): Promise<T> {
   const send = () =>
     fetch(buildUrl(path, opts.query), {

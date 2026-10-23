@@ -25,6 +25,31 @@ export type Role = UserRow['role'];
 export type UserFilter = NonNullable<Q<'/api/v1/admin/users'>['filter']>;
 export type ReportStatus = Report['status'];
 export type AuditKind = NonNullable<Q<'/api/v1/admin/audit'>['action']>;
+export type AccountInfo = Res<'/api/v1/admin/users/{id}/account', 'get'>;
+export type UserContent = Res<'/api/v1/admin/users/{id}/content', 'get'>;
+export type ContentKind = NonNullable<Q<'/api/v1/admin/users/{id}/content'>['type']>;
+export type Relations = Res<'/api/v1/admin/users/{id}/relations', 'get'>;
+export type RelationKind = NonNullable<Q<'/api/v1/admin/users/{id}/relations'>['type']>;
+export type ContentPage = Res<'/api/v1/admin/content', 'get'>;
+export type ContentItem = ContentPage['items'][number];
+export type HideKind = 'post' | 'comment' | 'room' | 'story' | 'room_message' | 'dm_message';
+export type BlockedTerm = Res<'/api/v1/admin/blocklist', 'get'>[number];
+export type ModSettings = Res<'/api/v1/admin/settings/moderation', 'get'>;
+export type ModSummary = Res<'/api/v1/admin/moderation/summary', 'get'>;
+export type RoomPage = Res<'/api/v1/admin/rooms', 'get'>;
+export type RoomRow = RoomPage['items'][number];
+export type RoomDetail = Res<'/api/v1/admin/rooms/{id}', 'get'>;
+export type MatchRow = Res<'/api/v1/admin/match/profiles', 'get'>[number];
+export type AccountType = UserRow['accountType'];
+type ClearField = 'avatar' | 'cover' | 'bio' | 'displayName' | 'links';
+export interface ProfilePatch {
+  username?: string;
+  displayName?: string | null;
+  bio?: string | null;
+  isPrivate?: boolean;
+  birthDate?: string;
+  note?: string;
+}
 
 export const authApi = {
   login: (emailOrUsername: string, password: string) =>
@@ -36,8 +61,9 @@ export const adminApi = {
   overview: () => api.get<Overview>('/admin/overview'),
 
   reports: (status: ReportStatus) => api.get<Report[]>('/admin/reports', { status }),
-  reportAction: (id: string, status: 'reviewed' | 'actioned', action: 'none' | 'hide' | 'ban') =>
-    api.post<{ ok: boolean }>(`/admin/reports/${id}/action`, { status, action }),
+  /** Varsayılan olarak aynı hedefe bekleyen tüm şikayetler birlikte kapanır. */
+  reportAction: (id: string, status: 'reviewed' | 'actioned', action: 'none' | 'hide' | 'ban', note?: string) =>
+    api.post<{ ok: boolean; closed: number }>(`/admin/reports/${id}/action`, { status, action, note: note || undefined }),
 
   users: (p: { q?: string; filter?: UserFilter; cursor?: string }) => api.get<UserPage>('/admin/users', { ...p, limit: 30 }),
   user: (id: string) => api.get<UserDetail>(`/admin/users/${id}`),
@@ -50,6 +76,51 @@ export const adminApi = {
     api.post<{ ok: boolean }>(`/admin/users/${id}/ban`, { banned, note: note || undefined }),
   adjustBalance: (id: string, amount: number, note: string) =>
     api.post<{ balance: number }>(`/admin/users/${id}/balance`, { amount, note }),
+
+  // Hesap
+  account: (id: string) => api.get<AccountInfo>(`/admin/users/${id}/account`),
+  passwordReset: (id: string, note?: string) => api.post<{ ok: boolean }>(`/admin/users/${id}/password-reset`, { note: note || undefined }),
+  revokeSessions: (id: string, family?: string, note?: string) =>
+    api.post<{ revoked: number }>(`/admin/users/${id}/sessions/revoke`, { family, note: note || undefined }),
+  removeDevice: (id: string, deviceId: string) => request<{ ok: boolean }>(`/admin/users/${id}/devices/${deviceId}`, { method: 'DELETE' }),
+  email: (id: string, action: 'mark_verified' | 'resend') => api.post<{ ok: boolean }>(`/admin/users/${id}/email`, { action }),
+  clearProfile: (id: string, fields: ClearField[], note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/users/${id}/clear`, { fields, note: note || undefined }),
+  patchProfile: (id: string, body: ProfilePatch) => request<{ ok: boolean }>(`/admin/users/${id}/profile`, { method: 'PATCH', body }),
+  setAccountType: (id: string, accountType: AccountType, note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/users/${id}/account-type`, { accountType, note: note || undefined }),
+  setTrusted: (id: string, trusted: boolean | null, note?: string) =>
+    api.post<{ isTrusted: boolean }>(`/admin/users/${id}/trusted`, { trusted, note: note || undefined }),
+  deletion: (id: string, action: 'request' | 'restore', note: string) =>
+    api.post<{ purgeAt: string | null }>(`/admin/users/${id}/deletion`, { action, note }),
+  userContent: (id: string, type: ContentKind, cursor?: string) => api.get<UserContent>(`/admin/users/${id}/content`, { type, cursor }),
+  relations: (id: string, type: RelationKind) => api.get<Relations>(`/admin/users/${id}/relations`, { type }),
+
+  // Moderasyon
+  content: (p: { type: 'post' | 'comment'; q?: string; state?: 'all' | 'visible' | 'hidden'; cursor?: string }) =>
+    api.get<ContentPage>('/admin/content', p),
+  hide: (kind: HideKind, id: string, note?: string, notify = true) =>
+    api.post<{ ok: boolean }>(`/admin/content/${kind}/${id}/hide`, { note: note || undefined, notify }),
+  restore: (kind: HideKind, id: string, note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/content/${kind}/${id}/restore`, { note: note || undefined }),
+  blocklist: () => api.get<BlockedTerm[]>('/admin/blocklist'),
+  addBlocked: (kind: 'link' | 'word', pattern: string, note?: string) =>
+    api.post<BlockedTerm>('/admin/blocklist', { kind, pattern, note: note || undefined }),
+  removeBlocked: (id: string) => request<{ ok: boolean }>(`/admin/blocklist/${id}`, { method: 'DELETE' }),
+  testBlocked: (text: string) => api.post<{ match: string | null }>('/admin/blocklist/test', { text }),
+  modSettings: () => api.get<ModSettings>('/admin/settings/moderation'),
+  setModSettings: (body: ModSettings) => api.put<ModSettings>('/admin/settings/moderation', body),
+  modSummary: (days: number) => api.get<ModSummary>('/admin/moderation/summary', { days }),
+  rooms: (p: { status: 'all' | 'active' | 'archived' | 'reported'; q?: string; cursor?: string }) => api.get<RoomPage>('/admin/rooms', p),
+  room: (id: string) => api.get<RoomDetail>(`/admin/rooms/${id}`),
+  roomStatus: (id: string, status: 'active' | 'archived', note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/rooms/${id}/status`, { status, note: note || undefined }),
+  removeMember: (id: string, userId: string) => request<{ ok: boolean }>(`/admin/rooms/${id}/members/${userId}`, { method: 'DELETE' }),
+  roomOwner: (id: string, userId: string, note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/rooms/${id}/owner`, { userId, note: note || undefined }),
+  matchProfiles: (filter: 'all' | 'reported' | 'mismatch' | 'inactive') => api.get<MatchRow[]>('/admin/match/profiles', { filter }),
+  matchActive: (userId: string, active: boolean, note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/match/profiles/${userId}/active`, { active, note: note || undefined }),
 
   audit: (p: { action?: AuditKind; targetId?: string; cursor?: string }) => api.get<AuditPage>('/admin/audit', { ...p, limit: 50 }),
 

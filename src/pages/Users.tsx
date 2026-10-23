@@ -131,6 +131,7 @@ export function Users() {
             { key: 'pages', label: 'Sayfalar' },
             { key: 'reported', label: 'Şikayetli' },
             { key: 'banned', label: 'Banlı' },
+            { key: 'deleting', label: 'Silinecek' },
           ]}
           value={filter}
           onChange={setFilter}

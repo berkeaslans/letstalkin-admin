@@ -10,13 +10,6 @@ const PLAN: Record<string, string[]> = {
     'Planla, başlat, iptal et',
     'Canlı skor tablosu ve ödül dağıtımı',
   ],
-  '/moderasyon/icerik': [
-    'Gönderi, yorum, hikâye ve klip arama',
-    'Yönetici olarak gizle / kaldır, öne çıkar',
-    'Kaldırma gerekçesi kullanıcıya bildirim olarak gider',
-  ],
-  '/moderasyon/odalar': ['Tüm odalar: sahip, üye, mesaj hacmi', 'Arşivle, kapat, üye çıkar, sahibini değiştir'],
-  '/moderasyon/eslesme': ['Eşleşme şikayetleri ve yaş tutarsızlıkları', 'Eşleşme profilini kapat'],
   '/moderasyon/geri-bildirim': ['Uygulama içi hata ve öneri bildirimleri', 'Yanıtla, çözüldü işaretle'],
   '/katalog': ['TMDB önbelleğindeki yapımlar, sayfa trafiği', 'Önbelleği yenile, yapımı gizle'],
   '/katalog/vitrin': ['Ana sayfa, keşfet ve "ne izlesem" listelerini sırala'],

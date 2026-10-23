@@ -15,6 +15,7 @@ import { playSound } from '@/lib/sound';
 import { useIsAdmin, useSession } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
 import { AuditList } from './Audit';
+import { AccountTab, ContentTab, DeletionBanner, ProfileTab, RelationsTab } from './UserTabs';
 
 const useDrawer = create<{ id: string | null }>(() => ({ id: null }));
 export const openUser = (id: string) => useDrawer.setState({ id });
@@ -63,7 +64,8 @@ export function UserDrawer() {
 }
 
 function Body({ u }: { u: UserDetail }) {
-  const [tab, setTab] = useState<'manage' | 'reports' | 'history'>('manage');
+  const [tab, setTab] = useState<'manage' | 'profile' | 'account' | 'content' | 'relations' | 'reports' | 'history'>('manage');
+  if (u.deletion) return <DeletionBanner u={u} />;
   return (
     <>
       <div className="flex items-center gap-3.5 px-[18px] pt-1 pb-4">
@@ -98,6 +100,10 @@ function Body({ u }: { u: UserDetail }) {
         <Pills
           items={[
             { key: 'manage', label: 'Yönetim' },
+            { key: 'profile', label: 'Profil' },
+            { key: 'account', label: 'Hesap' },
+            { key: 'content', label: 'İçerik' },
+            { key: 'relations', label: 'Bağlantılar' },
             { key: 'reports', label: 'Şikayetler', count: u.reports.length },
             { key: 'history', label: 'Geçmiş', count: u.history.length },
           ]}
@@ -106,6 +112,10 @@ function Body({ u }: { u: UserDetail }) {
         />
       </div>
       {tab === 'manage' && <Manage u={u} />}
+      {tab === 'profile' && <ProfileTab u={u} />}
+      {tab === 'account' && <AccountTab u={u} />}
+      {tab === 'content' && <ContentTab u={u} />}
+      {tab === 'relations' && <RelationsTab u={u} />}
       {tab === 'reports' &&
         (u.reports.length ? (
           u.reports.map((r) => (
@@ -298,12 +308,6 @@ function Manage({ u }: { u: UserDetail }) {
               Banla
             </Button>
           )}
-          <Button size="sm" variant="outline" disabled title="Backend ucu hazırlanıyor">
-            Şifre sıfırlama bağlantısı gönder · yakında
-          </Button>
-          <Button size="sm" variant="outline" disabled title="Backend ucu hazırlanıyor">
-            Oturumları kapat · yakında
-          </Button>
         </div>
         {!canBan && !u.isBanned && (
           <p className="text-[12px] text-faint">{self ? 'Kendini banlayamazsın.' : 'Yetkili hesaplar banlanamaz; önce rolü düşür.'}</p>

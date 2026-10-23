@@ -10,6 +10,7 @@ import { unlockSoundOnFirstInteraction } from '@/lib/sound';
 import { Audit } from '@/pages/Audit';
 import { Flags } from '@/pages/Flags';
 import { Forbidden, Login } from '@/pages/Login';
+import { Content, Match, Rooms, Rules, Summary } from '@/pages/Moderation';
 import { Overview } from '@/pages/Overview';
 import { Reports } from '@/pages/Reports';
 import { SeriesPages } from '@/pages/SeriesPages';
@@ -24,6 +25,11 @@ import './styles.css';
 const PAGES: Record<string, ComponentType> = {
   '/': Overview,
   '/moderasyon': Reports,
+  '/moderasyon/icerik': Content,
+  '/moderasyon/odalar': Rooms,
+  '/moderasyon/eslesme': Match,
+  '/moderasyon/kurallar': Rules,
+  '/moderasyon/ozet': Summary,
   '/kullanicilar': Users,
   '/kullanicilar/tikler': Ticks,
   '/kullanicilar/sayfalar': SeriesPages,
