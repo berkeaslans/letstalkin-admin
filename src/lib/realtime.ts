@@ -112,6 +112,19 @@ export function startRealtime(qc: QueryClient) {
   });
   socket.on('auth:expired', () => void reauth());
 
+  // Çevrimiçi durumu: biri bağlandığında/çıktığında backend haber verir.
+  // Tek tek saymak yerine listeyi tazeliyoruz — sayı ve liste tek kaynaktan
+  // geldiği için asla birbirini tutmaz duruma düşmez. Ani giriş çıkışlarda
+  // üst üste istek atmasın diye kısa bir bekleme var.
+  let presenceTimer: ReturnType<typeof setTimeout> | null = null;
+  socket.on('admin:presence', () => {
+    if (presenceTimer) return;
+    presenceTimer = setTimeout(() => {
+      presenceTimer = null;
+      void qc.invalidateQueries({ queryKey: ['admin', 'online'] });
+    }, 700);
+  });
+
   socket.on('admin:event', (ev: Activity) => {
     useLive.setState((s) => ({ events: [ev, ...s.events].slice(0, MAX), unseen: s.unseen + 1 }));
     setTimeout(() => useLive.setState((s) => ({ unseen: Math.max(0, s.unseen - 1) })), 60_000);

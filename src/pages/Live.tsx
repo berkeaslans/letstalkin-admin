@@ -131,9 +131,17 @@ export function LiveFeed() {
 
 /** Şu an bağlı hesaplar. Presence anahtarı soket açıkken tazelenir, bağlantı
  *  düşünce 90 saniye içinde listeden çıkar — yani "şu an açık olan" demek. */
+const GORUNEN = 20;
+
+/** Çevrimiçi listesi. Soket 'admin:presence' ile tazeliyor; aralıklı yenileme
+ *  yalnız güvenlik ağı (bir olay kaçarsa tabloyu yine de düzeltir). */
+export function useOnline() {
+  return useQuery({ queryKey: ['admin', 'online'], queryFn: () => adminApi.online(200), refetchInterval: 60_000 });
+}
+
 function OnlineNow() {
   const [hepsi, setHepsi] = useState(false);
-  const q = useQuery({ queryKey: ['admin', 'online'], queryFn: () => adminApi.online(hepsi ? 200 : 20), refetchInterval: 15_000 });
+  const q = useOnline();
   const ROL: Record<OnlineUser['role'], string | null> = { user: null, moderator: 'Moderatör', admin: 'Admin' };
 
   return (
@@ -159,7 +167,7 @@ function OnlineNow() {
       ) : (
         <>
           <div className="flex flex-col">
-            {q.data.users.map((u) => (
+            {(hepsi ? q.data.users : q.data.users.slice(0, GORUNEN)).map((u) => (
               <button
                 key={u.id}
                 type="button"
@@ -181,12 +189,17 @@ function OnlineNow() {
               </button>
             ))}
           </div>
-          {q.data.total > q.data.users.length && (
+          {!hepsi && q.data.users.length > GORUNEN && (
             <div className="px-[18px] py-2.5">
               <Button size="xs" variant="ghost" onClick={() => setHepsi(true)}>
-                {fmt(q.data.total - q.data.users.length)} kişi daha
+                {fmt(q.data.users.length - GORUNEN)} kişi daha
               </Button>
             </div>
+          )}
+          {q.data.total > q.data.users.length && (
+            <p className="px-[18px] pb-3 text-[12px] text-faint">
+              {fmt(q.data.total)} hesabın ilk {fmt(q.data.users.length)} tanesi gösteriliyor.
+            </p>
           )}
         </>
       )}
@@ -197,6 +210,8 @@ function OnlineNow() {
 export function LiveNow() {
   const isAdmin = useIsAdmin();
   const qc = useQueryClient();
+  // Sayı ile liste aynı sorgudan: ikisi farklı uçtan gelince birbirini tutmuyordu.
+  const online = useOnline();
   const q = useQuery({ queryKey: ['admin', 'live'], queryFn: adminApi.live, refetchInterval: 10_000 });
   const events = useLive((s) => s.events);
   const end = useMutation({
@@ -223,7 +238,7 @@ export function LiveNow() {
   return (
     <>
       <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-        <Stat icon="person" label="Şu an bağlı" value={fmt(d.online)} tone="live" />
+        <Stat icon="person" label="Şu an bağlı" value={online.data ? fmt(online.data.total) : '…'} tone="live" />
         <Stat icon="groups" label="Hareketli oda" value={fmt(d.rooms.length)} sub="son 60 dakikada mesaj alan" />
         <Stat icon="info" label="Oda mesajı · 1 saat" value={fmt(d.messagesLastHour)} />
         <Stat
