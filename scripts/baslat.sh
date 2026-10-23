@@ -47,24 +47,26 @@ docker_hazir() {
   wait "$pid"
 }
 
+# Başarısızlıkta die etmez, 1 döner: çağıran Homebrew yoluna geçebilsin.
+# (Docker Desktop yarı açık kalabiliyor: sokete yanıt verir ama konteyner
+#  başlatamaz. Böyle bir durumda tek seçenek kalmasın.)
 altyapi_docker() {
   for img in postgres:16 redis:7; do
     docker image inspect "$img" >/dev/null 2>&1 && continue
     info "Docker görüntüsü indiriliyor: $img (ilk seferde birkaç dakika)"
-    docker pull "$img" || die "$img indirilemedi. İnternet bağlantını kontrol et."
+    docker pull "$img" || return 1
   done
 
   info "Veritabanı ve Redis başlatılıyor (Docker)…"
   docker start lt-pg >/dev/null 2>&1 || docker run -d --name lt-pg \
     -e POSTGRES_USER=letstalkin -e POSTGRES_PASSWORD=devpassword123 \
     -e POSTGRES_DB=letstalkin_dev -e TZ=UTC -e PGTZ=UTC -p 127.0.0.1:5433:5432 \
-    -v lt-pgdata:/var/lib/postgresql/data postgres:16 >/dev/null
+    -v lt-pgdata:/var/lib/postgresql/data postgres:16 >/dev/null 2>&1 || return 1
   docker start lt-redis >/dev/null 2>&1 || docker run -d --name lt-redis \
-    -p 127.0.0.1:6379:6379 redis:7 >/dev/null
+    -p 127.0.0.1:6379:6379 redis:7 >/dev/null 2>&1 || return 1
 
   for _ in $(seq 1 60); do pg_up && redis_up && break; sleep 1; done
-  pg_up    || die "Veritabanı açılmadı. 'docker logs lt-pg' ile bak."
-  redis_up || die "Redis açılmadı. 'docker logs lt-redis' ile bak."
+  pg_up && redis_up
 }
 
 altyapi_brew() {
@@ -104,11 +106,13 @@ altyapi_brew() {
 
 if ! pg_up || ! redis_up; then
   if docker_hazir; then
-    altyapi_docker
+    altyapi_docker || {
+      info "Docker ile başlatılamadı (Docker Desktop yarı açık olabilir) — Homebrew yoluna geçiliyor."
+      altyapi_brew
+    }
   else
-    if command -v docker >/dev/null; then
-      info "Docker kurulu ama yanıt vermiyor (Docker Desktop kapalı olabilir) — Homebrew ile kuruluma geçiliyor."
-    fi
+    [ -n "$(command -v docker || true)" ] &&
+      info "Docker yanıt vermiyor (Docker Desktop kapalı olabilir) — Homebrew yoluna geçiliyor."
     altyapi_brew
   fi
 fi
