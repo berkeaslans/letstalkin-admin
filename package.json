@@ -7,6 +7,7 @@
     "node": ">=20.19"
   },
   "scripts": {
+    "baslat": "bash scripts/baslat.sh",
     "dev": "vite --port 5190",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 5190",
