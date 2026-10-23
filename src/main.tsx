@@ -19,6 +19,7 @@ function page<M extends Record<string, unknown>>(load: () => Promise<M>, name: k
 }
 const Audience = page(() => import('@/pages/Analytics'), 'Audience');
 const Usage = page(() => import('@/pages/Analytics'), 'Usage');
+const GooglePage = page(() => import('@/pages/Google'), 'GooglePage');
 const Audit = page(() => import('@/pages/Audit'), 'Audit');
 const Broadcast = page(() => import('@/pages/Broadcast'), 'Broadcast');
 const Showcase = page(() => import('@/pages/Catalog'), 'Showcase');
@@ -81,6 +82,7 @@ const PAGES: Record<string, ComponentType> = {
   '/ekonomi/urunler': Products,
   '/analiz': Usage,
   '/analiz/kitle': Audience,
+  '/analiz/google': GooglePage,
   '/sistem': Settings,
   '/sistem/bayraklar': Flags,
   '/sistem/durum': Status,

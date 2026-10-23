@@ -82,6 +82,10 @@ export type ShowDetail = Res<'/api/v1/admin/catalog/shows/{tmdbId}', 'get'>;
 export type ShowSort = NonNullable<Q<'/api/v1/admin/catalog/shows'>['sort']>;
 export type Featured = Res<'/api/v1/admin/catalog/featured', 'get'>;
 export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
+export type GoogleStatus = Res<'/api/v1/admin/google/status', 'get'>;
+export type GaReport = Res<'/api/v1/admin/google/analytics', 'get'>;
+export type ScReport = Res<'/api/v1/admin/google/search', 'get'>;
+export type AdsReport = Res<'/api/v1/admin/google/adsense', 'get'>;
 export type FeedbackPage = Res<'/api/v1/admin/feedback', 'get'>;
 export type Feedback = FeedbackPage['items'][number];
 export type FeedbackStatus = Feedback['status'];
@@ -252,6 +256,10 @@ export const adminApi = {
 
   // Analiz
   analytics: (days: number) => api.get<Analytics>('/admin/analytics/overview', { days }),
+  googleStatus: () => api.get<GoogleStatus>('/admin/google/status'),
+  googleAnalytics: (days: number) => api.get<GaReport>('/admin/google/analytics', { days }),
+  googleSearch: (days: number) => api.get<ScReport>('/admin/google/search', { days }),
+  googleAdsense: (days: number) => api.get<AdsReport>('/admin/google/adsense', { days }),
 
   audit: (p: { action?: AuditKind; targetId?: string; cursor?: string }) => api.get<AuditPage>('/admin/audit', { ...p, limit: 50 }),
 

@@ -121,6 +121,7 @@ export const NAV: NavGroup[] = [
     subs: [
       { to: '/analiz', label: 'Kullanım', desc: 'Hangi özellik ne kadar kullanılıyor' },
       { to: '/analiz/kitle', label: 'Kitle', desc: 'Aktif kullanıcı, platform, dil, elde tutma' },
+      { to: '/analiz/google', label: 'Google', desc: 'Analytics, Search Console ve AdSense', admin: true },
     ],
   },
   {

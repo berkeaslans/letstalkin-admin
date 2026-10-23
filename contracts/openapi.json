@@ -30722,6 +30722,661 @@
         }
       }
     },
+    "/api/v1/admin/google/status": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "serviceAccount": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceAccountInvalid": {
+                      "type": "boolean"
+                    },
+                    "analytics": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "propertyId": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "configured",
+                        "propertyId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "searchConsole": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "site": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "configured",
+                        "site"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "adsense": {
+                      "type": "object",
+                      "properties": {
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "account": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "configured",
+                        "account"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "serviceAccount",
+                    "serviceAccountInvalid",
+                    "analytics",
+                    "searchConsole",
+                    "adsense"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/google/analytics": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 28
+            },
+            "in": "query",
+            "name": "days",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totals": {
+                      "type": "object",
+                      "properties": {
+                        "activeUsers": {
+                          "type": "number"
+                        },
+                        "newUsers": {
+                          "type": "number"
+                        },
+                        "sessions": {
+                          "type": "number"
+                        },
+                        "pageViews": {
+                          "type": "number"
+                        },
+                        "avgSessionSec": {
+                          "type": "number"
+                        },
+                        "engagementRate": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "activeUsers",
+                        "newUsers",
+                        "sessions",
+                        "pageViews",
+                        "avgSessionSec",
+                        "engagementRate"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "realtime": {
+                      "type": "number"
+                    },
+                    "daily": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "day": {
+                            "type": "string"
+                          },
+                          "users": {
+                            "type": "number"
+                          },
+                          "sessions": {
+                            "type": "number"
+                          },
+                          "pageViews": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "day",
+                          "users",
+                          "sessions",
+                          "pageViews"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "channels": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "devices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "cachedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "totals",
+                    "realtime",
+                    "daily",
+                    "channels",
+                    "countries",
+                    "devices",
+                    "platforms",
+                    "pages",
+                    "cachedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/google/search": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 28
+            },
+            "in": "query",
+            "name": "days",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "range": {
+                      "type": "object",
+                      "properties": {
+                        "startDate": {
+                          "type": "string"
+                        },
+                        "endDate": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "startDate",
+                        "endDate"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "totals": {
+                      "type": "object",
+                      "properties": {
+                        "clicks": {
+                          "type": "number"
+                        },
+                        "impressions": {
+                          "type": "number"
+                        },
+                        "ctr": {
+                          "type": "number"
+                        },
+                        "position": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "clicks",
+                        "impressions",
+                        "ctr",
+                        "position"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "daily": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "day": {
+                            "type": "string"
+                          },
+                          "clicks": {
+                            "type": "number"
+                          },
+                          "impressions": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "day",
+                          "clicks",
+                          "impressions"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "queries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "clicks": {
+                            "type": "number"
+                          },
+                          "impressions": {
+                            "type": "number"
+                          },
+                          "ctr": {
+                            "type": "number"
+                          },
+                          "position": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "clicks",
+                          "impressions",
+                          "ctr",
+                          "position"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "clicks": {
+                            "type": "number"
+                          },
+                          "impressions": {
+                            "type": "number"
+                          },
+                          "ctr": {
+                            "type": "number"
+                          },
+                          "position": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "clicks",
+                          "impressions",
+                          "ctr",
+                          "position"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "clicks": {
+                            "type": "number"
+                          },
+                          "impressions": {
+                            "type": "number"
+                          },
+                          "ctr": {
+                            "type": "number"
+                          },
+                          "position": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "clicks",
+                          "impressions",
+                          "ctr",
+                          "position"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "devices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "clicks": {
+                            "type": "number"
+                          },
+                          "impressions": {
+                            "type": "number"
+                          },
+                          "ctr": {
+                            "type": "number"
+                          },
+                          "position": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "clicks",
+                          "impressions",
+                          "ctr",
+                          "position"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "cachedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "range",
+                    "totals",
+                    "daily",
+                    "queries",
+                    "pages",
+                    "countries",
+                    "devices",
+                    "cachedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/google/adsense": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 28
+            },
+            "in": "query",
+            "name": "days",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "currency": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "totals": {
+                      "type": "object",
+                      "properties": {
+                        "earnings": {
+                          "type": "number"
+                        },
+                        "pageViews": {
+                          "type": "number"
+                        },
+                        "impressions": {
+                          "type": "number"
+                        },
+                        "clicks": {
+                          "type": "number"
+                        },
+                        "rpm": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "earnings",
+                        "pageViews",
+                        "impressions",
+                        "clicks",
+                        "rpm"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "daily": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "day": {
+                            "type": "string"
+                          },
+                          "earnings": {
+                            "type": "number"
+                          },
+                          "pageViews": {
+                            "type": "number"
+                          },
+                          "clicks": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "day",
+                          "earnings",
+                          "pageViews",
+                          "clicks"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "sites": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "earnings": {
+                            "type": "number"
+                          },
+                          "pageViews": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "earnings",
+                          "pageViews"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "cachedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "currency",
+                    "totals",
+                    "daily",
+                    "sites",
+                    "cachedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/reports": {
       "get": {
         "tags": [

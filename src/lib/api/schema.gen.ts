@@ -15184,6 +15184,270 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/google/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            serviceAccount: string | null;
+                            serviceAccountInvalid: boolean;
+                            analytics: {
+                                configured: boolean;
+                                propertyId: string | null;
+                            };
+                            searchConsole: {
+                                configured: boolean;
+                                site: string | null;
+                            };
+                            adsense: {
+                                configured: boolean;
+                                account: string | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/google/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            totals: {
+                                activeUsers: number;
+                                newUsers: number;
+                                sessions: number;
+                                pageViews: number;
+                                avgSessionSec: number;
+                                engagementRate: number;
+                            };
+                            realtime: number;
+                            daily: {
+                                day: string;
+                                users: number;
+                                sessions: number;
+                                pageViews: number;
+                            }[];
+                            channels: {
+                                key: string;
+                                value: number;
+                            }[];
+                            countries: {
+                                key: string;
+                                value: number;
+                            }[];
+                            devices: {
+                                key: string;
+                                value: number;
+                            }[];
+                            platforms: {
+                                key: string;
+                                value: number;
+                            }[];
+                            pages: {
+                                key: string;
+                                value: number;
+                            }[];
+                            cachedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/google/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            range: {
+                                startDate: string;
+                                endDate: string;
+                            };
+                            totals: {
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            };
+                            daily: {
+                                day: string;
+                                clicks: number;
+                                impressions: number;
+                            }[];
+                            queries: {
+                                key: string;
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            }[];
+                            pages: {
+                                key: string;
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            }[];
+                            countries: {
+                                key: string;
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            }[];
+                            devices: {
+                                key: string;
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            }[];
+                            cachedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/google/adsense": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            currency: string | null;
+                            totals: {
+                                earnings: number;
+                                pageViews: number;
+                                impressions: number;
+                                clicks: number;
+                                rpm: number;
+                            };
+                            daily: {
+                                day: string;
+                                earnings: number;
+                                pageViews: number;
+                                clicks: number;
+                            }[];
+                            sites: {
+                                key: string;
+                                earnings: number;
+                                pageViews: number;
+                            }[];
+                            cachedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports": {
         parameters: {
             query?: never;
