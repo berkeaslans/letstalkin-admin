@@ -148,6 +148,16 @@ npx prisma generate --silent >/dev/null 2>&1 || npx prisma generate >/dev/null
 npx prisma migrate deploy >/dev/null
 ok "Veritabanı şeması güncel"
 
+# Veritabanı bomboşsa örnek veriyi kendiliğinden ekle: aksi hâlde panel
+# açılır ama girilecek hesap olmaz ve "şifre hatalı" sanılır.
+if [ "$SEED" = 0 ]; then
+  KAYITLI="$(node -e 'const{PrismaClient}=require("@prisma/client");const p=new PrismaClient();p.user.count().then(n=>console.log(n)).catch(()=>console.log("?")).finally(()=>p.$disconnect())' 2>/dev/null || echo '?')"
+  if [ "$KAYITLI" = "0" ]; then
+    info "Veritabanı boş — örnek veri ekleniyor (giriş yapılabilsin diye)."
+    SEED=1
+  fi
+fi
+
 if [ "$SEED" = 1 ]; then
   info "Örnek veri ekleniyor…"
   if npm run seed:demo; then
