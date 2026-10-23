@@ -21960,7 +21960,9 @@
                 "room",
                 "match",
                 "blocklist",
-                "setting"
+                "setting",
+                "publish",
+                "quiz"
               ]
             },
             "in": "query",
@@ -23913,7 +23915,12 @@
                             "type": "string"
                           },
                           "kind": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                              "permanent",
+                              "temporary",
+                              "official_finale"
+                            ]
                           },
                           "status": {
                             "type": "string",
@@ -23923,7 +23930,12 @@
                             ]
                           },
                           "privacy": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "requestToJoin",
+                              "inviteOnly"
+                            ]
                           },
                           "memberCount": {
                             "type": "number"
@@ -24038,7 +24050,12 @@
                       "type": "string"
                     },
                     "kind": {
-                      "type": "string"
+                      "type": "string",
+                      "enum": [
+                        "permanent",
+                        "temporary",
+                        "official_finale"
+                      ]
                     },
                     "status": {
                       "type": "string",
@@ -24048,7 +24065,12 @@
                       ]
                     },
                     "privacy": {
-                      "type": "string"
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "requestToJoin",
+                        "inviteOnly"
+                      ]
                     },
                     "memberCount": {
                       "type": "number"
@@ -24101,6 +24123,18 @@
                     },
                     "description": {
                       "type": "string",
+                      "nullable": true
+                    },
+                    "spoilerRule": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "summaryEnabled": {
+                      "type": "boolean"
+                    },
+                    "closesAt": {
+                      "type": "string",
+                      "format": "date-time",
                       "nullable": true
                     },
                     "members": {
@@ -24232,11 +24266,95 @@
                     "owner",
                     "createdAt",
                     "description",
+                    "spoilerRule",
+                    "summaryEnabled",
+                    "closesAt",
                     "members",
                     "messages",
                     "pendingRequests"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "nullable": true
+                  },
+                  "privacy": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "requestToJoin",
+                      "inviteOnly"
+                    ]
+                  },
+                  "spoilerRule": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "nullable": true
+                  },
+                  "summaryEnabled": {
+                    "type": "boolean"
+                  },
+                  "closesAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
                 }
               }
             }
@@ -24572,6 +24690,1227 @@
             },
             "in": "path",
             "name": "userId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/publish/accounts": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarPath": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "tick": {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "yellow",
+                              "blue"
+                            ]
+                          },
+                          "accountType": {
+                            "type": "string"
+                          },
+                          "followerCount": {
+                            "type": "number"
+                          },
+                          "role": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "avatarPath",
+                          "tick",
+                          "accountType",
+                          "followerCount",
+                          "role"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "suggestions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarPath": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "tick": {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "yellow",
+                              "blue"
+                            ]
+                          },
+                          "accountType": {
+                            "type": "string"
+                          },
+                          "followerCount": {
+                            "type": "number"
+                          },
+                          "role": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "avatarPath",
+                          "tick",
+                          "accountType",
+                          "followerCount",
+                          "role"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "accounts",
+                    "suggestions"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "maxItems": 30
+                  }
+                },
+                "required": [
+                  "userIds"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/publish/post": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asUserId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Adına yayın yapılacak hesap (yayın hesapları listesinden)"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "post",
+                      "review",
+                      "poll"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 4000
+                  },
+                  "mediaPaths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 10
+                  },
+                  "showTmdbId": {
+                    "type": "string"
+                  },
+                  "season": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "episode": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10
+                  },
+                  "isSpoiler": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "spoilerNote": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "pollOptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "minItems": 2,
+                    "maxItems": 4
+                  },
+                  "pollDurationHours": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 168
+                  }
+                },
+                "required": [
+                  "asUserId",
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/publish/room": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asUserId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Adına yayın yapılacak hesap (yayın hesapları listesinden)"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 300
+                  },
+                  "showTmdbId": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "permanent",
+                      "temporary",
+                      "official_finale"
+                    ]
+                  },
+                  "privacy": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "requestToJoin",
+                      "inviteOnly"
+                    ]
+                  },
+                  "spoilerRule": {
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "summaryEnabled": {
+                    "type": "boolean"
+                  },
+                  "closesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "welcome": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Oda açılınca hesap adına ilk mesaj"
+                  }
+                },
+                "required": [
+                  "asUserId",
+                  "name",
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/publish/room/{id}/message": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asUserId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Adına yayın yapılacak hesap (yayın hesapları listesinden)"
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "asUserId",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/publish/quiz": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asUserId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Adına yayın yapılacak hesap (yayın hesapları listesinden)"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100
+                  },
+                  "showTmdbId": {
+                    "type": "string"
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "enum": [
+                      "easy",
+                      "medium",
+                      "hard"
+                    ]
+                  },
+                  "secondsPerQuestion": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 60
+                  },
+                  "startsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "rewardStickerId": {
+                    "type": "string"
+                  },
+                  "questions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "options": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          "minItems": 4,
+                          "maxItems": 4
+                        },
+                        "correctIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 3
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "options",
+                        "correctIndex"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 20
+                  }
+                },
+                "required": [
+                  "asUserId",
+                  "title",
+                  "questions"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/quizzes": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "scheduled",
+                "live",
+                "finished"
+              ],
+              "default": "all"
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "in": "query",
+            "name": "q",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "scheduled",
+                              "live",
+                              "finished"
+                            ]
+                          },
+                          "difficulty": {
+                            "type": "string"
+                          },
+                          "secondsPerQuestion": {
+                            "type": "number"
+                          },
+                          "showTmdbId": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "rewardStickerId": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "currentQuestion": {
+                            "type": "number"
+                          },
+                          "startsAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "questionCount": {
+                            "type": "number"
+                          },
+                          "attemptCount": {
+                            "type": "number"
+                          },
+                          "creator": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "avatarPath": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "status",
+                          "difficulty",
+                          "secondsPerQuestion",
+                          "showTmdbId",
+                          "rewardStickerId",
+                          "currentQuestion",
+                          "startsAt",
+                          "createdAt",
+                          "questionCount",
+                          "attemptCount",
+                          "creator"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/quizzes/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "scheduled",
+                        "live",
+                        "finished"
+                      ]
+                    },
+                    "difficulty": {
+                      "type": "string"
+                    },
+                    "secondsPerQuestion": {
+                      "type": "number"
+                    },
+                    "showTmdbId": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "rewardStickerId": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "currentQuestion": {
+                      "type": "number"
+                    },
+                    "startsAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "questionCount": {
+                      "type": "number"
+                    },
+                    "attemptCount": {
+                      "type": "number"
+                    },
+                    "creator": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "avatarPath": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "tick": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "yellow",
+                            "blue"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "questions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "options": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            },
+                            "minItems": 4,
+                            "maxItems": 4
+                          },
+                          "correctIndex": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "order": {
+                            "type": "number"
+                          },
+                          "answered": {
+                            "type": "number"
+                          },
+                          "correct": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "options",
+                          "correctIndex",
+                          "order",
+                          "answered",
+                          "correct"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "leaderboard": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "number"
+                          },
+                          "score": {
+                            "type": "number"
+                          },
+                          "streakMax": {
+                            "type": "number"
+                          },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "avatarPath": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "rank",
+                          "score",
+                          "streakMax",
+                          "user"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "status",
+                    "difficulty",
+                    "secondsPerQuestion",
+                    "showTmdbId",
+                    "rewardStickerId",
+                    "currentQuestion",
+                    "startsAt",
+                    "createdAt",
+                    "questionCount",
+                    "attemptCount",
+                    "creator",
+                    "questions",
+                    "leaderboard"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100
+                  },
+                  "showTmdbId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "enum": [
+                      "easy",
+                      "medium",
+                      "hard"
+                    ]
+                  },
+                  "secondsPerQuestion": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 60
+                  },
+                  "startsAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                  },
+                  "rewardStickerId": {
+                    "type": "string"
+                  },
+                  "questions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "options": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          "minItems": 4,
+                          "maxItems": 4
+                        },
+                        "correctIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 3
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "options",
+                        "correctIndex"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 20
+                  }
+                },
+                "required": [
+                  "title",
+                  "questions"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/quizzes/{id}/start": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/quizzes/{id}/end": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "maxLength": 300
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
             "required": true
           }
         ],

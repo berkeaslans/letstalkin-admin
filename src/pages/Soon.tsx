@@ -5,11 +5,6 @@ import { Card } from '@/components/ui/misc';
 // Backend ucu henüz olmayan bölümler: neyin geleceğini açıkça yazar (sahte veri göstermez).
 const PLAN: Record<string, string[]> = {
   '/canli': ['Aktif odalar ve canlı yayınlar, izleyici sayılarıyla', 'Odayı izle, uyarı gönder, oturumu sonlandır', 'Canlı mesaj akışı'],
-  '/canli/quiz': [
-    'Panelden quiz oluştur: sorular, şıklar, süre, ödül (coin / sticker)',
-    'Planla, başlat, iptal et',
-    'Canlı skor tablosu ve ödül dağıtımı',
-  ],
   '/moderasyon/geri-bildirim': ['Uygulama içi hata ve öneri bildirimleri', 'Yanıtla, çözüldü işaretle'],
   '/katalog': ['TMDB önbelleğindeki yapımlar, sayfa trafiği', 'Önbelleği yenile, yapımı gizle'],
   '/katalog/vitrin': ['Ana sayfa, keşfet ve "ne izlesem" listelerini sırala'],
@@ -17,7 +12,7 @@ const PLAN: Record<string, string[]> = {
   '/ekonomi/coin': ['Coin dolaşımı ve tüm hareketler', 'Kullanıcı coin düzeltmesi zaten kullanıcı çekmecesinde hazır'],
   '/ekonomi/sticker': ['Yeni sticker basımı: seri, nadirlik, adet, fiyat', 'Stok ve satış takibi'],
   '/ekonomi/pazar': ['İkinci el ilanlar ve satışlar', 'Şüpheli işlem işaretleme, ilanı kaldırma'],
-  '/bildirimler': ['Herkese, bir segmente veya tek kişiye push / uygulama içi / e-posta', 'Planlı gönderim, açılma oranı'],
+  '/yayin/bildirim': ['Herkese, bir segmente veya tek kişiye push / uygulama içi / e-posta', 'Planlı gönderim, açılma oranı'],
   '/analiz': ['Özellik başına kullanıcı sayısı, elde tutma'],
   '/analiz/aktivite': ['Kayıt, gönderi, oda, satın alma akışı, gerçek zamanlı'],
   '/sistem/ayarlar': [

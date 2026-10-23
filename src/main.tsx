@@ -12,6 +12,7 @@ import { Flags } from '@/pages/Flags';
 import { Forbidden, Login } from '@/pages/Login';
 import { Content, Match, Rooms, Rules, Summary } from '@/pages/Moderation';
 import { Overview } from '@/pages/Overview';
+import { Publish, PublishAccounts, Quizzes } from '@/pages/Publish';
 import { Reports } from '@/pages/Reports';
 import { SeriesPages } from '@/pages/SeriesPages';
 import { Soon } from '@/pages/Soon';
@@ -34,6 +35,9 @@ const PAGES: Record<string, ComponentType> = {
   '/kullanicilar/tikler': Ticks,
   '/kullanicilar/sayfalar': SeriesPages,
   '/kullanicilar/ekip': Team,
+  '/yayin': Publish,
+  '/yayin/quizler': Quizzes,
+  '/yayin/hesaplar': PublishAccounts,
   '/sistem': Flags,
   '/sistem/denetim': Audit,
 };

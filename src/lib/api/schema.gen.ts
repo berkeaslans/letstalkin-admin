@@ -10936,7 +10936,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    action?: "tick" | "role" | "ban" | "unban" | "coin" | "flag" | "report" | "verification" | "series_page" | "password_reset" | "sessions" | "email" | "profile" | "account_type" | "trusted" | "deletion" | "auto_hide" | "content" | "restore" | "room" | "match" | "blocklist" | "setting";
+                    action?: "tick" | "role" | "ban" | "unban" | "coin" | "flag" | "report" | "verification" | "series_page" | "password_reset" | "sessions" | "email" | "profile" | "account_type" | "trusted" | "deletion" | "auto_hide" | "content" | "restore" | "room" | "match" | "blocklist" | "setting" | "publish" | "quiz";
                     targetId?: string;
                     cursor?: string;
                     limit?: number;
@@ -12074,10 +12074,12 @@ export interface paths {
                             items: {
                                 id: string;
                                 name: string;
-                                kind: string;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
                                 /** @enum {string} */
                                 status: "active" | "archived";
-                                privacy: string;
+                                /** @enum {string} */
+                                privacy: "public" | "requestToJoin" | "inviteOnly";
                                 memberCount: number;
                                 messageCount: number;
                                 reportCount: number;
@@ -12133,10 +12135,12 @@ export interface paths {
                         "application/json": {
                             id: string;
                             name: string;
-                            kind: string;
+                            /** @enum {string} */
+                            kind: "permanent" | "temporary" | "official_finale";
                             /** @enum {string} */
                             status: "active" | "archived";
-                            privacy: string;
+                            /** @enum {string} */
+                            privacy: "public" | "requestToJoin" | "inviteOnly";
                             memberCount: number;
                             messageCount: number;
                             reportCount: number;
@@ -12151,6 +12155,10 @@ export interface paths {
                             /** Format: date-time */
                             createdAt: string;
                             description: string | null;
+                            spoilerRule: string | null;
+                            summaryEnabled: boolean;
+                            /** Format: date-time */
+                            closesAt: string | null;
                             members: {
                                 id: string;
                                 username: string;
@@ -12188,7 +12196,45 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        description?: string | null;
+                        /** @enum {string} */
+                        privacy?: "public" | "requestToJoin" | "inviteOnly";
+                        spoilerRule?: string | null;
+                        summaryEnabled?: boolean;
+                        /** Format: date-time */
+                        closesAt?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/v1/admin/rooms/{id}/status": {
@@ -12408,6 +12454,627 @@ export interface paths {
                 content: {
                     "application/json": {
                         active: boolean;
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/publish/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accounts: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                accountType: string;
+                                followerCount: number;
+                                role: string;
+                            }[];
+                            suggestions: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                accountType: string;
+                                followerCount: number;
+                                role: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        userIds: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/publish/post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description Adına yayın yapılacak hesap (yayın hesapları listesinden)
+                         */
+                        asUserId: string;
+                        /** @enum {string} */
+                        type: "post" | "review" | "poll";
+                        text?: string;
+                        mediaPaths?: string[];
+                        showTmdbId?: string;
+                        season?: number;
+                        episode?: number;
+                        rating?: number;
+                        /** @default false */
+                        isSpoiler?: boolean;
+                        spoilerNote?: string;
+                        pollOptions?: string[];
+                        pollDurationHours?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/publish/room": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description Adına yayın yapılacak hesap (yayın hesapları listesinden)
+                         */
+                        asUserId: string;
+                        name: string;
+                        description?: string;
+                        showTmdbId?: string;
+                        /** @enum {string} */
+                        kind: "permanent" | "temporary" | "official_finale";
+                        /** @enum {string} */
+                        privacy?: "public" | "requestToJoin" | "inviteOnly";
+                        spoilerRule?: string;
+                        summaryEnabled?: boolean;
+                        /** Format: date-time */
+                        closesAt?: string;
+                        /** @description Oda açılınca hesap adına ilk mesaj */
+                        welcome?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/publish/room/{id}/message": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description Adına yayın yapılacak hesap (yayın hesapları listesinden)
+                         */
+                        asUserId: string;
+                        text: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/publish/quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description Adına yayın yapılacak hesap (yayın hesapları listesinden)
+                         */
+                        asUserId: string;
+                        title: string;
+                        showTmdbId?: string;
+                        /** @enum {string} */
+                        difficulty?: "easy" | "medium" | "hard";
+                        secondsPerQuestion?: number;
+                        /** Format: date-time */
+                        startsAt?: string;
+                        rewardStickerId?: string;
+                        questions: {
+                            text: string;
+                            options: string[];
+                            correctIndex: number;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/quizzes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "all" | "scheduled" | "live" | "finished";
+                    q?: string;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                title: string;
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                difficulty: string;
+                                secondsPerQuestion: number;
+                                showTmdbId: string | null;
+                                rewardStickerId: string | null;
+                                currentQuestion: number;
+                                /** Format: date-time */
+                                startsAt: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                questionCount: number;
+                                attemptCount: number;
+                                creator: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/quizzes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            /** @enum {string} */
+                            status: "scheduled" | "live" | "finished";
+                            difficulty: string;
+                            secondsPerQuestion: number;
+                            showTmdbId: string | null;
+                            rewardStickerId: string | null;
+                            currentQuestion: number;
+                            /** Format: date-time */
+                            startsAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            questionCount: number;
+                            attemptCount: number;
+                            creator: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } | null;
+                            questions: {
+                                text: string;
+                                options: string[];
+                                correctIndex: number;
+                                order: number;
+                                answered: number;
+                                correct: number;
+                            }[];
+                            leaderboard: {
+                                rank: number;
+                                score: number;
+                                streakMax: number;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title: string;
+                        showTmdbId?: string | null;
+                        /** @enum {string} */
+                        difficulty?: "easy" | "medium" | "hard";
+                        secondsPerQuestion?: number;
+                        /** Format: date-time */
+                        startsAt?: string | null;
+                        rewardStickerId?: string;
+                        questions: {
+                            text: string;
+                            options: string[];
+                            correctIndex: number;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/quizzes/{id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/quizzes/{id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
                         note?: string;
                     };
                 };

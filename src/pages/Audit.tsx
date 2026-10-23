@@ -14,7 +14,7 @@ const KIND: Record<string, [string, IconName, 'yellow' | 'blue' | 'live' | 'up' 
   ban: ['Ban', 'block', 'live'],
   unban: ['Ban kaldırıldı', 'lock', 'up'],
   coin: ['Coin', 'toll', 'yellow'],
-  flag: ['Bayrak', 'toggle_on', undefined],
+  flag: ['Bayrak', 'settings', undefined],
   report: ['Şikayet', 'crisis_alert', 'live'],
   verification: ['Mavi tik', 'verified', 'blue'],
   series_page: ['Dizi sayfası', 'movie', 'yellow'],
@@ -32,9 +32,13 @@ const KIND: Record<string, [string, IconName, 'yellow' | 'blue' | 'live' | 'up' 
   match: ['Eşleşme', 'person', undefined],
   blocklist: ['Kara liste', 'shield', undefined],
   setting: ['Ayar', 'settings', undefined],
+  publish: ['Yayın', 'campaign', 'yellow'],
+  quiz: ['Quiz', 'bolt', undefined],
 };
 const TICK: Record<string, string> = { none: 'tik yok', yellow: 'sarı', blue: 'mavi' };
 const ROLE: Record<string, string> = { user: 'kullanıcı', moderator: 'moderatör', admin: 'admin' };
+const PUBLISH_KIND: Record<string, string> = { post: 'gönderi', room: 'oda', room_message: 'oda mesajı', quiz: 'quiz' };
+const QUIZ_OP: Record<string, string> = { edit: 'düzenlendi', start: 'başlatıldı', end: 'erken bitirildi', delete: 'silindi' };
 const REPORT_ACTION: Record<string, string> = { none: 'yoksayıldı', hide: 'içerik kaldırıldı', ban: 'kullanıcı banlandı' };
 
 /** detail JSON'unu okunur cümleye çevirir. */
@@ -90,7 +94,15 @@ export function describe(a: AuditRow): string {
         ? 'odadan çıkarıldı'
         : d.op === 'owner'
           ? 'oda sahipliği devredildi'
-          : `oda ${d.to === 'archived' ? 'arşivlendi' : 'yeniden açıldı'}`;
+          : d.op === 'edit'
+            ? 'oda ayarları düzenlendi'
+            : `oda ${d.to === 'archived' ? 'arşivlendi' : 'yeniden açıldı'}`;
+    case 'publish':
+      if (d.op === 'account_add') return 'yayın hesaplarına eklendi';
+      if (d.op === 'account_remove') return 'yayın hesaplarından çıkarıldı';
+      return `adına ${PUBLISH_KIND[String(d.kind)] ?? String(d.kind)} yayınlandı${d.name || d.title ? `: ${d.name ?? d.title}` : ''}`;
+    case 'quiz':
+      return `quiz ${QUIZ_OP[String(d.op)] ?? String(d.op)}${d.title ? `: ${d.title}` : ''}`;
     case 'match':
       return d.active ? 'eşleşme profili açıldı' : 'eşleşme profili kapatıldı';
     case 'blocklist':
@@ -155,6 +167,9 @@ const FILTERS: Array<{ key: AuditKind | 'all'; label: string }> = [
   { key: 'verification', label: 'Mavi tik' },
   { key: 'series_page', label: 'Dizi sayfası' },
   { key: 'flag', label: 'Bayrak' },
+  { key: 'publish', label: 'Yayın' },
+  { key: 'quiz', label: 'Quiz' },
+  { key: 'room', label: 'Oda' },
 ];
 
 export function Audit() {

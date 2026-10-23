@@ -41,6 +41,29 @@ export type RoomRow = RoomPage['items'][number];
 export type RoomDetail = Res<'/api/v1/admin/rooms/{id}', 'get'>;
 export type MatchRow = Res<'/api/v1/admin/match/profiles', 'get'>[number];
 export type AccountType = UserRow['accountType'];
+export type PublishAccounts = Res<'/api/v1/admin/publish/accounts', 'get'>;
+export type PublishAccount = PublishAccounts['accounts'][number];
+export type QuizPage = Res<'/api/v1/admin/quizzes', 'get'>;
+export type QuizRow = QuizPage['items'][number];
+export type QuizDetail = Res<'/api/v1/admin/quizzes/{id}', 'get'>;
+export type QuizStatus = QuizRow['status'];
+type Body<P extends keyof paths, M extends 'post' | 'put'> = paths[P][M] extends {
+  requestBody?: { content: { 'application/json': infer B } };
+}
+  ? B
+  : never;
+export type PublishPost = Body<'/api/v1/admin/publish/post', 'post'>;
+export type PublishRoom = Body<'/api/v1/admin/publish/room', 'post'>;
+export type PublishQuiz = Body<'/api/v1/admin/publish/quiz', 'post'>;
+export type QuizEdit = Body<'/api/v1/admin/quizzes/{id}', 'put'>;
+export interface RoomPatch {
+  name?: string;
+  description?: string | null;
+  privacy?: 'public' | 'requestToJoin' | 'inviteOnly';
+  spoilerRule?: string | null;
+  summaryEnabled?: boolean;
+  closesAt?: string | null;
+}
 type ClearField = 'avatar' | 'cover' | 'bio' | 'displayName' | 'links';
 export interface ProfilePatch {
   username?: string;
@@ -118,9 +141,31 @@ export const adminApi = {
   removeMember: (id: string, userId: string) => request<{ ok: boolean }>(`/admin/rooms/${id}/members/${userId}`, { method: 'DELETE' }),
   roomOwner: (id: string, userId: string, note?: string) =>
     api.post<{ ok: boolean }>(`/admin/rooms/${id}/owner`, { userId, note: note || undefined }),
+  editRoom: (id: string, body: RoomPatch) => request<{ ok: boolean }>(`/admin/rooms/${id}`, { method: 'PATCH', body }),
   matchProfiles: (filter: 'all' | 'reported' | 'mismatch' | 'inactive') => api.get<MatchRow[]>('/admin/match/profiles', { filter }),
   matchActive: (userId: string, active: boolean, note?: string) =>
     api.post<{ ok: boolean }>(`/admin/match/profiles/${userId}/active`, { active, note: note || undefined }),
+
+  // Yayın (seçilen hesap adına)
+  publishAccounts: () => api.get<PublishAccounts>('/admin/publish/accounts'),
+  setPublishAccounts: (userIds: string[]) => api.put<{ ok: boolean }>('/admin/publish/accounts', { userIds }),
+  publishPost: (body: PublishPost) => api.post<{ id: string }>('/admin/publish/post', body),
+  publishRoom: (body: PublishRoom) => api.post<{ id: string }>('/admin/publish/room', body),
+  publishRoomMessage: (roomId: string, asUserId: string, text: string) =>
+    api.post<{ id: string }>(`/admin/publish/room/${roomId}/message`, { asUserId, text }),
+  publishQuiz: (body: PublishQuiz) => api.post<{ id: string }>('/admin/publish/quiz', body),
+  quizzes: (p: { status: QuizStatus | 'all'; q?: string; cursor?: string }) => api.get<QuizPage>('/admin/quizzes', p),
+  quiz: (id: string) => api.get<QuizDetail>(`/admin/quizzes/${id}`),
+  editQuiz: (id: string, body: QuizEdit) => api.put<{ ok: boolean }>(`/admin/quizzes/${id}`, body),
+  startQuiz: (id: string) => api.post<{ ok: boolean }>(`/admin/quizzes/${id}/start`, {}),
+  endQuiz: (id: string, note?: string) => api.post<{ ok: boolean }>(`/admin/quizzes/${id}/end`, { note: note || undefined }),
+  deleteQuiz: (id: string) => request<{ ok: boolean }>(`/admin/quizzes/${id}`, { method: 'DELETE' }),
+  /** Görseli yükler (webp'e çevrilir), gönderiye eklenecek URL'i döner. */
+  uploadImage: (file: File) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return request<{ url: string }>('/media/upload', { method: 'POST', body: fd, query: { prefix: 'post' } });
+  },
 
   audit: (p: { action?: AuditKind; targetId?: string; cursor?: string }) => api.get<AuditPage>('/admin/audit', { ...p, limit: 50 }),
 

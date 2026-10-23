@@ -1,20 +1,23 @@
 // Moderasyon ekranları: İçerik, Odalar, Eşleşme, Kurallar (kara liste + eşik), Özet.
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { create } from 'zustand';
 import { Avatar, Tick } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Drawer } from '@/components/ui/Overlays';
+import { Switch } from '@/components/ui/Switch';
 import { Pills, Segment } from '@/components/ui/Tabs';
-import { adminApi, type ContentItem, type HideKind, mediaUrl } from '@/lib/api/admin';
+import { adminApi, type ContentItem, type HideKind, mediaUrl, type RoomDetail } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
+import { PRIVACY, ROOM_KIND } from './Publish';
 import { REASON, TARGET } from './Reports';
 import { openUser } from './UserDrawer';
 
@@ -182,6 +185,7 @@ export function Content() {
 const useRoom = create<{ id: string | null }>(() => ({ id: null }));
 
 export function Rooms() {
+  const isAdmin = useIsAdmin();
   const [status, setStatus] = useState<'active' | 'archived' | 'reported' | 'all'>('active');
   const [q, setQ] = useState('');
   const term = useDebounced(q.trim());
@@ -206,6 +210,13 @@ export function Rooms() {
             value={status}
             onChange={setStatus}
           />
+          {isAdmin && (
+            <Link to="/yayin?tur=oda" className="ml-auto">
+              <Button size="sm" variant="primary" icon="add_circle">
+                Oda aç
+              </Button>
+            </Link>
+          )}
         </div>
         <div className="px-[18px] pb-3">
           <Search value={q} onChange={setQ} placeholder="Oda adı" />
@@ -238,7 +249,7 @@ export function Rooms() {
                     <td className="px-[18px] py-2.5">
                       <p className="font-semibold">{r.name}</p>
                       <p className="text-[12px] text-faint">
-                        {r.privacy} · {timeAgo(r.createdAt)}
+                        {PRIVACY[r.privacy]} · {timeAgo(r.createdAt)}
                       </p>
                     </td>
                     <td className="px-3 py-2.5 whitespace-nowrap">{r.owner ? `@${r.owner.username}` : '—'}</td>
@@ -274,7 +285,7 @@ function RoomDrawer() {
   const isAdmin = useIsAdmin();
   const close = () => useRoom.setState({ id: null });
   const q = useQuery({ queryKey: ['admin', 'room', id], queryFn: () => adminApi.room(id!), enabled: !!id });
-  const [tab, setTab] = useState<'members' | 'messages'>('members');
+  const [tab, setTab] = useState<'members' | 'messages' | 'settings'>('members');
   const ok = useMod();
   const status = useMutation({
     mutationFn: ({ s, note }: { s: 'active' | 'archived'; note: string }) => adminApi.roomStatus(id!, s, note),
@@ -297,8 +308,8 @@ function RoomDrawer() {
               {r.description && <p className="text-[13.5px] text-sub">{r.description}</p>}
               <div className="flex flex-wrap gap-1.5">
                 {r.status === 'active' ? <Tag tone="up">Aktif</Tag> : <Tag>Arşiv</Tag>}
-                <Tag>{r.kind}</Tag>
-                <Tag>{r.privacy}</Tag>
+                <Tag>{ROOM_KIND[r.kind]}</Tag>
+                <Tag>{PRIVACY[r.privacy]}</Tag>
                 {r.reportCount > 0 && <Tag tone="live">{r.reportCount} şikayet</Tag>}
                 {r.pendingRequests > 0 && <Tag tone="yellow">{r.pendingRequests} katılma isteği</Tag>}
               </div>
@@ -327,12 +338,15 @@ function RoomDrawer() {
                 items={[
                   { key: 'members', label: 'Üyeler', count: r.memberCount },
                   { key: 'messages', label: 'Son mesajlar' },
+                  ...(isAdmin ? [{ key: 'settings' as const, label: 'Ayarlar' }] : []),
                 ]}
                 value={tab}
                 onChange={setTab}
               />
             </div>
-            {tab === 'members' ? (
+            {tab === 'settings' ? (
+              <RoomSettings key={r.id} r={r} />
+            ) : tab === 'members' ? (
               r.members.map((m) => (
                 <div key={m.id} className="flex items-center gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
                   <Avatar src={m.avatarPath} name={m.displayName ?? m.username} size={30} />
@@ -373,26 +387,130 @@ function RoomDrawer() {
                   )}
                 </div>
               ))
-            ) : r.messages.length ? (
-              r.messages.map((m) => (
-                <div key={m.id} className="flex items-start gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
-                  <div className="min-w-0 flex-1">
-                    <Author a={m.author} />
-                    <p className="mt-0.5 text-[13.5px] break-words">{m.text}</p>
-                    <p className="text-[11.5px] text-faint">{timeAgo(m.createdAt)}</p>
-                  </div>
-                  <Button size="xs" variant="ghost" onClick={() => delMsg.mutate(m.id)}>
-                    Sil
-                  </Button>
-                </div>
-              ))
             ) : (
-              <EmptyState icon="info" title="Mesaj yok" />
+              <>
+                {isAdmin && r.status === 'active' && <SendAs roomId={r.id} members={r.members.map((m) => m.id)} />}
+                {r.messages.length ? (
+                  r.messages.map((m) => (
+                    <div key={m.id} className="flex items-start gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
+                      <div className="min-w-0 flex-1">
+                        <Author a={m.author} />
+                        <p className="mt-0.5 text-[13.5px] break-words">{m.text}</p>
+                        <p className="text-[11.5px] text-faint">{timeAgo(m.createdAt)}</p>
+                      </div>
+                      <Button size="xs" variant="ghost" onClick={() => delMsg.mutate(m.id)}>
+                        Sil
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState icon="info" title="Mesaj yok" />
+                )}
+              </>
             )}
           </>
         )
       )}
     </Drawer>
+  );
+}
+
+function SendAs({ roomId, members }: { roomId: string; members: string[] }) {
+  const accounts = useQuery({ queryKey: ['admin', 'publish', 'accounts'], queryFn: adminApi.publishAccounts });
+  const usable = (accounts.data?.accounts ?? []).filter((a) => members.includes(a.id));
+  const [as, setAs] = useState<string | null>(null);
+  const [text, setText] = useState('');
+  const chosen = usable.find((a) => a.id === as) ?? usable[0];
+  const send = useMutation({
+    mutationFn: () => adminApi.publishRoomMessage(roomId, chosen!.id, text.trim()),
+    ...useMod()('Mesaj gönderildi'),
+    onSettled: () => setText(''),
+  });
+  if (!usable.length) return null;
+  return (
+    <form
+      className="flex flex-col gap-2 px-[18px] pb-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (text.trim()) send.mutate();
+      }}
+    >
+      <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-sub">
+        Hesap adına yaz:
+        {usable.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            onClick={() => setAs(a.id)}
+            className={cn('rounded-full px-2.5 py-1 font-semibold', chosen?.id === a.id ? 'bg-yellow/14 text-yellow' : 'bg-elev2 text-sub')}
+          >
+            @{a.username}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input className={field} value={text} onChange={(e) => setText(e.target.value)} placeholder="Odaya mesaj" maxLength={1000} />
+        <Button type="submit" variant="primary" busy={send.isPending} disabled={!text.trim()}>
+          Gönder
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function RoomSettings({ r }: { r: RoomDetail }) {
+  const [name, setName] = useState(r.name);
+  const [desc, setDesc] = useState(r.description ?? '');
+  const [privacy, setPrivacy] = useState<keyof typeof PRIVACY>(r.privacy);
+  const [spoilerRule, setSpoilerRule] = useState(r.spoilerRule ?? '');
+  const [summary, setSummary] = useState(r.summaryEnabled);
+  const save = useMutation({
+    mutationFn: () =>
+      adminApi.editRoom(r.id, {
+        name: name.trim(),
+        description: desc.trim() || null,
+        privacy,
+        spoilerRule: spoilerRule.trim() || null,
+        summaryEnabled: summary,
+      }),
+    ...useMod()('Oda ayarları kaydedildi'),
+  });
+  return (
+    <form
+      className="flex flex-col gap-3 px-[18px] pb-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        save.mutate();
+      }}
+    >
+      <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-sub">
+        Oda adı
+        <input className={field} value={name} onChange={(e) => setName(e.target.value)} maxLength={60} />
+      </label>
+      <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-sub">
+        Açıklama
+        <input className={field} value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={300} />
+      </label>
+      <div className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-sub">
+        Gizlilik
+        <Segment
+          value={privacy}
+          onChange={setPrivacy}
+          items={(Object.keys(PRIVACY) as Array<keyof typeof PRIVACY>).map((k) => ({ key: k, label: PRIVACY[k] }))}
+        />
+      </div>
+      <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-sub">
+        Spoiler kuralı
+        <input className={field} value={spoilerRule} onChange={(e) => setSpoilerRule(e.target.value)} maxLength={120} />
+      </label>
+      <div className="flex items-center justify-between text-[13px]">
+        <span>Yapay zekâ özeti</span>
+        <Switch checked={summary} onChange={setSummary} label="Yapay zekâ özeti" />
+      </div>
+      <Button type="submit" variant="primary" className="self-end" busy={save.isPending} disabled={name.trim().length < 2}>
+        Kaydet
+      </Button>
+    </form>
   );
 }
 

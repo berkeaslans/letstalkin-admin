@@ -113,14 +113,16 @@ export async function request<T>(
   path: string,
   opts: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown; query?: Query; anonymous?: boolean } = {},
 ): Promise<T> {
+  // FormData (dosya yükleme) olduğu gibi gider; tarayıcı multipart sınırını kendi yazar.
+  const form = opts.body instanceof FormData;
   const send = () =>
     fetch(buildUrl(path, opts.query), {
       method: opts.method ?? 'GET',
       headers: {
-        ...(opts.body !== undefined ? { 'content-type': 'application/json' } : {}),
+        ...(opts.body !== undefined && !form ? { 'content-type': 'application/json' } : {}),
         ...(access && !opts.anonymous ? { authorization: `Bearer ${access}` } : {}),
       },
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      body: form ? (opts.body as FormData) : opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     });
 
   if (!access && !opts.anonymous && tokens.hasRefresh()) await refreshSession();

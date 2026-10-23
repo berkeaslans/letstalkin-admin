@@ -33,10 +33,7 @@ export const NAV: NavGroup[] = [
     icon: 'bolt',
     label: 'Canlı',
     live: true,
-    subs: [
-      { to: '/canli', label: 'Odalar ve yayınlar', desc: 'Aktif odalar, yayınlar ve quizler', soon: true },
-      { to: '/canli/quiz', label: 'Quizler', desc: 'Canlı ve planlı yarışmalar', soon: true },
-    ],
+    subs: [{ to: '/canli', label: 'Odalar ve yayınlar', desc: 'Aktif odalar, yayınlar ve quizler', soon: true }],
   },
   {
     key: 'mod',
@@ -78,6 +75,17 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    key: 'yayin',
+    icon: 'campaign',
+    label: 'Yayın',
+    subs: [
+      { to: '/yayin', label: 'Yeni yayın', desc: 'Seçtiğin hesap adına gönderi, anket, oda veya quiz', admin: true },
+      { to: '/yayin/quizler', label: 'Quizler', desc: 'Planlı, canlı ve biten quizler; düzenle, başlat, bitir', admin: true },
+      { to: '/yayin/bildirim', label: 'Bildirim gönder', desc: 'Push, uygulama içi, e-posta', soon: true, admin: true },
+      { to: '/yayin/hesaplar', label: 'Yayın hesapları', desc: 'Panelden adına yayın yapılabilecek hesaplar', admin: true },
+    ],
+  },
+  {
     key: 'katalog',
     icon: 'theaters',
     label: 'Katalog',
@@ -96,12 +104,6 @@ export const NAV: NavGroup[] = [
       { to: '/ekonomi/sticker', label: "Sticker'lar", desc: 'Basım, nadirlik, stok', soon: true },
       { to: '/ekonomi/pazar', label: 'Pazar', desc: 'İkinci el ilanlar ve satışlar', soon: true },
     ],
-  },
-  {
-    key: 'bildirim',
-    icon: 'campaign',
-    label: 'Bildirimler',
-    subs: [{ to: '/bildirimler', label: 'Bildirim gönder', desc: 'Push, uygulama içi, e-posta', soon: true, admin: true }],
   },
   {
     key: 'analiz',

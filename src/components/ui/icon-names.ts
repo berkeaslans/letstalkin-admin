@@ -39,7 +39,6 @@ export const ICON_NAMES = [
   'shield',
   'swap_horiz',
   'theaters',
-  'toggle_on',
   'toll',
   'trending_up',
   'tv',
