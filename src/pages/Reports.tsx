@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import type { IconName } from '@/components/ui/icon-names';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
+import { SavedViews } from '@/components/ui/SavedViews';
 import { Pills } from '@/components/ui/Tabs';
 import { adminApi, mediaUrl, type Report, type ReportStatus } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
@@ -209,6 +210,18 @@ export function Reports() {
         </div>
       </div>
 
+      <div className="px-[18px] pb-3">
+        <SavedViews
+          page="reports"
+          query={{ status, reason, target, sort }}
+          onApply={(v) => {
+            setStatus((v.status as ReportStatus) ?? 'new');
+            setReason((v.reason as Report['reason']) ?? 'all');
+            setTarget((v.target as Report['targetType']) ?? 'all');
+            setSort((v.sort as Sort) ?? 'new');
+          }}
+        />
+      </div>
       {status === 'new' && !!list.length && (
         <div className="flex flex-wrap items-center gap-2 px-[18px] pb-3 text-[12.5px] text-sub">
           <label className="flex cursor-pointer items-center gap-2">

@@ -13,6 +13,7 @@ import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
 import { go, paths } from '@/lib/go';
+import { type RoomMessage, useLive, watchRoom } from '@/lib/realtime';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
@@ -286,8 +287,27 @@ export function Rooms() {
 export function RoomPage() {
   const { id } = useParams<{ id: string }>();
   const isAdmin = useIsAdmin();
-  // Mesajlar canlı izlenebilsin: sayfa açıkken 5 sn'de bir tazelenir.
-  const q = useQuery({ queryKey: ['admin', 'room', id], queryFn: () => adminApi.room(id!), enabled: !!id, refetchInterval: 5_000 });
+  // Mesajlar canlı gelir (socket). Yoklama yalnız bağlantı koptuğunda devreye girer.
+  const connected = useLive((s) => s.status === 'live');
+  const q = useQuery({
+    queryKey: ['admin', 'room', id],
+    queryFn: () => adminApi.room(id!),
+    enabled: !!id,
+    refetchInterval: connected ? false : 8_000,
+  });
+  const qc = useQueryClient();
+  // Canlı düşen mesajlar listenin başına eklenir; kimlikle tekrarı önlenir.
+  const [fresh, setFresh] = useState<RoomMessage[]>([]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: oda değişince biriken mesajlar sıfırlanır
+  useEffect(() => setFresh([]), [id]);
+  useEffect(() => {
+    if (!id || !connected) return;
+    return watchRoom(id, (m) => {
+      setFresh((cur) => (cur.some((x) => x.id === m.id) ? cur : [m, ...cur].slice(0, 100)));
+      // Üye ve mesaj sayacı da tazelensin (sessizce).
+      qc.invalidateQueries({ queryKey: ['admin', 'rooms'] });
+    });
+  }, [id, connected, qc]);
   const ok = useMod();
   const status = useMutation({
     mutationFn: ({ s, note }: { s: 'active' | 'archived'; note: string }) => adminApi.roomStatus(id!, s, note),
@@ -309,6 +329,8 @@ export function RoomPage() {
         <ErrorState error={q.error} retry={() => q.refetch()} />
       </Card>
     );
+  const seen = new Set(r.messages.map((m) => m.id));
+  const merged = [...fresh.filter((m) => !seen.has(m.id)), ...r.messages];
   return (
     <div className="flex flex-col gap-3.5">
       <Card>
@@ -358,12 +380,21 @@ export function RoomPage() {
       </Card>
 
       <div className="grid items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <Card title="Mesajlar" sub={<LiveTag />}>
+        <Card
+          title="Mesajlar"
+          sub={connected ? <LiveTag /> : <span className="text-[12px] text-faint">bağlantı yok · 8 sn'de bir yenileniyor</span>}
+        >
           {isAdmin && r.status === 'active' && <SendAs roomId={r.id} members={r.members.map((m) => m.id)} />}
           <div className="max-h-[640px] overflow-y-auto">
-            {r.messages.length ? (
-              r.messages.map((m) => (
-                <div key={m.id} className="feed-in flex items-start gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
+            {merged.length ? (
+              merged.map((m) => (
+                <div
+                  key={m.id}
+                  className={cn(
+                    'flex items-start gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]',
+                    fresh.some((x) => x.id === m.id) && 'feed-in',
+                  )}
+                >
                   <div className="min-w-0 flex-1">
                     <Author a={m.author} />
                     <p className="mt-0.5 text-[13.5px] break-words">{m.text}</p>

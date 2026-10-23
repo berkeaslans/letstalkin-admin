@@ -262,6 +262,13 @@ export function ShortcutHelp() {
     ],
     ['Bölüme git (g sonra harf)', GO_TO.map((g) => [`g ${g.key}`, g.label] as [string, string])],
     [
+      'Listelerde',
+      [
+        ['Görünüm', 'Filtreyi adlandırıp sakla; paylaşırsan ekip de görür'],
+        ['CSV', 'Filtreye uyan tüm kayıtları indir'],
+      ],
+    ],
+    [
       'Şikayet kuyruğu',
       [
         ['j / k', 'Sonraki / önceki şikayet'],

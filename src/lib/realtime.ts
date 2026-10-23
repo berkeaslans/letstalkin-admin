@@ -135,3 +135,31 @@ function mergeEvents(cur: Activity[], older: Activity[]) {
   const seen = new Set(cur.map((e) => `${e.at}|${e.text}`));
   return [...cur, ...older.filter((e) => !seen.has(`${e.at}|${e.text}`))].slice(0, MAX);
 }
+
+/** Oda mesajı (backend'in room:message yayını). */
+export interface RoomMessage {
+  id: string;
+  text: string;
+  createdAt: string;
+  author: { id: string; username: string; displayName: string | null; avatarPath: string | null; tick: 'none' | 'yellow' | 'blue' } | null;
+}
+
+/**
+ * Bir odayı canlı izler: ekip üye olmadan da dinleyebilir (admin:room:join).
+ * Gelen her mesaj `onMessage`'a düşer. Dönen fonksiyon aboneliği bırakır.
+ */
+export function watchRoom(roomId: string, onMessage: (m: RoomMessage) => void): () => void {
+  const s = socket;
+  if (!s) return () => {};
+  const join = () => s.emit('admin:room:join', roomId);
+  // Bağlantı kopup geri gelirse yeniden katıl.
+  s.on('connect', join);
+  if (s.connected) join();
+  const handler = (m: RoomMessage) => onMessage(m);
+  s.on('room:message', handler);
+  return () => {
+    s.off('room:message', handler);
+    s.off('connect', join);
+    s.emit('room:leave', roomId);
+  };
+}

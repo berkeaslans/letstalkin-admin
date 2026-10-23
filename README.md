@@ -8,9 +8,9 @@ kullandığı için ikisi de buradan yönetilir. Ayrı bir projedir; yalnız bac
 |---|---|
 | Genel bakış | Bugünün sayıları, gündem (bekleyen işler), canlı akış, TV duvar ekranı |
 | Canlı | Hareketli odalar, canlı yayınlar (sonlandır), canlı quizler; anlık olay akışı |
-| Moderasyon | Şikayetler (toplu karar, şikayetçi ve yazar sicili), içerik ara/kaldır/geri al, odalar, eşleşme, kara liste (kural başına yakalama sayısı), özet, geri bildirim kutusu |
+| Moderasyon | Şikayetler (toplu karar, şikayetçi ve yazar sicili), içerik ara/kaldır/geri al, odalar (canlı mesaj akışı), eşleşme, kara liste (kural başına yakalama sayısı), özet, geri bildirim kutusu |
 | Kullanıcılar | Liste (sıralama, CSV), kullanıcı sayfası (tik, rol, ban, coin, profil, hesap, oturumlar, içerik, bağlantılar, ekip notları, geçmiş), mavi tik ve dizi sayfası başvuruları, ekip |
-| Yayın | Seçilen hesap adına gönderi/anket/oda/quiz, quiz yönetimi, toplu bildirim, yayın hesapları |
+| Yayın | Seçilen hesap adına gönderi/anket/oda/quiz, quiz yönetimi (kopyalama dahil), duyuru (hemen ya da ileri tarihe), yayın hesapları |
 | Katalog | Yapımlar ve yapım karnesi, ana sayfa vitrini |
 | Ekonomi | Abonelik geliri, coin, sticker basımı, pazar, merch ürünleri |
 | Analiz | Özellik kullanımı, kitle (DAU/WAU/MAU, platform, elde tutma), Google (GA4, Search Console, AdSense) |
@@ -18,6 +18,10 @@ kullandığı için ikisi de buradan yönetilir. Ayrı bir projedir; yalnız bac
 
 Her ayrıntı (kullanıcı, oda, quiz, sticker, yapım) kendi adresinde açılır; bağlantı
 paylaşılabilir, geri tuşu çalışır.
+
+**Kaydedilmiş görünümler:** kullanıcı, şikayet ve denetim ekranlarında kurduğun
+filtreyi adlandırıp saklarsın; "paylaş" dersen ekipteki herkes görür. Başkasının
+görünümünü yalnız admin siler.
 
 **Klavye:** `⌘K` (Windows'ta `Ctrl+K`) komut paletini açar — tek kutudan kullanıcı,
 oda, quiz, yapım, sticker ve ürün aranır (kimlik yapıştırmak da çalışır), sayfalara
@@ -28,7 +32,9 @@ ve sık yapılan işlere gidilir. `g` sonra bir harf bölüme atlar (`g m` şika
 **Gerçek zamanlı:** panel backend'in Socket.IO `admin` kanalına bağlanır (yalnız
 ekip katılabilir). Kayıt, gönderi, şikayet, oda, quiz, satış, başvuru ve geri
 bildirimler anında düşer; ilgili ekranlar kendini tazeler, şikayet ve başvurularda
-ses çalar. Bağlantı koparsa ekranlar 15 sn'de bir yoklamaya döner (üst barda gösterge).
+ses çalar. Bir odanın sayfası açıkken mesajlar da canlı akar (ekip üye olmadan
+izleyebilir, yazmak için üyelik gerekir). Bağlantı koparsa ekranlar yoklamaya
+döner (üst barda gösterge).
 
 ## Yetki
 

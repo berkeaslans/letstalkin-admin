@@ -885,6 +885,22 @@ export function QuizPage() {
     mutationFn: (d: QuizDraft) => adminApi.editQuiz(id!, { ...draftToBody(d), startsAt: toIso(d.startsAt) ?? null }),
     ...done('Quiz güncellendi'),
   });
+  const [copying, setCopying] = useState(false);
+  const [copyTitle, setCopyTitle] = useState('');
+  const [copyStart, setCopyStart] = useState('');
+  const dup = useMutation({
+    mutationFn: () => adminApi.duplicateQuiz(id!, { title: copyTitle.trim() || undefined, startsAt: toIso(copyStart) ?? null }),
+    onSuccess: ({ id: newId }) => {
+      toast('Quiz kopyalandı', 'success', 'Sorular taşındı; planlı olarak bekliyor');
+      playSound('ok');
+      setCopying(false);
+      setCopyTitle('');
+      setCopyStart('');
+      qc.invalidateQueries({ queryKey: ['admin', 'quizzes'] });
+      nav(paths.quiz(newId));
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
   const r = q.data;
 
   return (
@@ -911,71 +927,112 @@ export function QuizPage() {
             )}
           />
         ) : (
-          <QuizView
-            r={r}
-            actions={
-              <div className="flex flex-wrap gap-2">
-                {r.status === 'scheduled' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      icon="bolt"
-                      busy={start.isPending}
-                      onClick={async () => {
-                        const c = await confirmAction({
-                          title: 'Quiz şimdi başlasın mı?',
-                          body: `İlk soru hemen yayınlanır; katılan ${r.attemptCount} kişiye bildirim gider.`,
-                          ok: 'Başlat',
-                        });
-                        if (c.ok) start.mutate();
-                      }}
-                    >
-                      Şimdi başlat
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
-                      Düzenle
-                    </Button>
+          <>
+            {copying && (
+              <form
+                className="m-[18px] mb-0 flex flex-col gap-3 rounded-[14px] bg-elev2 p-3.5 shadow-[inset_0_0_0_0.5px_var(--color-line2)]"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  dup.mutate();
+                }}
+              >
+                <p className="text-[13px] text-sub">
+                  Bu quizin <b className="text-text">{r.questionCount} sorusu</b> ve ayarları yeni bir quize kopyalanır. Katılımcılar ve
+                  ödül çıkartması taşınmaz; yeni quiz planlı olarak bekler.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label="Yeni başlık" hint={`Boşsa "${r.title} (kopya)"`}>
+                    <input
+                      className={field}
+                      value={copyTitle}
+                      onChange={(e) => setCopyTitle(e.target.value)}
+                      placeholder={`${r.title} (kopya)`}
+                      maxLength={100}
+                    />
+                  </Field>
+                  <Field label="Başlangıç" hint="Boşsa elle başlatırsın">
+                    <input type="datetime-local" className={field} value={copyStart} onChange={(e) => setCopyStart(e.target.value)} />
+                  </Field>
+                </div>
+                <div className="flex gap-2 self-end">
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setCopying(false)}>
+                    Vazgeç
+                  </Button>
+                  <Button type="submit" size="sm" variant="primary" busy={dup.isPending}>
+                    Kopyala
+                  </Button>
+                </div>
+              </form>
+            )}
+            <QuizView
+              r={r}
+              actions={
+                <div className="flex flex-wrap gap-2">
+                  {r.status === 'scheduled' && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        icon="bolt"
+                        busy={start.isPending}
+                        onClick={async () => {
+                          const c = await confirmAction({
+                            title: 'Quiz şimdi başlasın mı?',
+                            body: `İlk soru hemen yayınlanır; katılan ${r.attemptCount} kişiye bildirim gider.`,
+                            ok: 'Başlat',
+                          });
+                          if (c.ok) start.mutate();
+                        }}
+                      >
+                        Şimdi başlat
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+                        Düzenle
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        busy={del.isPending}
+                        onClick={async () => {
+                          const c = await confirmAction({
+                            title: 'Quiz silinsin mi?',
+                            body: 'Başlamamış quiz ve soruları kalıcı silinir.',
+                            ok: 'Sil',
+                            danger: true,
+                          });
+                          if (c.ok) del.mutate();
+                        }}
+                      >
+                        Sil
+                      </Button>
+                    </>
+                  )}
+                  {r.status === 'live' && (
                     <Button
                       size="sm"
                       variant="danger"
-                      busy={del.isPending}
+                      busy={end.isPending}
                       onClick={async () => {
                         const c = await confirmAction({
-                          title: 'Quiz silinsin mi?',
-                          body: 'Başlamamış quiz ve soruları kalıcı silinir.',
-                          ok: 'Sil',
+                          title: 'Quiz şimdi bitirilsin mi?',
+                          body: 'Sıralama o anki puanlarla kesinleşir, ödüller dağıtılır.',
+                          ok: 'Bitir',
                           danger: true,
+                          note: 'optional',
                         });
-                        if (c.ok) del.mutate();
+                        if (c.ok) end.mutate(c.note);
                       }}
                     >
-                      Sil
+                      Erken bitir
                     </Button>
-                  </>
-                )}
-                {r.status === 'live' && (
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    busy={end.isPending}
-                    onClick={async () => {
-                      const c = await confirmAction({
-                        title: 'Quiz şimdi bitirilsin mi?',
-                        body: 'Sıralama o anki puanlarla kesinleşir, ödüller dağıtılır.',
-                        ok: 'Bitir',
-                        danger: true,
-                        note: 'optional',
-                      });
-                      if (c.ok) end.mutate(c.note);
-                    }}
-                  >
-                    Erken bitir
+                  )}
+                  <Button size="sm" variant="outline" icon="add_circle" busy={dup.isPending} onClick={() => setCopying(true)}>
+                    Kopyala
                   </Button>
-                )}
-              </div>
-            }
-          />
+                </div>
+              }
+            />
+          </>
         ))
       )}
     </Card>

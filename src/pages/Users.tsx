@@ -6,6 +6,7 @@ import { Avatar, Tick } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
+import { SavedViews } from '@/components/ui/SavedViews';
 import { Pills } from '@/components/ui/Tabs';
 import { adminApi, type UserFilter, type UserRow, type UserSort } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
@@ -34,7 +35,20 @@ const ROLE_TR = { user: 'Kullanıcı', moderator: 'Moderatör', admin: 'Admin' }
 const date = (d: string | Date | null) =>
   d ? new Date(d).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
 
-export function UserTable({ filter, emptyTitle, emptyBody }: { filter: UserFilter; emptyTitle?: string; emptyBody?: string }) {
+export function UserTable({
+  filter,
+  emptyTitle,
+  emptyBody,
+  views,
+  onFilter,
+}: {
+  filter: UserFilter;
+  emptyTitle?: string;
+  emptyBody?: string;
+  /** Kaydedilmiş görünümler yalnız ana kullanıcı listesinde anlamlı. */
+  views?: boolean;
+  onFilter?: (f: UserFilter) => void;
+}) {
   const [q, setQ] = useState('');
   const [sort, setSort] = useState<UserSort>('new');
   const [exporting, setExporting] = useState(false);
@@ -107,6 +121,19 @@ export function UserTable({ filter, emptyTitle, emptyBody }: { filter: UserFilte
           CSV
         </Button>
       </div>
+      {views && (
+        <div className="px-[18px] pb-3">
+          <SavedViews
+            page="users"
+            query={{ filter, q: term, sort }}
+            onApply={(v) => {
+              onFilter?.((v.filter as UserFilter) ?? 'all');
+              setQ(String(v.q ?? ''));
+              setSort((v.sort as UserSort) ?? 'new');
+            }}
+          />
+        </div>
+      )}
       {res.isLoading ? (
         <Rows />
       ) : res.isError ? (
@@ -225,7 +252,7 @@ export function Users() {
           onChange={setFilter}
         />
       </div>
-      <UserTable filter={filter} emptyBody={FILTER_EMPTY[filter]} />
+      <UserTable filter={filter} emptyBody={FILTER_EMPTY[filter]} views onFilter={setFilter} />
     </Card>
   );
 }

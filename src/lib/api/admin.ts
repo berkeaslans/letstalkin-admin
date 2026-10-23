@@ -31,6 +31,10 @@ export type AuditActor = Res<'/api/v1/admin/audit/actors', 'get'>[number];
 export type SearchHit = Res<'/api/v1/admin/search', 'get'>['items'][number];
 export type SearchKind = SearchHit['kind'];
 export type AdminNote = Res<'/api/v1/admin/users/{id}/notes', 'get'>[number];
+export type SavedView = Res<'/api/v1/admin/views', 'get'>[number];
+export type ViewPage = SavedView['page'];
+export type ViewQuery = Record<string, string | number | boolean>;
+export type BroadcastRow = Res<'/api/v1/admin/broadcasts', 'get'>[number];
 export type AccountInfo = Res<'/api/v1/admin/users/{id}/account', 'get'>;
 export type UserContent = Res<'/api/v1/admin/users/{id}/content', 'get'>;
 export type ContentKind = NonNullable<Q<'/api/v1/admin/users/{id}/content'>['type']>;
@@ -216,8 +220,8 @@ export const adminApi = {
   // Duyuru
   audience: (audience: Audience, username?: string) =>
     api.get<{ count: number; label: string }>('/admin/broadcast/audience', { audience, username }),
-  broadcast: (body: { audience: Audience; username?: string; title: string; body?: string; route?: string }) =>
-    api.post<{ queued: number }>('/admin/broadcast', body),
+  broadcast: (body: { audience: Audience; username?: string; title: string; body?: string; route?: string; scheduledAt?: string }) =>
+    api.post<{ queued: number; scheduled: boolean; id: string }>('/admin/broadcast', body),
 
   // Geri bildirim
   feedback: (p: { status: FeedbackStatus | 'all'; kind?: FeedbackKind; q?: string; cursor?: string }) =>
@@ -274,6 +278,16 @@ export const adminApi = {
   notes: (id: string) => api.get<AdminNote[]>(`/admin/users/${id}/notes`),
   addNote: (id: string, text: string, pinned = false) => api.post<AdminNote[]>(`/admin/users/${id}/notes`, { text, pinned }),
   removeNote: (id: string, noteId: string) => request<AdminNote[]>(`/admin/users/${id}/notes/${noteId}`, { method: 'DELETE' }),
+  views: (page?: ViewPage) => api.get<SavedView[]>('/admin/views', { page }),
+  saveView: (page: ViewPage, name: string, query: ViewQuery, shared: boolean) =>
+    api.post<SavedView[]>('/admin/views', { page, name, query, shared }),
+  removeView: (id: string) => request<SavedView[]>(`/admin/views/${id}`, { method: 'DELETE' }),
+
+  broadcasts: () => api.get<BroadcastRow[]>('/admin/broadcasts'),
+  cancelBroadcast: (id: string) => api.post<{ ok: boolean }>(`/admin/broadcasts/${id}/cancel`, {}),
+  duplicateQuiz: (id: string, body: { asUserId?: string; title?: string; startsAt?: string | null }) =>
+    api.post<{ id: string }>(`/admin/quizzes/${id}/duplicate`, body),
+
   bulkReports: (ids: string[], status: 'reviewed' | 'actioned', action: 'none' | 'hide', note?: string) =>
     api.post<{ closed: number; hidden: number; failed: number }>('/admin/reports/bulk', { ids, status, action, note: note || undefined }),
 

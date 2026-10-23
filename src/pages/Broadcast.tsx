@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { Card, EmptyState, Rows } from '@/components/ui/misc';
+import { Card, EmptyState, Rows, Tag } from '@/components/ui/misc';
 import { type Audience, adminApi } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
@@ -41,6 +41,7 @@ export function Broadcast() {
   const [body, setBody] = useState('');
   const [route, setRoute] = useState('');
   const [custom, setCustom] = useState('');
+  const [when, setWhen] = useState('');
   const [debounced, setDebounced] = useState(username);
   useEffect(() => {
     const t = setTimeout(() => setDebounced(username.trim()), 350);
@@ -52,11 +53,7 @@ export function Broadcast() {
     enabled: audience !== 'user' || debounced.length > 1,
     retry: false,
   });
-  const history = useQuery({
-    queryKey: ['admin', 'audit', 'broadcast'],
-    queryFn: () => adminApi.audit({ action: 'broadcast' }),
-    refetchInterval: 15_000,
-  });
+  const history = useQuery({ queryKey: ['admin', 'broadcasts'], queryFn: adminApi.broadcasts, refetchInterval: 15_000 });
   const finalRoute = route === 'custom' ? custom.trim() : route;
   const send = useMutation({
     mutationFn: () =>
@@ -66,18 +63,39 @@ export function Broadcast() {
         title: title.trim(),
         body: body.trim() || undefined,
         route: finalRoute || undefined,
+        scheduledAt: when ? new Date(when).toISOString() : undefined,
       }),
     onSuccess: (r) => {
-      toast(`${fmt(r.queued)} kişiye gönderiliyor`, 'success', 'Bitince geçmişte gönderilen sayıyı görürsün');
+      if (r.scheduled) {
+        toast(
+          'Duyuru kuruldu',
+          'success',
+          `${new Date(when).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })} · ${fmt(r.queued)} kişi`,
+        );
+      } else {
+        toast(`${fmt(r.queued)} kişiye gönderiliyor`, 'success', 'Bitince aşağıda kaç kişiye ulaştığını görürsün');
+      }
       playSound('ok');
       setTitle('');
       setBody('');
-      setTimeout(() => qc.invalidateQueries({ queryKey: ['admin', 'audit', 'broadcast'] }), 3000);
+      setWhen('');
+      qc.invalidateQueries({ queryKey: ['admin', 'broadcasts'] });
+      setTimeout(() => qc.invalidateQueries({ queryKey: ['admin', 'broadcasts'] }), 3000);
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  const cancel = useMutation({
+    mutationFn: (id: string) => adminApi.cancelBroadcast(id),
+    onSuccess: () => {
+      toast('Duyuru iptal edildi');
+      qc.invalidateQueries({ queryKey: ['admin', 'broadcasts'] });
     },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
   const n = count.data?.count;
-  const valid = title.trim().length >= 2 && (audience !== 'user' || n === 1) && (route !== 'custom' || /^\/\S*$/.test(custom.trim()));
+  const whenOk = !when || new Date(when).getTime() > Date.now() + 60_000;
+  const valid =
+    title.trim().length >= 2 && (audience !== 'user' || n === 1) && (route !== 'custom' || /^\/\S*$/.test(custom.trim())) && whenOk;
 
   return (
     <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -125,11 +143,19 @@ export function Broadcast() {
             className="flex flex-col gap-3.5 px-[18px] pb-5"
             onSubmit={async (e) => {
               e.preventDefault();
-              const c = await confirmAction({
-                title: `${fmt(n ?? 0)} kişiye bildirim gitsin mi?`,
-                body: `"${title.trim()}" — uygulama içi bildirim ve (izin verenlere) push. Geri alınamaz.`,
-                ok: 'Gönder',
-              });
+              const c = await confirmAction(
+                when
+                  ? {
+                      title: 'Duyuru kurulsun mu?',
+                      body: `${new Date(when).toLocaleString('tr-TR', { dateStyle: 'full', timeStyle: 'short' })} tarihinde ${fmt(n ?? 0)} kişiye gidecek. O zamana kadar iptal edebilirsin.`,
+                      ok: 'Kur',
+                    }
+                  : {
+                      title: `${fmt(n ?? 0)} kişiye bildirim gitsin mi?`,
+                      body: `"${title.trim()}" — uygulama içi bildirim ve (izin verenlere) push. Geri alınamaz.`,
+                      ok: 'Gönder',
+                    },
+              );
               if (c.ok) send.mutate();
             }}
           >
@@ -145,6 +171,28 @@ export function Broadcast() {
             <Field label="Metin" hint="İsteğe bağlı · bildirimin ikinci satırı">
               <textarea className={cn(area, 'min-h-[80px]')} value={body} onChange={(e) => setBody(e.target.value)} maxLength={500} />
             </Field>
+            <Field
+              label="Ne zaman?"
+              hint={
+                when ? 'Belirtilen saatte kendiliğinden gönderilir; o zamana kadar iptal edebilirsin.' : 'Boş bırakırsan hemen gönderilir.'
+              }
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="datetime-local"
+                  className={cn(field, 'max-w-[240px]', !whenOk && 'text-live')}
+                  value={when}
+                  min={new Date(Date.now() + 120_000).toISOString().slice(0, 16)}
+                  onChange={(e) => setWhen(e.target.value)}
+                />
+                {when && (
+                  <Button type="button" size="xs" variant="ghost" onClick={() => setWhen('')}>
+                    Hemen gönder
+                  </Button>
+                )}
+              </div>
+              {!whenOk && <span className="text-[12px] text-live">Zaman en az 1 dakika sonrası olmalı.</span>}
+            </Field>
             <Field label="Dokununca açılacak ekran">
               <select className={field} value={route} onChange={(e) => setRoute(e.target.value)}>
                 {ROUTES.map((r) => (
@@ -158,8 +206,15 @@ export function Broadcast() {
                 <input className={field} value={custom} onChange={(e) => setCustom(e.target.value)} placeholder="/room/oda-kimligi" />
               )}
             </Field>
-            <Button type="submit" variant="primary" icon="campaign" className="self-end" busy={send.isPending} disabled={!valid || !n}>
-              Gönder
+            <Button
+              type="submit"
+              variant="primary"
+              icon={when ? 'schedule' : 'campaign'}
+              className="self-end"
+              busy={send.isPending}
+              disabled={!valid || !n}
+            >
+              {when ? 'Zamanla' : 'Gönder'}
             </Button>
           </form>
         </Card>
@@ -185,27 +240,61 @@ export function Broadcast() {
             </div>
           </div>
         </Card>
-        <Card title="Geçmiş">
+        <Card title="Duyurular" sub="bekleyenler ve gönderilenler">
           {history.isLoading ? (
             <Rows n={3} />
-          ) : !history.data?.items.length ? (
+          ) : !history.data?.length ? (
             <EmptyState
               icon="campaign"
               title="Henüz duyuru yok"
-              body="Gönderdiğin duyurular kaç kişiye ulaştığıyla birlikte burada listelenir."
+              body="Gönderdiğin ve zamanladığın duyurular, kaç kişiye ulaştığıyla birlikte burada listelenir."
             />
           ) : (
-            history.data.items.slice(0, 12).map((h) => {
-              const d = (h.detail ?? {}) as { title?: string; label?: string; sent?: number; queued?: number; username?: string };
-              return (
-                <div key={h.id} className="flex flex-col gap-0.5 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
-                  <p className="truncate text-[13px] font-semibold">{d.title}</p>
-                  <p className="text-[11.5px] text-faint">
-                    {d.username ? `@${d.username}` : d.label} · {fmt(d.sent ?? 0)}/{fmt(d.queued ?? 0)} gönderildi · {timeAgo(h.createdAt)}
-                  </p>
+            history.data.map((b) => (
+              <div key={b.id} className="flex flex-col gap-1 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
+                <div className="flex items-start gap-2">
+                  <p className="min-w-0 flex-1 truncate text-[13px] font-semibold">{b.title}</p>
+                  {b.status === 'scheduled' ? (
+                    <Tag tone="yellow">Bekliyor</Tag>
+                  ) : b.status === 'sending' ? (
+                    <Tag tone="blue">Gönderiliyor</Tag>
+                  ) : b.status === 'canceled' ? (
+                    <Tag>İptal</Tag>
+                  ) : b.status === 'failed' ? (
+                    <Tag tone="live">Hata</Tag>
+                  ) : null}
                 </div>
-              );
-            })
+                <p className="text-[11.5px] text-faint">
+                  {b.target ? `@${b.target.username}` : b.label}
+                  {b.status === 'scheduled' && b.scheduledAt
+                    ? ` · ${new Date(b.scheduledAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })} · ${fmt(b.queued)} kişi`
+                    : b.status === 'sent'
+                      ? ` · ${fmt(b.sent)}/${fmt(b.queued)} gönderildi · ${timeAgo(b.sentAt ?? b.createdAt)}`
+                      : ` · ${timeAgo(b.createdAt)}`}
+                  {b.createdBy && ` · @${b.createdBy.username}`}
+                </p>
+                {b.error && <p className="text-[11.5px] text-live">{b.error}</p>}
+                {b.status === 'scheduled' && (
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    className="self-start"
+                    busy={cancel.isPending && cancel.variables === b.id}
+                    onClick={async () => {
+                      const c = await confirmAction({
+                        title: 'Duyuru iptal edilsin mi?',
+                        body: 'Kurulan gönderim yapılmaz.',
+                        ok: 'İptal et',
+                        danger: true,
+                      });
+                      if (c.ok) cancel.mutate(b.id);
+                    }}
+                  >
+                    İptal et
+                  </Button>
+                )}
+              </div>
+            ))
           )}
         </Card>
       </div>

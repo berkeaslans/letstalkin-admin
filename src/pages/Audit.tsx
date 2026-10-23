@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import type { IconName } from '@/components/ui/icon-names';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
+import { SavedViews } from '@/components/ui/SavedViews';
 import { Pills } from '@/components/ui/Tabs';
 import { type AuditKind, type AuditRow, adminApi } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
@@ -364,6 +365,19 @@ export function Audit() {
         <Button size="xs" variant="outline" busy={exporting} onClick={exportCsv} title="Bu filtredeki kayıtları CSV indir">
           CSV
         </Button>
+      </div>
+      <div className="px-[18px] pb-3">
+        <SavedViews
+          page="audit"
+          query={{ action: kind, actorId: actor, q: term, from, to }}
+          onApply={(v) => {
+            setKind((v.action as AuditKind) ?? 'all');
+            setActor(String(v.actorId ?? ''));
+            setText(String(v.q ?? ''));
+            setFrom(String(v.from ?? ''));
+            setTo(String(v.to ?? ''));
+          }}
+        />
       </div>
       {q.isLoading ? (
         <Rows />

@@ -13276,6 +13276,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/quizzes/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        asUserId?: string;
+                        title?: string;
+                        /** Format: date-time */
+                        startsAt?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/quizzes/{id}/start": {
         parameters: {
             query?: never;
@@ -13575,6 +13624,8 @@ export interface paths {
                         title: string;
                         body?: string;
                         route?: string;
+                        /** Format: date-time */
+                        scheduledAt?: string;
                     };
                 };
             };
@@ -13587,6 +13638,112 @@ export interface paths {
                     content: {
                         "application/json": {
                             queued: number;
+                            scheduled: boolean;
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/broadcasts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            audience: string;
+                            label: string;
+                            title: string;
+                            body: string | null;
+                            route: string | null;
+                            /** @enum {string} */
+                            status: "scheduled" | "sending" | "sent" | "canceled" | "failed";
+                            /** Format: date-time */
+                            scheduledAt: string | null;
+                            /** Format: date-time */
+                            sentAt: string | null;
+                            queued: number;
+                            sent: number;
+                            error: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            createdBy: {
+                                id: string;
+                                username: string;
+                            } | null;
+                            target: {
+                                id: string;
+                                username: string;
+                            } | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/broadcasts/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
                         };
                     };
                 };
@@ -15695,6 +15852,154 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
+                            name: string;
+                            query?: unknown;
+                            shared: boolean;
+                            mine: boolean;
+                            owner: {
+                                id: string;
+                                username: string;
+                            } | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
+                        name: string;
+                        query: {
+                            [key: string]: string | number | boolean;
+                        };
+                        /** @default false */
+                        shared?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
+                            name: string;
+                            query?: unknown;
+                            shared: boolean;
+                            mine: boolean;
+                            owner: {
+                                id: string;
+                                username: string;
+                            } | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/views/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
+                            name: string;
+                            query?: unknown;
+                            shared: boolean;
+                            mine: boolean;
+                            owner: {
+                                id: string;
+                                username: string;
+                            } | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
