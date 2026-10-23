@@ -30,25 +30,23 @@ brew -v      # ya da Docker Desktop açık olsun
 ### İki depo yan yana dursun
 
 Panel ve backend ayrı depolarda; betik backend'i `../letstalkin-backend`
-klasöründe arar. Çalışma **branch'lerde** duruyor, o yüzden `-b` ile klonla:
+klasöründe arar.
 
 ```bash
 cd ~
 mkdir -p letstalkin && cd letstalkin
 
-git clone -b claude/admin-uclari https://github.com/berkeaslans/letstalkin-backend
-git clone -b claude/admin-panel  https://github.com/berkeaslans/letstalkin-admin
+git clone https://github.com/berkeaslans/letstalkin-backend
+git clone https://github.com/berkeaslans/letstalkin-admin
 ```
 
 Sonuç:
 
 ```
 ~/letstalkin/
-  letstalkin-backend/     ← branch: claude/admin-uclari
-  letstalkin-admin/       ← branch: claude/admin-panel
+  letstalkin-backend/
+  letstalkin-admin/
 ```
-
-> Branch'ler main'e birleştirildikten sonra `-b ...` kısmına gerek kalmaz.
 
 ### Tek komut
 
@@ -88,6 +86,15 @@ ADMIN_USERNAMES=kullaniciadin npm run baslat
 Bu ad(lar)daki hesaplar açılışta admin olur. Sonrasında panelden
 **Kullanıcılar → kişiye tıkla → Yönetim → Rol** ile ekip yönetilir.
 
+Hesap açmak ya da rol vermek için backend deposunda `ekip` betiği de var —
+canlıda kullanılan yöntem bu:
+
+```bash
+cd ../letstalkin-backend
+npm run ekip -- --liste
+npm run ekip -- --kullanici ortak --eposta ortak@ornek.com --rol admin
+```
+
 ### Takılırsan
 
 | Sorun | Çözüm |
@@ -105,40 +112,68 @@ Bu ad(lar)daki hesaplar açılışta admin olur. Sonrasında panelden
 
 ## 2. Sunucuda yayına al
 
-Panel, backend ile **aynı sunucuda** ve aynı `docker compose` içinde çalışır.
-Backend deposundaki `docs/YAYIN.md` ana rehberdir; burası yalnız panele ait kısım.
+Uygulama sunucuda zaten çalışıyorsa panel onun üstüne ekleniyor: aynı
+`docker compose`, aynı ortak Caddy. Backend deposundaki `docs/YAYIN.md` ana
+rehberdir; burası panele ait kısım.
 
 ### a) Alan adı
 
-Panel için bir alt alan adı seç, ör. **yonetim.letstalkin.com**.
-Alan adı panelinde A kaydı aç:
+Alan adı panelinde A kaydı aç — sertifikayı ortak Caddy kendisi alır:
 
 ```
 yonetim.letstalkin.com   A   <sunucu-ip>
 ```
 
+Bunu ilk yap: Caddy'yi sonra yeniden yüklediğinde kayıt yayılmış olur,
+sertifika ilk denemede çıkar.
+
 ### b) Backend `.env` — iki satır
 
-Backend deposundaki `.env` dosyasına ekle:
-
 ```bash
-# Panel tarayıcıdan API'ye gidiyor; bu adrese izin verilmezse giriş çalışmaz.
-CORS_ORIGINS=https://yonetim.letstalkin.com
+# Panel tarayıcıdan API'ye gidiyor; bu köken yoksa giriş çalışmaz.
+# Mevcut satıra EKLE, üzerine yazma:
+CORS_ORIGINS=https://letstalkin.com,https://yonetim.letstalkin.com
 
 # Panelin derlenirken gömeceği API adresi.
 ADMIN_API_URL=https://api.letstalkin.com
-
-# İlk admin(ler) — bu kullanıcı adları açılışta admin olur, sonrası panelden.
-ADMIN_USERNAMES=berke
 ```
 
-> `CORS_ORIGINS` boşsa üretimde **hiçbir** tarayıcı kökenine izin verilmez; panel
-> açılır ama giriş yapamaz. Birden çok adres virgülle yazılır.
+> `CORS_ORIGINS`'i ezersen web sitesi API'ye erişemez. Satırı açıp sonuna
+> virgülle panel adresini ekle.
 
-### c) Caddy
+### c) Veritabanı yedeği
 
-Ortak Caddyfile'a panel bloğunu ekle — hazır hali
-`deploy/caddy/letstalkin.caddy` dosyasının sonunda duruyor:
+Bu sürüm yeni tablolar ve kolonlar getiriyor (geri bildirim, yönetici notları,
+kaydedilmiş görünümler, zamanlanmış duyuru, kara liste sayaçları). Migration'lar
+API açılışında kendiliğinden işler, ama önce yedek al:
+
+```bash
+cd /srv/letstalkin-backend
+docker compose exec -T db pg_dump -U letstalkin letstalkin > ~/yedek-$(date +%F-%H%M).sql
+ls -lh ~/yedek-*.sql     # boyutu sıfır olmasın
+```
+
+### d) Paneli klonla ve kaldır
+
+Compose, paneli `../letstalkin-admin` klasöründen derler:
+
+```bash
+cd /srv                       # backend deposunun bulunduğu klasör
+git clone https://github.com/berkeaslans/letstalkin-admin
+
+cd letstalkin-backend
+git pull                      # panel uçları master'da
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build api worker admin
+```
+
+`api` açılırken migration'ları uygular, `worker` ardından gelir, `admin`
+API sağlıklı olunca derlenir. Üçünü birlikte yazmak şart: panelin uçları
+yeni API'de, zamanlanmış işler worker'da.
+
+### e) Caddy
+
+Hazır blok `deploy/caddy/letstalkin.caddy` dosyasının sonunda duruyor;
+ortak Caddyfile'a ekle:
 
 ```caddyfile
 yonetim.letstalkin.com {
@@ -158,37 +193,67 @@ caddy validate --config /etc/caddy/Caddyfile
 caddy reload  --config /etc/caddy/Caddyfile   # diğer siteler kesilmez
 ```
 
-### d) Depoyu yanına klonla ve kaldır
+`validate` hata verirse `reload` yapma — mevcut yapılandırma ayakta kalır.
 
-Compose, paneli `../letstalkin-admin` klasöründen derler:
+### f) Panele girecek hesaplar
 
-```bash
-cd /srv            # backend deposunun bulunduğu klasör
-git clone https://github.com/berkeaslans/letstalkin-admin
-
-cd letstalkin-backend
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build admin api worker
-```
-
-### e) Kontrol
+Hesap varsa yalnız rolü değişir; yoksa oluşturulur ve tek seferlik şifre
+ekrana yazılır:
 
 ```bash
-curl -I https://yonetim.letstalkin.com          # 200 + x-robots-tag: noindex
-docker compose ps admin                          # Up
+cd /srv/letstalkin-backend
+
+# Kendini admin yap (uygulamada hesabın zaten var):
+docker compose exec api node dist/scripts/ekip.js --kullanici berke --rol admin
+
+# Ortağın için hesap aç:
+docker compose exec api node dist/scripts/ekip.js \
+  --kullanici ortak --eposta ortak@letstalkin.com --rol admin --isim "Ad Soyad"
+
+# Kimler girebiliyor:
+docker compose exec api node dist/scripts/ekip.js --liste
+
+# Yetkiyi geri al:
+docker compose exec api node dist/scripts/ekip.js --kullanici eskici --rol user
 ```
 
-Tarayıcıdan `https://yonetim.letstalkin.com` → uygulamadaki admin hesabınla gir.
-**Sistem → Durum** ekranında veritabanı, Redis, kuyruklar ve worker yeşil olmalı.
+Roller: `admin` her şeyi yapar; `moderator` şikayet, içerik ve kullanıcı
+işlemlerini yapar ama ayarlara, ekonomiye ve rol değiştirmeye dokunamaz.
+Yeni hesabın şifresi bir daha gösterilmez — ilet ve ilk girişten sonra
+değiştirmesini söyle. Sonrası panelden: **Kullanıcılar → kişi → Yönetim → Rol**.
 
-### f) Güncelleme
+### g) Kontrol
+
+```bash
+curl -I https://yonetim.letstalkin.com     # 200 + x-robots-tag: noindex
+docker compose ps api worker admin         # üçü de Up
+docker compose logs --tail 30 api          # migration hatası olmasın
+```
+
+Tarayıcıdan `https://yonetim.letstalkin.com` → kendi hesabınla gir →
+**Sistem → Durum**: veritabanı, Redis, kuyruklar ve worker yeşil olmalı.
+Worker satırı "hiç worker bağlı değil" diyorsa `docker compose ps worker`
+ile bak; zamanlanmış duyurular ve quiz ilerletme ona bağlı.
+
+### h) Güncelleme
 
 ```bash
 cd /srv/letstalkin-admin && git pull
-cd ../letstalkin-backend
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build admin
+cd /srv/letstalkin-backend && git pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build api worker admin
 ```
 
----
+Yalnız panelde değişiklik varsa sondaki listeyi `admin` ile sınırlayabilirsin.
+
+### Ters giderse
+
+| Belirti | Sebep ve çözüm |
+|---|---|
+| Panel açılıyor, giriş "ağ hatası" | `CORS_ORIGINS`'e panel adresi eklenmemiş. Ekle, `docker compose up -d api`. |
+| Giriş oluyor, "yönetim yetkisi yok" | Rol verilmemiş. `ekip.js --kullanici <ad> --rol admin`, 15 saniye içinde geçer. |
+| `admin` servisi derlenmiyor | `../letstalkin-admin` klasörü yok ya da eski. Klonla / `git pull`. |
+| Sertifika çıkmıyor | DNS henüz yayılmamış. `dig yonetim.letstalkin.com` ile bak, bekle. |
+| API migration'da duruyor | `docker compose logs api`. Yedekten dönmek için: `docker compose exec -T db psql -U letstalkin letstalkin < ~/yedek-....sql`. |
 
 ## Unutulmaması gerekenler
 
