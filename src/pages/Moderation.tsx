@@ -1,25 +1,24 @@
 // Moderasyon ekranları: İçerik, Odalar, Eşleşme, Kurallar (kara liste + eşik), Özet.
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
-import { create } from 'zustand';
+import { Link, useParams } from 'react-router';
 import { Avatar, Tick } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { Card, EmptyState, ErrorState, Rows, Stat, Tag } from '@/components/ui/misc';
-import { Drawer } from '@/components/ui/Overlays';
+import { Card, EmptyState, ErrorState, LiveTag, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Switch } from '@/components/ui/Switch';
 import { Pills, Segment } from '@/components/ui/Tabs';
 import { adminApi, type ContentItem, type HideKind, mediaUrl, type RoomDetail } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
+import { go, paths } from '@/lib/go';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
 import { PRIVACY, ROOM_KIND } from './Publish';
 import { REASON, TARGET } from './Reports';
-import { openUser } from './UserDrawer';
+import { openUser } from './UserPage';
 
 const field =
   'h-10 w-full rounded-full bg-elev2 px-3.5 text-[13.5px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]';
@@ -182,7 +181,6 @@ export function Content() {
 }
 
 // ---------------- Odalar ----------------
-const useRoom = create<{ id: string | null }>(() => ({ id: null }));
 
 export function Rooms() {
   const isAdmin = useIsAdmin();
@@ -197,95 +195,91 @@ export function Rooms() {
   });
   const rows = res.data?.pages.flatMap((p) => p.items) ?? [];
   return (
-    <>
-      <Card>
-        <div className="flex flex-wrap items-center gap-2 px-[18px] py-3.5">
-          <Pills
-            items={[
-              { key: 'active', label: 'Aktif' },
-              { key: 'reported', label: 'Şikayetli' },
-              { key: 'archived', label: 'Arşiv' },
-              { key: 'all', label: 'Hepsi' },
-            ]}
-            value={status}
-            onChange={setStatus}
-          />
-          {isAdmin && (
-            <Link to="/yayin?tur=oda" className="ml-auto">
-              <Button size="sm" variant="primary" icon="add_circle">
-                Oda aç
-              </Button>
-            </Link>
-          )}
-        </div>
-        <div className="px-[18px] pb-3">
-          <Search value={q} onChange={setQ} placeholder="Oda adı" />
-        </div>
-        {res.isLoading ? (
-          <Rows />
-        ) : res.isError ? (
-          <ErrorState error={res.error} retry={() => res.refetch()} />
-        ) : !rows.length ? (
-          <EmptyState icon="groups" title="Oda yok" />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[13.5px]">
-              <thead>
-                <tr className="text-left text-[12px] text-faint">
-                  <th className="px-[18px] py-2.5 font-semibold">Oda</th>
-                  <th className="px-3 py-2.5 font-semibold">Sahip</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">Üye</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">Mesaj</th>
-                  <th className="px-[18px] py-2.5 font-semibold">Durum</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="cursor-pointer shadow-[inset_0_0.5px_0_var(--color-line)] hover:bg-white/3"
-                    onClick={() => useRoom.setState({ id: r.id })}
-                  >
-                    <td className="px-[18px] py-2.5">
-                      <p className="font-semibold">{r.name}</p>
-                      <p className="text-[12px] text-faint">
-                        {PRIVACY[r.privacy]} · {timeAgo(r.createdAt)}
-                      </p>
-                    </td>
-                    <td className="px-3 py-2.5 whitespace-nowrap">{r.owner ? `@${r.owner.username}` : '—'}</td>
-                    <td className="px-3 py-2.5 text-right tabular">{compact(r.memberCount)}</td>
-                    <td className="px-3 py-2.5 text-right tabular">{compact(r.messageCount)}</td>
-                    <td className="px-[18px] py-2.5">
-                      <div className="flex gap-1.5">
-                        {r.status === 'active' ? <Tag tone="up">Aktif</Tag> : <Tag>Arşiv</Tag>}
-                        {r.reportCount > 0 && <Tag tone="live">{r.reportCount} şikayet</Tag>}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {res.hasNextPage && (
-          <div className="flex justify-center p-4">
-            <Button size="sm" variant="outline" busy={res.isFetchingNextPage} onClick={() => res.fetchNextPage()}>
-              Daha fazla
+    <Card>
+      <div className="flex flex-wrap items-center gap-2 px-[18px] py-3.5">
+        <Pills
+          items={[
+            { key: 'active', label: 'Aktif' },
+            { key: 'reported', label: 'Şikayetli' },
+            { key: 'archived', label: 'Arşiv' },
+            { key: 'all', label: 'Hepsi' },
+          ]}
+          value={status}
+          onChange={setStatus}
+        />
+        {isAdmin && (
+          <Link to="/yayin?tur=oda" className="ml-auto">
+            <Button size="sm" variant="primary" icon="add_circle">
+              Oda aç
             </Button>
-          </div>
+          </Link>
         )}
-      </Card>
-      <RoomDrawer />
-    </>
+      </div>
+      <div className="px-[18px] pb-3">
+        <Search value={q} onChange={setQ} placeholder="Oda adı" />
+      </div>
+      {res.isLoading ? (
+        <Rows />
+      ) : res.isError ? (
+        <ErrorState error={res.error} retry={() => res.refetch()} />
+      ) : !rows.length ? (
+        <EmptyState icon="groups" title="Oda yok" />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-[13.5px]">
+            <thead>
+              <tr className="text-left text-[12px] text-faint">
+                <th className="px-[18px] py-2.5 font-semibold">Oda</th>
+                <th className="px-3 py-2.5 font-semibold">Sahip</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Üye</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Mesaj</th>
+                <th className="px-[18px] py-2.5 font-semibold">Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr
+                  key={r.id}
+                  className="cursor-pointer shadow-[inset_0_0.5px_0_var(--color-line)] hover:bg-white/3"
+                  onClick={() => go(paths.room(r.id))}
+                >
+                  <td className="px-[18px] py-2.5">
+                    <p className="font-semibold">{r.name}</p>
+                    <p className="text-[12px] text-faint">
+                      {PRIVACY[r.privacy]} · {timeAgo(r.createdAt)}
+                    </p>
+                  </td>
+                  <td className="px-3 py-2.5 whitespace-nowrap">{r.owner ? `@${r.owner.username}` : '—'}</td>
+                  <td className="px-3 py-2.5 text-right tabular">{compact(r.memberCount)}</td>
+                  <td className="px-3 py-2.5 text-right tabular">{compact(r.messageCount)}</td>
+                  <td className="px-[18px] py-2.5">
+                    <div className="flex gap-1.5">
+                      {r.status === 'active' ? <Tag tone="up">Aktif</Tag> : <Tag>Arşiv</Tag>}
+                      {r.reportCount > 0 && <Tag tone="live">{r.reportCount} şikayet</Tag>}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {res.hasNextPage && (
+        <div className="flex justify-center p-4">
+          <Button size="sm" variant="outline" busy={res.isFetchingNextPage} onClick={() => res.fetchNextPage()}>
+            Daha fazla
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
 
-function RoomDrawer() {
-  const id = useRoom((s) => s.id);
+export function RoomPage() {
+  const { id } = useParams<{ id: string }>();
   const isAdmin = useIsAdmin();
-  const close = () => useRoom.setState({ id: null });
-  const q = useQuery({ queryKey: ['admin', 'room', id], queryFn: () => adminApi.room(id!), enabled: !!id });
-  const [tab, setTab] = useState<'members' | 'messages' | 'settings'>('members');
+  // Mesajlar canlı izlenebilsin: sayfa açıkken 5 sn'de bir tazelenir.
+  const q = useQuery({ queryKey: ['admin', 'room', id], queryFn: () => adminApi.room(id!), enabled: !!id, refetchInterval: 5_000 });
   const ok = useMod();
   const status = useMutation({
     mutationFn: ({ s, note }: { s: 'active' | 'archived'; note: string }) => adminApi.roomStatus(id!, s, note),
@@ -295,63 +289,97 @@ function RoomDrawer() {
   const owner = useMutation({ mutationFn: (userId: string) => adminApi.roomOwner(id!, userId), ...ok('Sahiplik devredildi') });
   const delMsg = useMutation({ mutationFn: (msgId: string) => adminApi.hide('room_message' as HideKind, msgId), ...ok('Mesaj silindi') });
   const r = q.data;
+  if (q.isLoading)
+    return (
+      <Card>
+        <Rows n={8} />
+      </Card>
+    );
+  if (q.isError || !r)
+    return (
+      <Card>
+        <ErrorState error={q.error} retry={() => q.refetch()} />
+      </Card>
+    );
   return (
-    <Drawer open={!!id} title={r?.name ?? 'Oda'} onClose={close}>
-      {q.isLoading ? (
-        <Rows n={6} />
-      ) : q.isError ? (
-        <ErrorState error={q.error} />
-      ) : (
-        r && (
-          <>
-            <div className="flex flex-col gap-3 px-[18px] pb-4">
-              {r.description && <p className="text-[13.5px] text-sub">{r.description}</p>}
-              <div className="flex flex-wrap gap-1.5">
-                {r.status === 'active' ? <Tag tone="up">Aktif</Tag> : <Tag>Arşiv</Tag>}
-                <Tag>{ROOM_KIND[r.kind]}</Tag>
-                <Tag>{PRIVACY[r.privacy]}</Tag>
-                {r.reportCount > 0 && <Tag tone="live">{r.reportCount} şikayet</Tag>}
-                {r.pendingRequests > 0 && <Tag tone="yellow">{r.pendingRequests} katılma isteği</Tag>}
+    <div className="flex flex-col gap-3.5">
+      <Card>
+        <div className="flex flex-wrap items-start gap-4 px-[18px] py-5">
+          <span className="grid h-14 w-14 flex-none place-items-center rounded-[16px] bg-yellow/12 text-yellow">
+            <Icon name="groups" size={28} />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <h2 className="text-[20px] font-bold tracking-[-0.3px]">{r.name}</h2>
+            {r.description && <p className="text-[13.5px] text-sub">{r.description}</p>}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {r.status === 'active' ? <Tag tone="up">Aktif</Tag> : <Tag>Arşiv</Tag>}
+              <Tag>{ROOM_KIND[r.kind]}</Tag>
+              <Tag>{PRIVACY[r.privacy]}</Tag>
+              {r.reportCount > 0 && <Tag tone="live">{r.reportCount} şikayet</Tag>}
+              {r.pendingRequests > 0 && <Tag tone="yellow">{r.pendingRequests} katılma isteği</Tag>}
+              {r.closesAt && <Tag>kapanış {new Date(r.closesAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}</Tag>}
+              <span className="text-[12px] text-faint">
+                · {fmt(r.memberCount)} üye · {fmt(r.messageCount)} mesaj · {timeAgo(r.createdAt)} açıldı
+              </span>
+            </div>
+            {r.owner && (
+              <div className="pt-1">
+                <Author a={r.owner} />
               </div>
-              <Button
-                size="sm"
-                variant={r.status === 'active' ? 'danger' : 'secondary'}
-                className="self-start"
-                busy={status.isPending}
-                onClick={async () => {
-                  const archive = r.status === 'active';
-                  const c = await confirmAction({
-                    title: archive ? 'Oda arşivlensin mi?' : 'Oda yeniden açılsın mı?',
-                    body: archive ? 'Mesaj gönderimi durur; üyeler geçmişi görebilir.' : 'Oda yeniden aktif olur.',
-                    ok: archive ? 'Arşivle' : 'Aç',
-                    danger: archive,
-                    note: 'optional',
-                  });
-                  if (c.ok) status.mutate({ s: archive ? 'archived' : 'active', note: c.note });
-                }}
-              >
-                {r.status === 'active' ? 'Odayı arşivle' : 'Odayı yeniden aç'}
-              </Button>
-            </div>
-            <div className="px-[18px] pb-3">
-              <Pills
-                items={[
-                  { key: 'members', label: 'Üyeler', count: r.memberCount },
-                  { key: 'messages', label: 'Son mesajlar' },
-                  ...(isAdmin ? [{ key: 'settings' as const, label: 'Ayarlar' }] : []),
-                ]}
-                value={tab}
-                onChange={setTab}
-              />
-            </div>
-            {tab === 'settings' ? (
-              <RoomSettings key={r.id} r={r} />
-            ) : tab === 'members' ? (
-              r.members.map((m) => (
+            )}
+          </div>
+          <Button
+            size="sm"
+            variant={r.status === 'active' ? 'danger' : 'secondary'}
+            busy={status.isPending}
+            onClick={async () => {
+              const archive = r.status === 'active';
+              const c = await confirmAction({
+                title: archive ? 'Oda arşivlensin mi?' : 'Oda yeniden açılsın mı?',
+                body: archive ? 'Mesaj gönderimi durur; üyeler geçmişi görebilir.' : 'Oda yeniden aktif olur.',
+                ok: archive ? 'Arşivle' : 'Aç',
+                danger: archive,
+                note: 'optional',
+              });
+              if (c.ok) status.mutate({ s: archive ? 'archived' : 'active', note: c.note });
+            }}
+          >
+            {r.status === 'active' ? 'Odayı arşivle' : 'Odayı yeniden aç'}
+          </Button>
+        </div>
+      </Card>
+
+      <div className="grid items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <Card title="Mesajlar" sub={<LiveTag />}>
+          {isAdmin && r.status === 'active' && <SendAs roomId={r.id} members={r.members.map((m) => m.id)} />}
+          <div className="max-h-[640px] overflow-y-auto">
+            {r.messages.length ? (
+              r.messages.map((m) => (
+                <div key={m.id} className="feed-in flex items-start gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
+                  <div className="min-w-0 flex-1">
+                    <Author a={m.author} />
+                    <p className="mt-0.5 text-[13.5px] break-words">{m.text}</p>
+                    <p className="text-[11.5px] text-faint">{timeAgo(m.createdAt)}</p>
+                  </div>
+                  <Button size="xs" variant="ghost" onClick={() => delMsg.mutate(m.id)}>
+                    Sil
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <EmptyState icon="info" title="Mesaj yok" />
+            )}
+          </div>
+        </Card>
+
+        <div className="flex flex-col gap-3.5">
+          <Card title="Üyeler" sub={`${fmt(r.memberCount)} kişi`}>
+            <div className="max-h-[420px] overflow-y-auto">
+              {r.members.map((m) => (
                 <div key={m.id} className="flex items-center gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
                   <Avatar src={m.avatarPath} name={m.displayName ?? m.username} size={30} />
                   <button type="button" className="min-w-0 flex-1 text-left text-[13.5px]" onClick={() => openUser(m.id)}>
-                    <p className="flex items-center gap-1.5 font-semibold">
+                    <p className="flex items-center gap-1.5 truncate font-semibold">
                       @{m.username}
                       <Tick tick={m.tick} size={12} />
                     </p>
@@ -386,32 +414,17 @@ function RoomDrawer() {
                     </div>
                   )}
                 </div>
-              ))
-            ) : (
-              <>
-                {isAdmin && r.status === 'active' && <SendAs roomId={r.id} members={r.members.map((m) => m.id)} />}
-                {r.messages.length ? (
-                  r.messages.map((m) => (
-                    <div key={m.id} className="flex items-start gap-3 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
-                      <div className="min-w-0 flex-1">
-                        <Author a={m.author} />
-                        <p className="mt-0.5 text-[13.5px] break-words">{m.text}</p>
-                        <p className="text-[11.5px] text-faint">{timeAgo(m.createdAt)}</p>
-                      </div>
-                      <Button size="xs" variant="ghost" onClick={() => delMsg.mutate(m.id)}>
-                        Sil
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState icon="info" title="Mesaj yok" />
-                )}
-              </>
-            )}
-          </>
-        )
-      )}
-    </Drawer>
+              ))}
+            </div>
+          </Card>
+          {isAdmin && (
+            <Card title="Ayarlar">
+              <RoomSettings key={r.id} r={r} />
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

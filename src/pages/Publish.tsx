@@ -2,29 +2,29 @@
 // anket, oda ve quiz. Quiz listesi/yönetimi ve yayın hesapları da burada.
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { create } from 'zustand';
 import { Avatar, Tick } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
-import { Drawer } from '@/components/ui/Overlays';
 import { Switch } from '@/components/ui/Switch';
 import { Pills, Segment } from '@/components/ui/Tabs';
 import { adminApi, mediaUrl, type PublishAccount, type QuizDetail, type QuizStatus } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { fmt, timeAgo } from '@/lib/format';
+import { go, paths } from '@/lib/go';
 import { playSound } from '@/lib/sound';
 import { confirmAction, toast } from '@/stores/ui';
-import { openUser } from './UserDrawer';
+import { openUser } from './UserPage';
 
 export const field =
   'h-10 w-full rounded-full bg-elev2 px-3.5 text-[13.5px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]';
-const area =
+export const area =
   'min-h-[110px] w-full resize-y rounded-[14px] bg-elev2 px-3.5 py-2.5 text-[14px] leading-[1.45] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]';
 
-function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
+export function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[12.5px] font-semibold text-sub">{label}</span>
@@ -35,9 +35,9 @@ function Field({ label, hint, children }: { label: string; hint?: ReactNode; chi
 }
 
 /** datetime-local değeri → ISO (boşsa undefined). */
-const toIso = (v: string) => (v ? new Date(v).toISOString() : undefined);
+export const toIso = (v: string) => (v ? new Date(v).toISOString() : undefined);
 /** ISO → datetime-local değeri (yerel saat). */
-function toLocal(iso: string | Date | null | undefined) {
+export function toLocal(iso: string | Date | null | undefined) {
   if (!iso) return '';
   const d = new Date(iso);
   return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
@@ -742,8 +742,7 @@ function QuizCreate({ as }: { as: PublishAccount | null }) {
             playSound('ok');
             reset();
             qc.invalidateQueries({ queryKey: ['admin'] });
-            useQuizDrawer.setState({ id });
-            nav('/yayin/quizler');
+            nav(paths.quiz(id));
           },
         })
       }
@@ -758,7 +757,6 @@ const STATUS: Record<QuizStatus, [string, 'yellow' | 'live' | undefined]> = {
   live: ['Canlı', 'live'],
   finished: ['Bitti', undefined],
 };
-const useQuizDrawer = create<{ id: string | null }>(() => ({ id: null }));
 
 export function Quizzes() {
   const [status, setStatus] = useState<QuizStatus | 'all'>('all');
@@ -771,97 +769,91 @@ export function Quizzes() {
   });
   const rows = res.data?.pages.flatMap((p) => p.items) ?? [];
   return (
-    <>
-      <Card>
-        <div className="flex flex-wrap items-center gap-2 px-[18px] py-3.5">
-          <Pills
-            items={[
-              { key: 'all', label: 'Hepsi' },
-              { key: 'live', label: 'Canlı' },
-              { key: 'scheduled', label: 'Planlı' },
-              { key: 'finished', label: 'Biten' },
-            ]}
-            value={status}
-            onChange={setStatus}
-          />
-          <Link to="/yayin?tur=quiz" className="ml-auto">
-            <Button size="sm" variant="primary" icon="add_circle">
-              Yeni quiz
-            </Button>
-          </Link>
+    <Card>
+      <div className="flex flex-wrap items-center gap-2 px-[18px] py-3.5">
+        <Pills
+          items={[
+            { key: 'all', label: 'Hepsi' },
+            { key: 'live', label: 'Canlı' },
+            { key: 'scheduled', label: 'Planlı' },
+            { key: 'finished', label: 'Biten' },
+          ]}
+          value={status}
+          onChange={setStatus}
+        />
+        <Link to="/yayin?tur=quiz" className="ml-auto">
+          <Button size="sm" variant="primary" icon="add_circle">
+            Yeni quiz
+          </Button>
+        </Link>
+      </div>
+      {res.isLoading ? (
+        <Rows />
+      ) : res.isError ? (
+        <ErrorState error={res.error} retry={() => res.refetch()} />
+      ) : !rows.length ? (
+        <EmptyState icon="bolt" title="Quiz yok" body="Yeni yayın ekranından seçtiğin hesap adına quiz oluşturabilirsin." />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-[13.5px]">
+            <thead>
+              <tr className="text-left text-[12px] text-faint">
+                <th className="px-[18px] py-2.5 font-semibold">Quiz</th>
+                <th className="px-3 py-2.5 font-semibold">Hesap</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Soru</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Katılım</th>
+                <th className="px-[18px] py-2.5 font-semibold">Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const [label, tone] = STATUS[r.status];
+                return (
+                  <tr
+                    key={r.id}
+                    className="cursor-pointer shadow-[inset_0_0.5px_0_var(--color-line)] hover:bg-white/3"
+                    onClick={() => go(paths.quiz(r.id))}
+                  >
+                    <td className="px-[18px] py-2.5">
+                      <p className="font-semibold">{r.title}</p>
+                      <p className="text-[12px] text-faint">
+                        {DIFF[r.difficulty as Difficulty] ?? r.difficulty} · {r.secondsPerQuestion} sn ·{' '}
+                        {r.status === 'scheduled' && r.startsAt
+                          ? `başlangıç ${new Date(r.startsAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}`
+                          : timeAgo(r.createdAt)}
+                      </p>
+                    </td>
+                    <td className="px-3 py-2.5 whitespace-nowrap">{r.creator ? `@${r.creator.username}` : '—'}</td>
+                    <td className="px-3 py-2.5 text-right tabular">{r.questionCount}</td>
+                    <td className="px-3 py-2.5 text-right tabular">{fmt(r.attemptCount)}</td>
+                    <td className="px-[18px] py-2.5">
+                      <Tag tone={tone}>
+                        {r.status === 'live' && <span className="live-dot h-1.5 w-1.5 rounded-full bg-current" />}
+                        {label}
+                        {r.status === 'live' && ` · ${r.currentQuestion + 1}/${r.questionCount}`}
+                      </Tag>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-        {res.isLoading ? (
-          <Rows />
-        ) : res.isError ? (
-          <ErrorState error={res.error} retry={() => res.refetch()} />
-        ) : !rows.length ? (
-          <EmptyState icon="bolt" title="Quiz yok" body="Yeni yayın ekranından seçtiğin hesap adına quiz oluşturabilirsin." />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[13.5px]">
-              <thead>
-                <tr className="text-left text-[12px] text-faint">
-                  <th className="px-[18px] py-2.5 font-semibold">Quiz</th>
-                  <th className="px-3 py-2.5 font-semibold">Hesap</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">Soru</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">Katılım</th>
-                  <th className="px-[18px] py-2.5 font-semibold">Durum</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => {
-                  const [label, tone] = STATUS[r.status];
-                  return (
-                    <tr
-                      key={r.id}
-                      className="cursor-pointer shadow-[inset_0_0.5px_0_var(--color-line)] hover:bg-white/3"
-                      onClick={() => useQuizDrawer.setState({ id: r.id })}
-                    >
-                      <td className="px-[18px] py-2.5">
-                        <p className="font-semibold">{r.title}</p>
-                        <p className="text-[12px] text-faint">
-                          {DIFF[r.difficulty as Difficulty] ?? r.difficulty} · {r.secondsPerQuestion} sn ·{' '}
-                          {r.status === 'scheduled' && r.startsAt
-                            ? `başlangıç ${new Date(r.startsAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}`
-                            : timeAgo(r.createdAt)}
-                        </p>
-                      </td>
-                      <td className="px-3 py-2.5 whitespace-nowrap">{r.creator ? `@${r.creator.username}` : '—'}</td>
-                      <td className="px-3 py-2.5 text-right tabular">{r.questionCount}</td>
-                      <td className="px-3 py-2.5 text-right tabular">{fmt(r.attemptCount)}</td>
-                      <td className="px-[18px] py-2.5">
-                        <Tag tone={tone}>
-                          {r.status === 'live' && <span className="live-dot h-1.5 w-1.5 rounded-full bg-current" />}
-                          {label}
-                          {r.status === 'live' && ` · ${r.currentQuestion + 1}/${r.questionCount}`}
-                        </Tag>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {res.hasNextPage && (
-          <div className="flex justify-center p-4">
-            <Button size="sm" variant="outline" busy={res.isFetchingNextPage} onClick={() => res.fetchNextPage()}>
-              Daha fazla
-            </Button>
-          </div>
-        )}
-      </Card>
-      <QuizDrawer />
-    </>
+      )}
+      {res.hasNextPage && (
+        <div className="flex justify-center p-4">
+          <Button size="sm" variant="outline" busy={res.isFetchingNextPage} onClick={() => res.fetchNextPage()}>
+            Daha fazla
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
 
-function QuizDrawer() {
-  const id = useQuizDrawer((s) => s.id);
-  const close = () => {
-    useQuizDrawer.setState({ id: null });
-    setEditing(false);
-  };
+export function QuizPage() {
+  const { id } = useParams<{ id: string }>();
+  const nav = useNavigate();
   const [editing, setEditing] = useState(false);
   const qc = useQueryClient();
   const q = useQuery({
@@ -882,8 +874,12 @@ function QuizDrawer() {
   const end = useMutation({ mutationFn: (note?: string) => adminApi.endQuiz(id!, note), ...done('Quiz bitirildi') });
   const del = useMutation({
     mutationFn: () => adminApi.deleteQuiz(id!),
-    ...done('Quiz silindi'),
-    onSettled: () => useQuizDrawer.setState({ id: null }),
+    onSuccess: () => {
+      toast('Quiz silindi');
+      qc.invalidateQueries({ queryKey: ['admin'] });
+      nav('/yayin/quizler', { replace: true });
+    },
+    onError: (e: unknown) => toast(errorMessage(e), 'error'),
   });
   const edit = useMutation({
     mutationFn: (d: QuizDraft) => adminApi.editQuiz(id!, { ...draftToBody(d), startsAt: toIso(d.startsAt) ?? null }),
@@ -892,11 +888,11 @@ function QuizDrawer() {
   const r = q.data;
 
   return (
-    <Drawer open={!!id} title={r?.title ?? 'Quiz'} onClose={close}>
+    <Card>
       {q.isLoading ? (
-        <Rows n={6} />
+        <Rows n={8} />
       ) : q.isError ? (
-        <ErrorState error={q.error} />
+        <ErrorState error={q.error} retry={() => q.refetch()} />
       ) : (
         r &&
         (editing ? (
@@ -982,7 +978,7 @@ function QuizDrawer() {
           />
         ))
       )}
-    </Drawer>
+    </Card>
   );
 }
 
@@ -1001,7 +997,8 @@ function QuizView({ r, actions }: { r: QuizDetail; actions: ReactNode }) {
   const [label, tone] = STATUS[r.status];
   return (
     <>
-      <div className="flex flex-col gap-3 px-[18px] pb-4">
+      <div className="flex flex-col gap-3 px-[18px] pt-5 pb-4">
+        <h2 className="text-[20px] font-bold tracking-[-0.3px]">{r.title}</h2>
         <div className="flex flex-wrap items-center gap-1.5">
           <Tag tone={tone}>
             {r.status === 'live' && <span className="live-dot h-1.5 w-1.5 rounded-full bg-current" />}

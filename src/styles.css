@@ -239,3 +239,13 @@
 @utility page-in {
   animation: page-in 0.32s var(--ease-out-cubic);
 }
+@keyframes feed-in {
+  from { opacity: 0; transform: translateY(-6px); background: rgb(255 216 0 / 0.08); }
+}
+@utility ok-dot {
+  animation: ok-dot 2s var(--ease-out-cubic) infinite;
+  box-shadow: 0 0 0 0 rgb(48 212 107 / 0.5);
+}
+@utility feed-in {
+  animation: feed-in 0.6s var(--ease-out-cubic);
+}

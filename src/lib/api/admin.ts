@@ -56,6 +56,36 @@ export type PublishPost = Body<'/api/v1/admin/publish/post', 'post'>;
 export type PublishRoom = Body<'/api/v1/admin/publish/room', 'post'>;
 export type PublishQuiz = Body<'/api/v1/admin/publish/quiz', 'post'>;
 export type QuizEdit = Body<'/api/v1/admin/quizzes/{id}', 'put'>;
+export type Activity = Res<'/api/v1/admin/activity', 'get'>[number];
+export type ActivityKind = Activity['kind'];
+export type LiveNow = Res<'/api/v1/admin/live', 'get'>;
+export type Audience = NonNullable<Q<'/api/v1/admin/broadcast/audience'>['audience']>;
+export type EconomySummary = Res<'/api/v1/admin/economy/summary', 'get'>;
+export type LedgerPage = Res<'/api/v1/admin/economy/ledger', 'get'>;
+export type Subscription = Res<'/api/v1/admin/economy/subscriptions', 'get'>[number];
+export type SubStatus = Subscription['status'];
+export type StickerRow = Res<'/api/v1/admin/stickers', 'get'>[number];
+export type StickerDetail = Res<'/api/v1/admin/stickers/{id}', 'get'>;
+export type StickerBody = Body<'/api/v1/admin/stickers', 'post'>;
+export type Rarity = StickerRow['rarity'];
+export type ListingPage = Res<'/api/v1/admin/market/listings', 'get'>;
+export type ListingStatus = ListingPage['items'][number]['status'];
+export type Product = Res<'/api/v1/admin/products', 'get'>[number];
+export type ProductBody = Body<'/api/v1/admin/products', 'post'>;
+export type AppSettings = Res<'/api/v1/admin/settings/app', 'get'>;
+export type SystemStatus = Res<'/api/v1/admin/system/status', 'get'>;
+export type QueueKey = string;
+export type FailedJob = Res<'/api/v1/admin/system/queues/{key}/failed', 'get'>[number];
+export type ShowPage = Res<'/api/v1/admin/catalog/shows', 'get'>;
+export type ShowRow = ShowPage['items'][number];
+export type ShowDetail = Res<'/api/v1/admin/catalog/shows/{tmdbId}', 'get'>;
+export type ShowSort = NonNullable<Q<'/api/v1/admin/catalog/shows'>['sort']>;
+export type Featured = Res<'/api/v1/admin/catalog/featured', 'get'>;
+export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
+export type FeedbackPage = Res<'/api/v1/admin/feedback', 'get'>;
+export type Feedback = FeedbackPage['items'][number];
+export type FeedbackStatus = Feedback['status'];
+export type FeedbackKind = Feedback['kind'];
 export interface RoomPatch {
   name?: string;
   description?: string | null;
@@ -161,11 +191,67 @@ export const adminApi = {
   endQuiz: (id: string, note?: string) => api.post<{ ok: boolean }>(`/admin/quizzes/${id}/end`, { note: note || undefined }),
   deleteQuiz: (id: string) => request<{ ok: boolean }>(`/admin/quizzes/${id}`, { method: 'DELETE' }),
   /** Görseli yükler (webp'e çevrilir), gönderiye eklenecek URL'i döner. */
-  uploadImage: (file: File) => {
+  uploadImage: (file: File, prefix = 'post') => {
     const fd = new FormData();
     fd.append('file', file);
-    return request<{ url: string }>('/media/upload', { method: 'POST', body: fd, query: { prefix: 'post' } });
+    return request<{ url: string }>('/media/upload', { method: 'POST', body: fd, query: { prefix } });
   },
+
+  // Canlı ve akış
+  activity: (kind?: ActivityKind, limit = 200) => api.get<Activity[]>('/admin/activity', { kind, limit }),
+  live: () => api.get<LiveNow>('/admin/live'),
+  endStream: (id: string, note?: string) => api.post<{ ok: boolean }>(`/admin/live/streams/${id}/end`, { note: note || undefined }),
+
+  // Duyuru
+  audience: (audience: Audience, username?: string) =>
+    api.get<{ count: number; label: string }>('/admin/broadcast/audience', { audience, username }),
+  broadcast: (body: { audience: Audience; username?: string; title: string; body?: string; route?: string }) =>
+    api.post<{ queued: number }>('/admin/broadcast', body),
+
+  // Geri bildirim
+  feedback: (p: { status: FeedbackStatus | 'all'; kind?: FeedbackKind; q?: string; cursor?: string }) =>
+    api.get<FeedbackPage>('/admin/feedback', p),
+  feedbackStatus: (id: string, status: FeedbackStatus) => api.post<{ ok: boolean }>(`/admin/feedback/${id}/status`, { status }),
+  feedbackReply: (id: string, text: string, resolve = true) => api.post<{ ok: boolean }>(`/admin/feedback/${id}/reply`, { text, resolve }),
+
+  // Ekonomi
+  economy: (days: number) => api.get<EconomySummary>('/admin/economy/summary', { days }),
+  ledger: (p: { userId?: string; reason?: string; cursor?: string }) => api.get<LedgerPage>('/admin/economy/ledger', p),
+  subscriptions: (status: SubStatus | 'all') => api.get<Subscription[]>('/admin/economy/subscriptions', { status }),
+  stickers: () => api.get<StickerRow[]>('/admin/stickers'),
+  sticker: (id: string) => api.get<StickerDetail>(`/admin/stickers/${id}`),
+  createSticker: (body: StickerBody) => api.post<{ id: string }>('/admin/stickers', body),
+  editSticker: (id: string, body: Partial<StickerBody>) => request<{ ok: boolean }>(`/admin/stickers/${id}`, { method: 'PATCH', body }),
+  deleteSticker: (id: string) => request<{ ok: boolean }>(`/admin/stickers/${id}`, { method: 'DELETE' }),
+  grantSticker: (id: string, username: string, note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/stickers/${id}/grant`, { username, note: note || undefined }),
+  listings: (status: ListingStatus, cursor?: string) => api.get<ListingPage>('/admin/market/listings', { status, cursor }),
+  cancelListing: (id: string, note?: string) =>
+    api.post<{ ok: boolean }>(`/admin/market/listings/${id}/cancel`, { note: note || undefined }),
+  products: () => api.get<Product[]>('/admin/products'),
+  createProduct: (body: ProductBody) => api.post<{ id: string }>('/admin/products', body),
+  editProduct: (id: string, body: Partial<ProductBody>) => request<{ ok: boolean }>(`/admin/products/${id}`, { method: 'PATCH', body }),
+  deleteProduct: (id: string) => request<{ ok: boolean }>(`/admin/products/${id}`, { method: 'DELETE' }),
+
+  // Sistem
+  appSettings: () => api.get<AppSettings>('/admin/settings/app'),
+  saveAppSettings: (body: Partial<Omit<AppSettings, 'envRoomThresholds'>>) => api.put<AppSettings>('/admin/settings/app', body),
+  status: () => api.get<SystemStatus>('/admin/system/status'),
+  failedJobs: (key: QueueKey) => api.get<FailedJob[]>(`/admin/system/queues/${key}/failed`),
+  queueOp: (key: QueueKey, op: 'retry' | 'clean' | 'pause' | 'resume') =>
+    api.post<{ ok: boolean; affected: number }>(`/admin/system/queues/${key}/${op}`, {}),
+  runJob: (key: string) => api.post<{ ok: boolean }>(`/admin/system/jobs/${key}`, {}),
+
+  // Katalog
+  shows: (p: { q?: string; sort: ShowSort; page?: number }) => api.get<ShowPage>('/admin/catalog/shows', p),
+  show: (tmdbId: string) => api.get<ShowDetail>(`/admin/catalog/shows/${tmdbId}`),
+  refreshShow: (tmdbId: string) => api.post<{ ok: boolean }>(`/admin/catalog/shows/${tmdbId}/refresh`, {}),
+  featured: () => api.get<Featured>('/admin/catalog/featured'),
+  setFeatured: (items: Featured) => api.put<Featured>('/admin/catalog/featured', items),
+  lookupShow: (tmdbId: string) => api.get<{ tmdbId: string; title: string; posterPath: string | null }>(`/admin/catalog/lookup/${tmdbId}`),
+
+  // Analiz
+  analytics: (days: number) => api.get<Analytics>('/admin/analytics/overview', { days }),
 
   audit: (p: { action?: AuditKind; targetId?: string; cursor?: string }) => api.get<AuditPage>('/admin/audit', { ...p, limit: 50 }),
 

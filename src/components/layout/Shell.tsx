@@ -1,13 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import { Avatar, Tick } from '@/components/ui/Avatar';
 import { IconButton } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { Card, Rows } from '@/components/ui/misc';
 import { NavTabs } from '@/components/ui/Tabs';
 import { adminApi, type Overview } from '@/lib/api/admin';
 import { cn } from '@/lib/cn';
 import { fmt } from '@/lib/format';
+import { setNavigator } from '@/lib/go';
+import { startRealtime, stopRealtime, useLive } from '@/lib/realtime';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin, useSession } from '@/stores/session';
 import { toast, useUi } from '@/stores/ui';
@@ -16,18 +19,20 @@ import { findSub, navFor } from './nav';
 /** Genel bakış verisi her yerde ortak: menü rozetleri, üst bardaki çevrimiçi sayısı, TV. */
 export const overviewQuery = { queryKey: ['admin', 'overview'], queryFn: adminApi.overview, refetchInterval: 15_000 } as const;
 
-/** Açık şikayet artınca: ses + bildirim (sayfa yenilemeden). */
+/** Açık şikayet artınca: ses + bildirim. Canlı bağlantı varken anlık akış zaten
+ *  haber verir; bu yalnız bağlantı koptuğunda (yoklamayla) devreye girer. */
 function useNewReportAlert(o: Overview | undefined) {
   const last = useRef<number | null>(null);
+  const live = useLive((s) => s.status === 'live');
   useEffect(() => {
     if (!o) return;
-    if (last.current !== null && o.openReports > last.current) {
+    if (!live && last.current !== null && o.openReports > last.current) {
       const n = o.openReports - last.current;
       toast(n === 1 ? 'Yeni şikayet geldi' : `${n} yeni şikayet geldi`, 'alert', `Kuyrukta ${o.openReports} şikayet bekliyor`);
       playSound('alert');
     }
     last.current = o.openReports;
-  }, [o]);
+  }, [o, live]);
 }
 
 export function Shell() {
@@ -39,7 +44,17 @@ export function Shell() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const ov = useQuery(overviewQuery);
+  const qc = useQueryClient();
+  const liveStatus = useLive((s) => s.status);
+  const pulse = useLive((s) => s.unseen);
   useNewReportAlert(ov.data);
+  useEffect(() => {
+    setNavigator((to) => navigate(to));
+  }, [navigate]);
+  useEffect(() => {
+    startRealtime(qc);
+    return () => stopRealtime();
+  }, [qc]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: sayfa değişince mobil menü kapanır
   useEffect(() => setOpen(false), [pathname]);
 
@@ -190,14 +205,43 @@ export function Shell() {
       <main className="min-w-0">
         <header className="glass-nav sticky top-0 z-30 flex h-[58px] items-center gap-2 border-b-[0.5px] border-line pr-[max(12px,env(safe-area-inset-right))] pl-[max(8px,env(safe-area-inset-left))] md:pl-4">
           <IconButton icon="grid_view" label="Menü" className="md:hidden" onClick={() => setOpen(true)} />
+          {here?.detail && (
+            <IconButton
+              icon="arrow_back"
+              label="Geri"
+              onClick={() => (window.history.state?.idx > 0 ? navigate(-1) : navigate(here.sub.to))}
+            />
+          )}
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[17px] font-bold tracking-[-0.3px]">{here?.group.label ?? 'Yönetim'}</h1>
-            {here && <p className="truncate text-[12px] text-sub">{here.sub.desc}</p>}
+            <h1 className="truncate text-[17px] font-bold tracking-[-0.3px]">
+              {here?.detail ? here.sub.label : (here?.group.label ?? 'Yönetim')}
+            </h1>
+            {here && <p className="truncate text-[12px] text-sub">{here.detail ? `${here.group.label} · ayrıntı` : here.sub.desc}</p>}
           </div>
+          <Link
+            to="/canli/akis"
+            title={
+              liveStatus === 'live'
+                ? 'Canlı akış bağlı — olaylar anında geliyor'
+                : liveStatus === 'connecting'
+                  ? 'Canlı akışa bağlanıyor'
+                  : "Canlı akış koptu — veriler 15 sn'de bir yoklanıyor"
+            }
+            className="hidden h-[34px] items-center gap-2 rounded-full bg-elev2 px-3 text-[12.5px] font-semibold whitespace-nowrap sm:flex"
+          >
+            <span
+              className={cn(
+                'h-[7px] w-[7px] rounded-full',
+                liveStatus === 'live' ? 'ok-dot bg-up' : liveStatus === 'connecting' ? 'bg-yellow' : 'bg-faint',
+              )}
+            />
+            {liveStatus === 'live' ? 'Canlı' : liveStatus === 'connecting' ? 'Bağlanıyor' : 'Çevrimdışı'}
+            {pulse > 0 && <span className="text-faint tabular">{pulse}/dk</span>}
+          </Link>
           {counts && (
             <span
               className="flex h-[34px] items-center gap-2 rounded-full bg-live/10 px-3 text-[12.5px] font-semibold whitespace-nowrap"
-              title="Son 2 dakikada etkin"
+              title="Şu an uygulamada bağlı kişi"
             >
               <span className="live-dot h-[7px] w-[7px] rounded-full bg-live" />
               <b className="tabular">{fmt(counts.online)}</b>
@@ -215,10 +259,10 @@ export function Shell() {
           />
         </header>
         <div
-          key={pathname}
+          key={here?.detail ? pathname : (here?.sub.to ?? pathname)}
           className="page-in flex w-full max-w-[1280px] flex-col gap-[18px] px-[max(16px,env(safe-area-inset-left))] pt-[22px] pb-16 md:px-6"
         >
-          {group && group.subs.length > 1 && (
+          {group && group.subs.length > 1 && !here?.detail && (
             <NavTabs
               items={group.subs.map((s) => ({
                 to: s.to,
@@ -228,9 +272,19 @@ export function Shell() {
               }))}
             />
           )}
-          <Outlet />
+          <Suspense fallback={<PageLoading />}>
+            <Outlet />
+          </Suspense>
         </div>
       </main>
     </div>
+  );
+}
+
+function PageLoading() {
+  return (
+    <Card>
+      <Rows n={6} />
+    </Card>
   );
 }

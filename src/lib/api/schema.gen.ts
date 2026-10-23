@@ -189,6 +189,62 @@ export interface paths {
                                 defaultUi: string;
                                 contentFilterByLanguage: boolean;
                             };
+                            app: {
+                                registrationOpen: boolean;
+                                maintenance: {
+                                    enabled: boolean;
+                                    message: string;
+                                };
+                                minVersion: {
+                                    ios: string;
+                                    android: string;
+                                    message: string;
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/featured": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                tmdbId: string;
+                                /** @enum {string} */
+                                kind: "tv" | "movie";
+                                title: string;
+                                posterPath: string | null;
+                                note?: string;
+                            }[];
                         };
                     };
                 };
@@ -10545,6 +10601,9 @@ export interface paths {
                             openReports: number;
                             pendingVerifications: number;
                             pendingSeriesPages: number;
+                            newFeedback: number;
+                            liveQuizzes: number;
+                            liveStreams: number;
                         };
                     };
                 };
@@ -10936,7 +10995,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    action?: "tick" | "role" | "ban" | "unban" | "coin" | "flag" | "report" | "verification" | "series_page" | "password_reset" | "sessions" | "email" | "profile" | "account_type" | "trusted" | "deletion" | "auto_hide" | "content" | "restore" | "room" | "match" | "blocklist" | "setting" | "publish" | "quiz";
+                    action?: "tick" | "role" | "ban" | "unban" | "coin" | "flag" | "report" | "verification" | "series_page" | "password_reset" | "sessions" | "email" | "profile" | "account_type" | "trusted" | "deletion" | "auto_hide" | "content" | "restore" | "room" | "match" | "blocklist" | "setting" | "publish" | "quiz" | "live" | "broadcast" | "sticker" | "market" | "product" | "settings_app" | "feedback" | "catalog" | "maintenance";
                     targetId?: string;
                     cursor?: string;
                     limit?: number;
@@ -13101,6 +13160,2030 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            online: number;
+                            messagesLastHour: number;
+                            rooms: {
+                                id: string;
+                                name: string;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
+                                memberCount: number;
+                                /** @description son 60 dakikadaki mesaj */
+                                recent: number;
+                                lastMessage: {
+                                    text: string;
+                                    /** Format: date-time */
+                                    at: string;
+                                    author: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } | null;
+                                } | null;
+                                /** Format: date-time */
+                                closesAt: string | null;
+                                owner: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            streams: {
+                                id: string;
+                                title: string;
+                                viewerCount: number;
+                                peakViewers: number;
+                                likeCount: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                streamer: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            quizzes: {
+                                id: string;
+                                title: string;
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                currentQuestion: number;
+                                questionCount: number;
+                                attemptCount: number;
+                                /** Format: date-time */
+                                startsAt: string | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/live/streams/{id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/broadcast/audience": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    audience: "all" | "active7" | "active30" | "inactive30" | "yellow" | "blue" | "official" | "staff" | "user";
+                    username?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            count: number;
+                            label: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/broadcast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        audience: "all" | "active7" | "active30" | "inactive30" | "yellow" | "blue" | "official" | "staff" | "user";
+                        username?: string;
+                        title: string;
+                        body?: string;
+                        route?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            queued: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    kind?: "signup" | "post" | "comment" | "report" | "room" | "quiz" | "live" | "trade" | "verification" | "series_page" | "feedback" | "deletion" | "admin";
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            kind: "signup" | "post" | "comment" | "report" | "room" | "quiz" | "live" | "trade" | "verification" | "series_page" | "feedback" | "deletion" | "admin";
+                            text: string;
+                            userId?: string | null;
+                            username?: string | null;
+                            refId?: string | null;
+                            at: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: ("new" | "seen" | "resolved") | "all";
+                    kind?: "bug" | "idea" | "question" | "other";
+                    q?: string;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                /** @enum {string} */
+                                kind: "bug" | "idea" | "question" | "other";
+                                text: string;
+                                platform: string | null;
+                                appVersion: string | null;
+                                route: string | null;
+                                device: string | null;
+                                screenshot: string | null;
+                                /** @enum {string} */
+                                status: "new" | "seen" | "resolved";
+                                reply: string | null;
+                                /** Format: date-time */
+                                repliedAt: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                                repliedBy: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            nextCursor: string | null;
+                            counts: {
+                                [key: string]: number;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "new" | "seen" | "resolved";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/feedback/{id}/reply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string;
+                        /** @default true */
+                        resolve?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/economy/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            coins: {
+                                circulating: number;
+                                holders: number;
+                                earned: number;
+                                spent: number;
+                                byReason: {
+                                    reason: string;
+                                    amount: number;
+                                    count: number;
+                                }[];
+                                daily: {
+                                    day: string;
+                                    earned: number;
+                                    spent: number;
+                                }[];
+                                top: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                    balance: number;
+                                }[];
+                            };
+                            market: {
+                                active: number;
+                                sold: number;
+                                volume: number;
+                                commission: number;
+                            };
+                            stickers: {
+                                kinds: number;
+                                minted: number;
+                                cap: number;
+                            };
+                            subscriptions: {
+                                active: number;
+                                pendingReview: number;
+                                byPlan: {
+                                    plan: string;
+                                    count: number;
+                                }[];
+                                byStore: {
+                                    store: string;
+                                    count: number;
+                                }[];
+                                /** @description Aktif aboneliklerin aylık karşılığı (yıllık / 12), kuruşsuz TL */
+                                monthlyRevenue: number;
+                                newInPeriod: number;
+                                canceledInPeriod: number;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/economy/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    userId?: string;
+                    reason?: string;
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                amount: number;
+                                reason: string;
+                                refKey: string;
+                                balanceAfter: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            nextCursor: string | null;
+                            reasons: string[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/economy/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: ("pending_id" | "pending_review" | "active" | "rejected" | "canceled" | "expired") | "all";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            plan: string;
+                            /** @enum {string} */
+                            status: "pending_id" | "pending_review" | "active" | "rejected" | "canceled" | "expired";
+                            price: number;
+                            currency: string;
+                            store: string | null;
+                            /** Format: date-time */
+                            paidUntil: string | null;
+                            /** Format: date-time */
+                            startedAt: string | null;
+                            /** Format: date-time */
+                            renewsAt: string | null;
+                            /** Format: date-time */
+                            canceledAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            user: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/stickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            /** @enum {string} */
+                            rarity: "common" | "rare" | "epic" | "legendary";
+                            basePrice: number;
+                            imagePath: string | null;
+                            mintTotal: number;
+                            circulating: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            activeListings: number;
+                            owners: number;
+                            floorPrice: number | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        showTmdbId?: string | null;
+                        showTitle?: string | null;
+                        /** @enum {string} */
+                        rarity: "common" | "rare" | "epic" | "legendary";
+                        basePrice: number;
+                        imagePath?: string | null;
+                        mintTotal: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/stickers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            /** @enum {string} */
+                            rarity: "common" | "rare" | "epic" | "legendary";
+                            basePrice: number;
+                            imagePath: string | null;
+                            mintTotal: number;
+                            circulating: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            activeListings: number;
+                            owners: number;
+                            floorPrice: number | null;
+                            holders: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                count: number;
+                            }[];
+                            trades: {
+                                id: string;
+                                price: number;
+                                commission: number;
+                                /** Format: date-time */
+                                at: string;
+                                seller: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                                buyer: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        showTmdbId?: string | null;
+                        showTitle?: string | null;
+                        /** @enum {string} */
+                        rarity?: "common" | "rare" | "epic" | "legendary";
+                        basePrice?: number;
+                        imagePath?: string | null;
+                        mintTotal?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/stickers/{id}/grant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        username: string;
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/market/listings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "active" | "sold" | "cancelled";
+                    cursor?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                price: number;
+                                /** @enum {string} */
+                                status: "active" | "sold" | "cancelled";
+                                views: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                soldAt: string | null;
+                                sticker: {
+                                    id: string;
+                                    name: string;
+                                    /** @enum {string} */
+                                    rarity: "common" | "rare" | "epic" | "legendary";
+                                    imagePath: string | null;
+                                    basePrice: number;
+                                };
+                                seller: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                                buyer: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/market/listings/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            showTitle: string | null;
+                            price: number;
+                            imagePaths: string[];
+                            sizes: string[];
+                            shopierUrl: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        showTitle?: string | null;
+                        /** @description TL (kuruşsuz) */
+                        price: number;
+                        /** @default [] */
+                        imagePaths?: string[];
+                        /** @default [] */
+                        sizes?: string[];
+                        /** Format: uri */
+                        shopierUrl?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        showTitle?: string | null;
+                        /** @description TL (kuruşsuz) */
+                        price?: number;
+                        /** @default [] */
+                        imagePaths?: string[];
+                        /** @default [] */
+                        sizes?: string[];
+                        /** Format: uri */
+                        shopierUrl?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/settings/app": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            registrationOpen: boolean;
+                            maintenance: {
+                                enabled: boolean;
+                                message: string;
+                            };
+                            minVersion: {
+                                ios: string;
+                                android: string;
+                                message: string;
+                            };
+                            rewards: {
+                                welcome: number;
+                                dailyPost: number;
+                                quizJoin: number;
+                                quizRank: number[];
+                            };
+                            roomThresholds: {
+                                permanent: number | null;
+                                temporary: number | null;
+                            };
+                            autoHideThreshold: number;
+                            envRoomThresholds: {
+                                permanent: number;
+                                temporary: number;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        registrationOpen?: boolean;
+                        maintenance?: {
+                            enabled: boolean;
+                            message: string;
+                        };
+                        minVersion?: {
+                            ios: string;
+                            android: string;
+                            message: string;
+                        };
+                        rewards?: {
+                            welcome: number;
+                            dailyPost: number;
+                            quizJoin: number;
+                            quizRank: number[];
+                        };
+                        roomThresholds?: {
+                            permanent: number | null;
+                            temporary: number | null;
+                        };
+                        autoHideThreshold?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            registrationOpen: boolean;
+                            maintenance: {
+                                enabled: boolean;
+                                message: string;
+                            };
+                            minVersion: {
+                                ios: string;
+                                android: string;
+                                message: string;
+                            };
+                            rewards: {
+                                welcome: number;
+                                dailyPost: number;
+                                quizJoin: number;
+                                quizRank: number[];
+                            };
+                            roomThresholds: {
+                                permanent: number | null;
+                                temporary: number | null;
+                            };
+                            autoHideThreshold: number;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            checks: {
+                                db: {
+                                    ok: boolean;
+                                    ms: number;
+                                    error?: string;
+                                };
+                                redis: {
+                                    ok: boolean;
+                                    ms: number;
+                                    error?: string;
+                                };
+                                search: {
+                                    enabled: boolean;
+                                    ok: boolean;
+                                    ms: number;
+                                    error?: string;
+                                };
+                                email: {
+                                    configured: boolean;
+                                };
+                                storage: {
+                                    configured: boolean;
+                                };
+                                push: {
+                                    configured: boolean;
+                                };
+                                tmdb: {
+                                    configured: boolean;
+                                };
+                                ai: {
+                                    configured: boolean;
+                                };
+                                errors: {
+                                    configured: boolean;
+                                };
+                                google: {
+                                    configured: boolean;
+                                };
+                            };
+                            process: {
+                                uptimeSec: number;
+                                rssMb: number;
+                                heapMb: number;
+                                node: string;
+                                env: string;
+                                version: string;
+                            };
+                            counts: {
+                                users: number;
+                                posts: number;
+                                rooms: number;
+                                messages: number;
+                                dms: number;
+                                media: number;
+                            };
+                            queues: {
+                                key: string;
+                                label: string;
+                                waiting: number;
+                                active: number;
+                                delayed: number;
+                                failed: number;
+                                completed: number;
+                                workers: number;
+                                paused: boolean;
+                            }[];
+                            jobs: {
+                                key: string;
+                                label: string;
+                                desc: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/queues/{key}/failed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: "notifications" | "quiz" | "roomScheduler" | "digest" | "moderation" | "tmdbRefresh" | "accountPurge" | "trustAudit" | "clip" | "media" | "search";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            reason: string;
+                            attempts: number;
+                            at: number | null;
+                            data?: unknown;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/queues/{key}/{op}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: "notifications" | "quiz" | "roomScheduler" | "digest" | "moderation" | "tmdbRefresh" | "accountPurge" | "trustAudit" | "clip" | "media" | "search";
+                    op: "retry" | "clean" | "pause" | "resume";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                            affected: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/system/jobs/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: "room_tick" | "quiz_tick" | "trust_audit" | "search_reindex" | "episodes" | "characters" | "account_purge" | "media_purge" | "digest";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/shows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                    sort?: "discussion" | "followers" | "recent" | "upcoming";
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                tmdbId: string;
+                                name: string;
+                                posterPath: string | null;
+                                backdropPath: string | null;
+                                followerCount: number;
+                                discussionCount: number;
+                                /** Format: date-time */
+                                nextAirDate: string | null;
+                                isFinale: boolean;
+                                /** Format: date-time */
+                                updatedAt: string;
+                                posts: number;
+                                rooms: number;
+                                watchers: number;
+                            }[];
+                            total: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/shows/{tmdbId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tmdbId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            tmdbId: string;
+                            name: string;
+                            posterPath: string | null;
+                            backdropPath: string | null;
+                            followerCount: number;
+                            discussionCount: number;
+                            /** Format: date-time */
+                            nextAirDate: string | null;
+                            isFinale: boolean;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            posts: number;
+                            rooms: number;
+                            watchers: number;
+                            reviews: {
+                                count: number;
+                                avg: number | null;
+                            };
+                            postTypes: {
+                                type: string;
+                                count: number;
+                            }[];
+                            watchStatus: {
+                                status: string;
+                                count: number;
+                            }[];
+                            quizzes: number;
+                            stickers: number;
+                            pages: {
+                                id: string;
+                                kind: string;
+                                status: string;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            topRooms: {
+                                id: string;
+                                name: string;
+                                memberCount: number;
+                                messageCount: number;
+                                status: string;
+                            }[];
+                            recentPosts: {
+                                id: string;
+                                type: string;
+                                text: string | null;
+                                rating: number | null;
+                                likeCount: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                author: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            featured: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/shows/{tmdbId}/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tmdbId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/featured": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            tmdbId: string;
+                            /** @enum {string} */
+                            kind: "tv" | "movie";
+                            title: string;
+                            posterPath: string | null;
+                            note?: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        tmdbId: string;
+                        /** @enum {string} */
+                        kind: "tv" | "movie";
+                        title: string;
+                        posterPath: string | null;
+                        note?: string;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            tmdbId: string;
+                            /** @enum {string} */
+                            kind: "tv" | "movie";
+                            title: string;
+                            posterPath: string | null;
+                            note?: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/lookup/{tmdbId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tmdbId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            tmdbId: string;
+                            title: string;
+                            posterPath: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/analytics/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            users: {
+                                total: number;
+                                newInPeriod: number;
+                                dau: number;
+                                wau: number;
+                                mau: number;
+                                verifiedEmail: number;
+                                private: number;
+                            };
+                            daily: {
+                                day: string;
+                                signups: number;
+                                posts: number;
+                                comments: number;
+                                roomMessages: number;
+                                dms: number;
+                                active: number;
+                            }[];
+                            features: {
+                                key: string;
+                                label: string;
+                                group: string;
+                                count: number;
+                                users: number;
+                                prev: number;
+                            }[];
+                            platforms: {
+                                devices: {
+                                    platform: string;
+                                    users: number;
+                                }[];
+                                sessions: {
+                                    /** @enum {string} */
+                                    platform: "ios" | "android" | "web" | "other";
+                                    sessions: number;
+                                }[];
+                                labels: {
+                                    label: string;
+                                    sessions: number;
+                                }[];
+                            };
+                            languages: {
+                                lang: string;
+                                users: number;
+                            }[];
+                            retention: {
+                                week: string;
+                                signups: number;
+                                activeLast7: number;
+                            }[];
+                            topPosts: {
+                                id: string;
+                                type: string;
+                                text: string | null;
+                                likeCount: number;
+                                commentCount: number;
+                                author: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            topRooms: {
+                                id: string;
+                                name: string;
+                                messages: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports": {
         parameters: {
             query?: never;
@@ -14100,6 +16183,106 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @default other
+                         * @enum {string}
+                         */
+                        kind?: "bug" | "idea" | "question" | "other";
+                        text: string;
+                        /** @enum {string} */
+                        platform?: "ios" | "android" | "web";
+                        appVersion?: string;
+                        route?: string;
+                        screenshot?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            kind: "bug" | "idea" | "question" | "other";
+                            text: string;
+                            /** @enum {string} */
+                            status: "new" | "seen" | "resolved";
+                            reply: string | null;
+                            /** Format: date-time */
+                            repliedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

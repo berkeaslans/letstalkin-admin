@@ -10,7 +10,7 @@ import { errorMessage } from '@/lib/api/client';
 import { compact, timeAgo } from '@/lib/format';
 import { playSound } from '@/lib/sound';
 import { confirmAction, toast } from '@/stores/ui';
-import { openUser } from './UserDrawer';
+import { openUser } from './UserPage';
 
 type Status = SeriesApp['status'];
 

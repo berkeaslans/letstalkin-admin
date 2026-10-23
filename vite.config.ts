@@ -7,6 +7,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@': '/src' } },
   server: {
-    proxy: { '/api': { target: process.env.LT_DEV_BACKEND ?? 'http://localhost:3000', changeOrigin: true } },
+    proxy: {
+      '/api': { target: process.env.LT_DEV_BACKEND ?? 'http://localhost:3000', changeOrigin: true },
+      // Gerçek zamanlı akış (Socket.IO, WebSocket).
+      '/socket.io': { target: process.env.LT_DEV_BACKEND ?? 'http://localhost:3000', changeOrigin: true, ws: true },
+    },
   },
 });

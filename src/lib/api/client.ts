@@ -49,6 +49,8 @@ export const tokens = {
     writeRefresh(null);
   },
   hasRefresh: () => !!readRefresh(),
+  /** Gerçek zamanlı bağlantının el sıkışması için güncel access token. */
+  access: () => access,
   /** Oturum düşünce (refresh reddedildi) kabuk girişe döner. */
   onSignedOut(fn: () => void) {
     onSignedOut = fn;

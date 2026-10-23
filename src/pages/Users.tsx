@@ -7,7 +7,7 @@ import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
 import { Pills } from '@/components/ui/Tabs';
 import { adminApi, type UserFilter, type UserRow } from '@/lib/api/admin';
 import { compact, timeAgo } from '@/lib/format';
-import { ACCOUNT, openUser } from './UserDrawer';
+import { ACCOUNT, openUser } from './UserPage';
 
 function useDebounced<T>(v: T, ms = 300) {
   const [d, setD] = useState(v);

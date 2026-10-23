@@ -7,8 +7,10 @@ import type { IconName } from '@/components/ui/icon-names';
 import { Card, EmptyState, ErrorState, LiveTag, Rows, Stat } from '@/components/ui/misc';
 import { adminApi } from '@/lib/api/admin';
 import { fmt, greeting } from '@/lib/format';
+import { useLive } from '@/lib/realtime';
 import { useIsAdmin, useSession } from '@/stores/session';
 import { AuditList } from './Audit';
+import { FeedRow } from './Live';
 
 export function Overview() {
   const me = useSession((s) => s.me);
@@ -22,6 +24,7 @@ export function Overview() {
     refetchInterval: 30_000,
   });
   const o = q.data;
+  const events = useLive((e) => e.events);
 
   const todo: Array<{ icon: IconName; color: string; title: string; body: string; to: string }> = [];
   if (o?.openReports)
@@ -49,6 +52,25 @@ export function Overview() {
       to: '/kullanicilar/sayfalar',
     });
 
+  if (o?.newFeedback)
+    todo.push({
+      icon: 'campaign',
+      color: 'var(--color-up)',
+      title: `${fmt(o.newFeedback)} yeni geri bildirim`,
+      body: 'Hata, öneri ve sorular',
+      to: '/moderasyon/geri-bildirim',
+    });
+  if (o?.liveQuizzes || o?.liveStreams)
+    todo.push({
+      icon: 'bolt',
+      color: 'var(--color-live)',
+      title: [o.liveQuizzes ? `${fmt(o.liveQuizzes)} canlı quiz` : '', o.liveStreams ? `${fmt(o.liveStreams)} canlı yayın` : '']
+        .filter(Boolean)
+        .join(' · '),
+      body: 'Şu an yayında',
+      to: '/canli',
+    });
+
   return (
     <>
       <div className="flex flex-wrap items-end gap-3">
@@ -68,7 +90,7 @@ export function Overview() {
         </Card>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-          <Stat label="Çevrimiçi" icon="bolt" value={o ? fmt(o.online) : '—'} sub="son 2 dakika" />
+          <Stat label="Çevrimiçi" icon="bolt" value={o ? fmt(o.online) : '—'} sub="şu an bağlı" tone="live" onClick={() => nav('/canli')} />
           <Stat label="Bugün aktif" icon="group" value={o ? fmt(o.activeToday) : '—'} sub="İstanbul saatiyle" />
           <Stat
             label="Yeni kayıt"
@@ -78,7 +100,13 @@ export function Overview() {
             tone="up"
             onClick={() => nav('/kullanicilar')}
           />
-          <Stat label="Toplam kullanıcı" icon="groups" value={o ? fmt(o.totalUsers) : '—'} sub="silinenler hariç" />
+          <Stat
+            label="Toplam kullanıcı"
+            icon="groups"
+            value={o ? fmt(o.totalUsers) : '—'}
+            sub="silinenler hariç"
+            onClick={() => nav('/analiz/kitle')}
+          />
         </div>
       )}
 
@@ -108,24 +136,40 @@ export function Overview() {
             <EmptyState title="Bekleyen iş yok" body="Şikayet, başvuru ve onay kuyrukları boş." />
           )}
         </Card>
-        {isAdmin && (
+        <div className="flex flex-col gap-3.5">
           <Card
-            title="Son yönetici işlemleri"
+            title="Canlı akış"
             right={
-              <Button size="xs" variant="outline" onClick={() => nav('/sistem/denetim')}>
+              <Button size="xs" variant="outline" onClick={() => nav('/canli/akis')}>
                 Tümü
               </Button>
             }
           >
-            {audit.isLoading ? (
-              <Rows n={4} />
-            ) : audit.isError ? (
-              <ErrorState error={audit.error} />
+            {events.length ? (
+              events.slice(0, 8).map((e, i) => <FeedRow key={`${e.at}${e.text}`} e={e} fresh={i < 2} />)
             ) : (
-              <AuditList items={audit.data?.items.slice(0, 6) ?? []} compact />
+              <EmptyState icon="bolt" title="Henüz olay yok" body="Uygulamada olan her şey burada anında belirir." />
             )}
           </Card>
-        )}
+          {isAdmin && (
+            <Card
+              title="Son yönetici işlemleri"
+              right={
+                <Button size="xs" variant="outline" onClick={() => nav('/sistem/denetim')}>
+                  Tümü
+                </Button>
+              }
+            >
+              {audit.isLoading ? (
+                <Rows n={4} />
+              ) : audit.isError ? (
+                <ErrorState error={audit.error} />
+              ) : (
+                <AuditList items={audit.data?.items.slice(0, 6) ?? []} compact />
+              )}
+            </Card>
+          )}
+        </div>
       </div>
     </>
   );

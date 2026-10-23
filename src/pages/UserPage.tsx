@@ -1,24 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { create } from 'zustand';
+import { useParams, useSearchParams } from 'react-router';
 import { Avatar, Tick } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
-import { Drawer } from '@/components/ui/Overlays';
+import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
 import { Pills, Segment } from '@/components/ui/Tabs';
 import { adminApi, type Role, type Tick as TickKind, type UserDetail } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
+import { go, paths } from '@/lib/go';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin, useSession } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
 import { AuditList } from './Audit';
 import { AccountTab, ContentTab, DeletionBanner, ProfileTab, RelationsTab } from './UserTabs';
 
-const useDrawer = create<{ id: string | null }>(() => ({ id: null }));
-export const openUser = (id: string) => useDrawer.setState({ id });
+/** Kullanıcının ayrıntı sayfasına gider (/kullanicilar/:id). */
+export const openUser = (id: string) => go(paths.user(id));
 
 export const ACCOUNT: Record<UserDetail['accountType'], string> = {
   person: 'Bireysel',
@@ -41,96 +41,124 @@ function Label({ children }: { children: React.ReactNode }) {
   return <p className="text-[12.5px] font-semibold text-sub">{children}</p>;
 }
 
-export function UserDrawer() {
-  const id = useDrawer((s) => s.id);
-  const close = () => useDrawer.setState({ id: null });
+const TABS = ['manage', 'profile', 'account', 'content', 'relations', 'reports', 'history'] as const;
+type TabKey = (typeof TABS)[number];
+
+export function UserPage() {
+  const { id } = useParams<{ id: string }>();
   const q = useQuery({ queryKey: ['admin', 'user', id], queryFn: () => adminApi.user(id!), enabled: !!id });
-  const u = q.data;
-  return (
-    <Drawer
-      open={!!id}
-      title="Kullanıcı"
-      onClose={close}
-      footer={
-        <span className="flex items-center gap-1.5 text-[12px] text-faint">
-          <Icon name="history" size={15} />
-          Her değişiklik denetim kaydına yazılır
-        </span>
-      }
-    >
-      {q.isLoading ? <Rows n={6} /> : q.isError ? <ErrorState error={q.error} retry={() => q.refetch()} /> : u && <Body u={u} />}
-    </Drawer>
-  );
+  if (q.isLoading)
+    return (
+      <Card>
+        <Rows n={8} />
+      </Card>
+    );
+  if (q.isError)
+    return (
+      <Card>
+        <ErrorState error={q.error} retry={() => q.refetch()} />
+      </Card>
+    );
+  return q.data ? <Body u={q.data} /> : null;
 }
 
 function Body({ u }: { u: UserDetail }) {
-  const [tab, setTab] = useState<'manage' | 'profile' | 'account' | 'content' | 'relations' | 'reports' | 'history'>('manage');
-  if (u.deletion) return <DeletionBanner u={u} />;
+  const [params, setParams] = useSearchParams();
+  const tab: TabKey = (TABS as readonly string[]).includes(params.get('sekme') ?? '') ? (params.get('sekme') as TabKey) : 'manage';
+  const setTab = (t: TabKey) => setParams(t === 'manage' ? {} : { sekme: t }, { replace: true });
+  if (u.deletion)
+    return (
+      <Card>
+        <DeletionBanner u={u} />
+      </Card>
+    );
   return (
-    <>
-      <div className="flex items-center gap-3.5 px-[18px] pt-1 pb-4">
-        <Avatar src={u.avatarPath} name={u.displayName ?? u.username} size={60} />
-        <div className="flex min-w-0 flex-col gap-1">
-          <p className="flex items-center gap-1.5 truncate text-[18px] font-bold tracking-[-0.3px]">
+    <div className="grid items-start gap-3.5 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <Card className="lg:sticky lg:top-[76px]">
+        <div className="flex flex-col items-center gap-2 px-[18px] pt-6 pb-4 text-center">
+          <Avatar src={u.avatarPath} name={u.displayName ?? u.username} size={84} />
+          <p className="mt-1 flex items-center gap-1.5 text-[20px] font-bold tracking-[-0.3px]">
             {u.displayName ?? u.username}
-            <Tick tick={u.tick} size={17} />
+            <Tick tick={u.tick} size={18} />
           </p>
-          <p className="truncate text-[13px] text-sub">@{u.username}</p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="-mt-1 text-[13.5px] text-sub">@{u.username}</p>
+          <div className="flex flex-wrap justify-center gap-1.5">
             {u.role !== 'user' && <Tag tone={u.role === 'admin' ? 'yellow' : 'blue'}>{ROLE[u.role]}</Tag>}
             {u.isBanned ? <Tag tone="live">Banlı</Tag> : <Tag tone="up">Aktif</Tag>}
             <Tag>{ACCOUNT[u.accountType]}</Tag>
+            {u.isTrusted && <Tag tone="blue">Güvenilir</Tag>}
           </div>
         </div>
-      </div>
-      <div className="mx-[18px] mb-2 grid grid-cols-4 gap-px overflow-hidden rounded-[14px] bg-line">
-        {[
-          ['Takipçi', compact(u.followerCount)],
-          ['Gönderi', fmt(u.postCount)],
-          ['Coin', fmt(u.balance)],
-          ['Şikayet', fmt(u.reportCount)],
-        ].map(([k, v]) => (
-          <div key={k} className="bg-elev2 px-3 py-2.5">
-            <p className="text-[16px] font-bold tabular">{v}</p>
-            <p className="text-[11.5px] text-faint">{k}</p>
-          </div>
-        ))}
-      </div>
-      <div className="px-[18px] py-3">
-        <Pills
-          items={[
-            { key: 'manage', label: 'Yönetim' },
-            { key: 'profile', label: 'Profil' },
-            { key: 'account', label: 'Hesap' },
-            { key: 'content', label: 'İçerik' },
-            { key: 'relations', label: 'Bağlantılar' },
-            { key: 'reports', label: 'Şikayetler', count: u.reports.length },
-            { key: 'history', label: 'Geçmiş', count: u.history.length },
-          ]}
-          value={tab}
-          onChange={setTab}
-        />
-      </div>
-      {tab === 'manage' && <Manage u={u} />}
-      {tab === 'profile' && <ProfileTab u={u} />}
-      {tab === 'account' && <AccountTab u={u} />}
-      {tab === 'content' && <ContentTab u={u} />}
-      {tab === 'relations' && <RelationsTab u={u} />}
-      {tab === 'reports' &&
-        (u.reports.length ? (
-          u.reports.map((r) => (
-            <div key={r.id} className="flex items-center gap-3 px-[18px] py-3 text-[13px] shadow-[inset_0_0.5px_0_var(--color-line)]">
-              <Icon name="crisis_alert" size={18} filled className="text-live" />
-              <span className="flex-1">{r.reason}</span>
-              <Tag tone={r.status === 'new' ? 'live' : undefined}>{r.status === 'new' ? 'Bekliyor' : 'Kapandı'}</Tag>
-              <span className="text-[11.5px] text-faint">{timeAgo(r.createdAt)}</span>
+        <div className="mx-[18px] mb-4 grid grid-cols-2 gap-px overflow-hidden rounded-[14px] bg-line">
+          {[
+            ['Takipçi', compact(u.followerCount)],
+            ['Gönderi', fmt(u.postCount)],
+            ['Coin', fmt(u.balance)],
+            ['Şikayet', fmt(u.reportCount)],
+          ].map(([k, v]) => (
+            <div key={k} className="bg-elev2 px-3 py-2.5">
+              <p className="text-[17px] font-bold tabular">{v}</p>
+              <p className="text-[11.5px] text-faint">{k}</p>
             </div>
-          ))
-        ) : (
-          <EmptyState icon="workspace_premium" title="Temiz sicil" body="Bu hesap hakkında şikayet yok." />
-        ))}
-      {tab === 'history' && <AuditList items={u.history} compact />}
-    </>
+          ))}
+        </div>
+        <div className="flex flex-col gap-px border-t-[0.5px] border-line py-2 text-[13px]">
+          {[
+            ['Katılım', new Date(u.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })],
+            ['Son aktiflik', timeAgo(u.lastActiveAt)],
+            ...(u.email ? [['E-posta', `${u.email}${u.emailVerified ? '' : ' · doğrulanmadı'}`]] : []),
+          ].map(([k, v]) => (
+            <div key={k} className="flex items-center gap-3 px-[18px] py-1.5">
+              <span className="text-sub">{k}</span>
+              <span className="ml-auto min-w-0 truncate">{v}</span>
+            </div>
+          ))}
+        </div>
+        <p className="flex items-center gap-1.5 border-t-[0.5px] border-line px-[18px] py-3 text-[12px] text-faint">
+          <Icon name="history" size={15} />
+          Her değişiklik denetim kaydına yazılır
+        </p>
+      </Card>
+
+      <Card>
+        <div className="no-scrollbar overflow-x-auto px-[18px] py-3.5">
+          <Pills
+            items={[
+              { key: 'manage', label: 'Yönetim' },
+              { key: 'profile', label: 'Profil' },
+              { key: 'account', label: 'Hesap' },
+              { key: 'content', label: 'İçerik' },
+              { key: 'relations', label: 'Bağlantılar' },
+              { key: 'reports', label: 'Şikayetler', count: u.reports.length },
+              { key: 'history', label: 'Geçmiş', count: u.history.length },
+            ]}
+            value={tab}
+            onChange={setTab}
+          />
+        </div>
+        <div key={tab} className="page-in">
+          {tab === 'manage' && <Manage u={u} />}
+          {tab === 'profile' && <ProfileTab u={u} />}
+          {tab === 'account' && <AccountTab u={u} />}
+          {tab === 'content' && <ContentTab u={u} />}
+          {tab === 'relations' && <RelationsTab u={u} />}
+          {tab === 'reports' &&
+            (u.reports.length ? (
+              u.reports.map((r) => (
+                <div key={r.id} className="flex items-center gap-3 px-[18px] py-3 text-[13px] shadow-[inset_0_0.5px_0_var(--color-line)]">
+                  <Icon name="crisis_alert" size={18} filled className="text-live" />
+                  <span className="flex-1">{r.reason}</span>
+                  <Tag tone={r.status === 'new' ? 'live' : undefined}>{r.status === 'new' ? 'Bekliyor' : 'Kapandı'}</Tag>
+                  <span className="text-[11.5px] text-faint">{timeAgo(r.createdAt)}</span>
+                </div>
+              ))
+            ) : (
+              <EmptyState icon="workspace_premium" title="Temiz sicil" body="Bu hesap hakkında şikayet yok." />
+            ))}
+          {tab === 'history' && <AuditList items={u.history} compact />}
+        </div>
+      </Card>
+    </div>
   );
 }
 

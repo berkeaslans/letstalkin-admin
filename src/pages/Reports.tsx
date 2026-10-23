@@ -12,7 +12,7 @@ import { cn } from '@/lib/cn';
 import { timeAgo } from '@/lib/format';
 import { playSound } from '@/lib/sound';
 import { confirmAction, toast } from '@/stores/ui';
-import { openUser } from './UserDrawer';
+import { openUser } from './UserPage';
 
 export const REASON: Record<Report['reason'], [string, 'yellow' | 'epic' | 'live' | 'match' | 'blue' | undefined]> = {
   spam: ['Spam', 'yellow'],

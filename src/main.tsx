@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { type ComponentType, StrictMode, useEffect } from 'react';
+import { type ComponentType, lazy, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { NAV } from '@/components/layout/nav';
@@ -7,40 +7,94 @@ import { Shell } from '@/components/layout/Shell';
 import { ConfirmDialog, Toaster } from '@/components/ui/Overlays';
 import { ApiError } from '@/lib/api/client';
 import { unlockSoundOnFirstInteraction } from '@/lib/sound';
-import { Audit } from '@/pages/Audit';
-import { Flags } from '@/pages/Flags';
 import { Forbidden, Login } from '@/pages/Login';
-import { Content, Match, Rooms, Rules, Summary } from '@/pages/Moderation';
 import { Overview } from '@/pages/Overview';
-import { Publish, PublishAccounts, Quizzes } from '@/pages/Publish';
-import { Reports } from '@/pages/Reports';
-import { SeriesPages } from '@/pages/SeriesPages';
-import { Soon } from '@/pages/Soon';
-import { Ticks } from '@/pages/Ticks';
 import { Tv } from '@/pages/Tv';
-import { UserDrawer } from '@/pages/UserDrawer';
-import { Team, Users } from '@/pages/Users';
 import { useIsAdmin, useSession } from '@/stores/session';
 import './styles.css';
 
+/** Sayfalar ilk ziyarette yüklenir (ilk açılış hafif kalır). */
+function page<M extends Record<string, unknown>>(load: () => Promise<M>, name: keyof M & string) {
+  return lazy(() => load().then((m) => ({ default: m[name] as ComponentType })));
+}
+const Audience = page(() => import('@/pages/Analytics'), 'Audience');
+const Usage = page(() => import('@/pages/Analytics'), 'Usage');
+const Audit = page(() => import('@/pages/Audit'), 'Audit');
+const Broadcast = page(() => import('@/pages/Broadcast'), 'Broadcast');
+const Showcase = page(() => import('@/pages/Catalog'), 'Showcase');
+const ShowPage = page(() => import('@/pages/Catalog'), 'ShowPage');
+const Shows = page(() => import('@/pages/Catalog'), 'Shows');
+const Coins = page(() => import('@/pages/Economy'), 'Coins');
+const Market = page(() => import('@/pages/Economy'), 'Market');
+const Products = page(() => import('@/pages/Economy'), 'Products');
+const Revenue = page(() => import('@/pages/Economy'), 'Revenue');
+const StickerPage = page(() => import('@/pages/Economy'), 'StickerPage');
+const Stickers = page(() => import('@/pages/Economy'), 'Stickers');
+const FeedbackInbox = page(() => import('@/pages/Feedback'), 'FeedbackInbox');
+const Flags = page(() => import('@/pages/Flags'), 'Flags');
+const LiveFeed = page(() => import('@/pages/Live'), 'LiveFeed');
+const LiveNow = page(() => import('@/pages/Live'), 'LiveNow');
+const Content = page(() => import('@/pages/Moderation'), 'Content');
+const Match = page(() => import('@/pages/Moderation'), 'Match');
+const RoomPage = page(() => import('@/pages/Moderation'), 'RoomPage');
+const Rooms = page(() => import('@/pages/Moderation'), 'Rooms');
+const Rules = page(() => import('@/pages/Moderation'), 'Rules');
+const Summary = page(() => import('@/pages/Moderation'), 'Summary');
+const Publish = page(() => import('@/pages/Publish'), 'Publish');
+const PublishAccounts = page(() => import('@/pages/Publish'), 'PublishAccounts');
+const QuizPage = page(() => import('@/pages/Publish'), 'QuizPage');
+const Quizzes = page(() => import('@/pages/Publish'), 'Quizzes');
+const Reports = page(() => import('@/pages/Reports'), 'Reports');
+const SeriesPages = page(() => import('@/pages/SeriesPages'), 'SeriesPages');
+const Settings = page(() => import('@/pages/System'), 'Settings');
+const Status = page(() => import('@/pages/System'), 'Status');
+const Ticks = page(() => import('@/pages/Ticks'), 'Ticks');
+const UserPage = page(() => import('@/pages/UserPage'), 'UserPage');
+const Team = page(() => import('@/pages/Users'), 'Team');
+const Users = page(() => import('@/pages/Users'), 'Users');
+
 const PAGES: Record<string, ComponentType> = {
   '/': Overview,
+  '/canli': LiveNow,
+  '/canli/akis': LiveFeed,
   '/moderasyon': Reports,
   '/moderasyon/icerik': Content,
   '/moderasyon/odalar': Rooms,
   '/moderasyon/eslesme': Match,
   '/moderasyon/kurallar': Rules,
   '/moderasyon/ozet': Summary,
+  '/moderasyon/geri-bildirim': FeedbackInbox,
   '/kullanicilar': Users,
   '/kullanicilar/tikler': Ticks,
   '/kullanicilar/sayfalar': SeriesPages,
   '/kullanicilar/ekip': Team,
   '/yayin': Publish,
   '/yayin/quizler': Quizzes,
+  '/yayin/bildirim': Broadcast,
   '/yayin/hesaplar': PublishAccounts,
-  '/sistem': Flags,
+  '/katalog': Shows,
+  '/katalog/vitrin': Showcase,
+  '/ekonomi': Revenue,
+  '/ekonomi/coin': Coins,
+  '/ekonomi/sticker': Stickers,
+  '/ekonomi/pazar': Market,
+  '/ekonomi/urunler': Products,
+  '/analiz': Usage,
+  '/analiz/kitle': Audience,
+  '/sistem': Settings,
+  '/sistem/bayraklar': Flags,
+  '/sistem/durum': Status,
   '/sistem/denetim': Audit,
 };
+
+/** Ayrıntı sayfaları: her şey kendi adresinde açılır (paylaşılabilir, geri tuşu çalışır). */
+const DETAILS: Array<{ path: string; parent: string; page: ComponentType }> = [
+  { path: '/kullanicilar/:id', parent: '/kullanicilar', page: UserPage },
+  { path: '/moderasyon/odalar/:id', parent: '/moderasyon/odalar', page: RoomPage },
+  { path: '/yayin/quizler/:id', parent: '/yayin/quizler', page: QuizPage },
+  { path: '/ekonomi/sticker/:id', parent: '/ekonomi/sticker', page: StickerPage },
+  { path: '/katalog/:tmdbId', parent: '/katalog', page: ShowPage },
+];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,20 +125,23 @@ function App() {
   if (status === 'forbidden') return <Forbidden />;
 
   return (
-    <>
-      <Routes>
-        <Route path="/tv" element={<Tv />} />
-        <Route element={<Shell />}>
-          {NAV.flatMap((g) => g.subs).map((s) => {
-            const Page = s.soon ? Soon : PAGES[s.to];
-            const allowed = isAdmin || !s.admin;
-            return <Route key={s.to} path={s.to} element={allowed && Page ? <Page /> : <Navigate to="/" replace />} />;
-          })}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-      <UserDrawer />
-    </>
+    <Routes>
+      <Route path="/tv" element={<Tv />} />
+      <Route element={<Shell />}>
+        {NAV.flatMap((g) => g.subs).map((s) => {
+          const Page = PAGES[s.to];
+          const allowed = isAdmin || !s.admin;
+          return <Route key={s.to} path={s.to} element={allowed && Page ? <Page /> : <Navigate to="/" replace />} />;
+        })}
+        {DETAILS.map((d) => {
+          const parent = NAV.flatMap((g) => g.subs).find((s) => s.to === d.parent);
+          const allowed = isAdmin || !parent?.admin;
+          const Page = d.page;
+          return <Route key={d.path} path={d.path} element={allowed ? <Page /> : <Navigate to="/" replace />} />;
+        })}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 }
 

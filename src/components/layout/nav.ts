@@ -9,7 +9,7 @@ export interface NavSub {
   /** Backend ucu henüz yok: sayfa yol haritasını gösterir. */
   soon?: boolean;
   /** Sekme sayacının anahtarı (genel bakış verisinden). */
-  count?: 'openReports' | 'pendingVerifications' | 'pendingSeriesPages';
+  count?: 'openReports' | 'pendingVerifications' | 'pendingSeriesPages' | 'newFeedback';
 }
 export interface NavGroup {
   key: string;
@@ -33,13 +33,16 @@ export const NAV: NavGroup[] = [
     icon: 'bolt',
     label: 'Canlı',
     live: true,
-    subs: [{ to: '/canli', label: 'Odalar ve yayınlar', desc: 'Aktif odalar, yayınlar ve quizler', soon: true }],
+    subs: [
+      { to: '/canli', label: 'Şu an', desc: 'Hareketli odalar, canlı yayınlar ve quizler' },
+      { to: '/canli/akis', label: 'Canlı akış', desc: 'Uygulamada olan her şey, anında' },
+    ],
   },
   {
     key: 'mod',
     icon: 'shield',
     label: 'Moderasyon',
-    count: ['openReports'],
+    count: ['openReports', 'newFeedback'],
     subs: [
       { to: '/moderasyon', label: 'Şikayetler', desc: 'Topluluk bildirimleri', count: 'openReports' },
       { to: '/moderasyon/icerik', label: 'İçerik', desc: 'Gönderi ve yorum arama, kaldırma, geri alma' },
@@ -47,7 +50,12 @@ export const NAV: NavGroup[] = [
       { to: '/moderasyon/eslesme', label: 'Eşleşme', desc: 'Şikayetli ve yaşı tutarsız profiller' },
       { to: '/moderasyon/kurallar', label: 'Kurallar', desc: 'Kara liste ve otomatik gizleme eşiği' },
       { to: '/moderasyon/ozet', label: 'Özet', desc: 'Şikayet ve karar istatistikleri' },
-      { to: '/moderasyon/geri-bildirim', label: 'Geri bildirim', desc: 'Kullanıcılardan gelen hata ve öneriler', soon: true },
+      {
+        to: '/moderasyon/geri-bildirim',
+        label: 'Geri bildirim',
+        desc: 'Kullanıcılardan gelen hata, öneri ve sorular',
+        count: 'newFeedback',
+      },
     ],
   },
   {
@@ -81,7 +89,7 @@ export const NAV: NavGroup[] = [
     subs: [
       { to: '/yayin', label: 'Yeni yayın', desc: 'Seçtiğin hesap adına gönderi, anket, oda veya quiz', admin: true },
       { to: '/yayin/quizler', label: 'Quizler', desc: 'Planlı, canlı ve biten quizler; düzenle, başlat, bitir', admin: true },
-      { to: '/yayin/bildirim', label: 'Bildirim gönder', desc: 'Push, uygulama içi, e-posta', soon: true, admin: true },
+      { to: '/yayin/bildirim', label: 'Bildirim gönder', desc: 'Herkese, bir kitleye ya da tek kişiye duyuru', admin: true },
       { to: '/yayin/hesaplar', label: 'Yayın hesapları', desc: 'Panelden adına yayın yapılabilecek hesaplar', admin: true },
     ],
   },
@@ -90,8 +98,8 @@ export const NAV: NavGroup[] = [
     icon: 'theaters',
     label: 'Katalog',
     subs: [
-      { to: '/katalog', label: 'Yapımlar', desc: 'TMDB önbelleği, sayfa trafiği', soon: true },
-      { to: '/katalog/vitrin', label: 'Vitrin', desc: 'Ana sayfa ve keşfet listeleri', soon: true },
+      { to: '/katalog', label: 'Yapımlar', desc: 'Uygulamada konuşulan diziler ve filmler' },
+      { to: '/katalog/vitrin', label: 'Vitrin', desc: 'Ana sayfada öne çıkan yapımlar ve sırası' },
     ],
   },
   {
@@ -99,10 +107,11 @@ export const NAV: NavGroup[] = [
     icon: 'toll',
     label: 'Ekonomi',
     subs: [
-      { to: '/ekonomi', label: 'Gelir', desc: 'App Store, Google Play, abonelik', soon: true },
-      { to: '/ekonomi/coin', label: 'Coin', desc: 'Dolaşım ve hareketler', soon: true },
-      { to: '/ekonomi/sticker', label: "Sticker'lar", desc: 'Basım, nadirlik, stok', soon: true },
-      { to: '/ekonomi/pazar', label: 'Pazar', desc: 'İkinci el ilanlar ve satışlar', soon: true },
+      { to: '/ekonomi', label: 'Gelir', desc: 'Mavi tik abonelikleri ve mağaza', admin: true },
+      { to: '/ekonomi/coin', label: 'Coin', desc: 'Dolaşım, kazanç, harcama, tüm hareketler', admin: true },
+      { to: '/ekonomi/sticker', label: "Sticker'lar", desc: 'Basım, nadirlik, fiyat, sahipler', admin: true },
+      { to: '/ekonomi/pazar', label: 'Pazar', desc: 'İkinci el ilanlar ve satışlar', admin: true },
+      { to: '/ekonomi/urunler', label: 'Ürünler', desc: 'Merch ürünleri (Shopier)', admin: true },
     ],
   },
   {
@@ -110,8 +119,8 @@ export const NAV: NavGroup[] = [
     icon: 'monitoring',
     label: 'Analiz',
     subs: [
-      { to: '/analiz', label: 'Özellik kullanımı', desc: 'Hangi özellik ne kadar kullanılıyor', soon: true },
-      { to: '/analiz/aktivite', label: 'Aktiviteler', desc: 'Kullanıcı hareketleri, gerçek zamanlı', soon: true },
+      { to: '/analiz', label: 'Kullanım', desc: 'Hangi özellik ne kadar kullanılıyor' },
+      { to: '/analiz/kitle', label: 'Kitle', desc: 'Aktif kullanıcı, platform, dil, elde tutma' },
     ],
   },
   {
@@ -119,10 +128,10 @@ export const NAV: NavGroup[] = [
     icon: 'settings',
     label: 'Sistem',
     subs: [
-      { to: '/sistem', label: 'Özellik bayrakları', desc: 'Yeniden başlatmadan aç / kapat', admin: true },
+      { to: '/sistem', label: 'Ayarlar', desc: 'Kayıt, bakım modu, asgari sürüm, ödüller, eşikler', admin: true },
+      { to: '/sistem/bayraklar', label: 'Özellik bayrakları', desc: 'Yeniden başlatmadan aç / kapat', admin: true },
+      { to: '/sistem/durum', label: 'Durum', desc: 'Servisler, kuyruklar, bakım işleri', admin: true },
       { to: '/sistem/denetim', label: 'Denetim kaydı', desc: 'Kim, ne zaman, ne yaptı', admin: true },
-      { to: '/sistem/ayarlar', label: 'Ayarlar', desc: 'Kayıt, bakım modu, eşikler, ödüller', soon: true, admin: true },
-      { to: '/sistem/durum', label: 'Durum', desc: 'Servisler, kuyruklar, bakım', soon: true, admin: true },
     ],
   },
 ];
@@ -132,7 +141,14 @@ export function navFor(isAdmin: boolean): NavGroup[] {
   return NAV.map((g) => ({ ...g, subs: g.subs.filter((s) => isAdmin || !s.admin) })).filter((g) => g.subs.length);
 }
 
-export function findSub(path: string): { group: NavGroup; sub: NavSub } | null {
-  for (const group of NAV) for (const sub of group.subs) if (sub.to === path) return { group, sub };
-  return null;
+/** Adresin ait olduğu alt sayfa. Detay sayfaları (ör. /kullanicilar/abc) en uzun
+ *  önek eşleşmesiyle üst listesine bağlanır; detail=true döner. */
+export function findSub(path: string): { group: NavGroup; sub: NavSub; detail: boolean } | null {
+  let best: { group: NavGroup; sub: NavSub } | null = null;
+  for (const group of NAV)
+    for (const sub of group.subs) {
+      if (sub.to === path) return { group, sub, detail: false };
+      if (sub.to !== '/' && path.startsWith(`${sub.to}/`) && (!best || sub.to.length > best.sub.to.length)) best = { group, sub };
+    }
+  return best ? { ...best, detail: true } : null;
 }
