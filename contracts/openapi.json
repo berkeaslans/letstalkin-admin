@@ -21254,6 +21254,18 @@
                     },
                     "liveStreams": {
                       "type": "number"
+                    },
+                    "signupsYesterday": {
+                      "type": "number"
+                    },
+                    "activeYesterday": {
+                      "type": "number"
+                    },
+                    "myActionsToday": {
+                      "type": "number"
+                    },
+                    "decisionsToday": {
+                      "type": "number"
                     }
                   },
                   "required": [
@@ -21266,7 +21278,11 @@
                     "pendingSeriesPages",
                     "newFeedback",
                     "liveQuizzes",
-                    "liveStreams"
+                    "liveStreams",
+                    "signupsYesterday",
+                    "activeYesterday",
+                    "myActionsToday",
+                    "decisionsToday"
                   ],
                   "additionalProperties": false
                 }
@@ -21311,6 +21327,22 @@
           },
           {
             "schema": {
+              "type": "string",
+              "enum": [
+                "new",
+                "old",
+                "followers",
+                "active",
+                "balance"
+              ],
+              "default": "new"
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false
+          },
+          {
+            "schema": {
               "type": "string"
             },
             "in": "query",
@@ -21321,7 +21353,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 50,
+              "maximum": 200,
               "default": 30
             },
             "in": "query",
@@ -21706,6 +21738,9 @@
                           "action": {
                             "type": "string"
                           },
+                          "actorId": {
+                            "type": "string"
+                          },
                           "actor": {
                             "type": "object",
                             "properties": {
@@ -21745,6 +21780,7 @@
                         "required": [
                           "id",
                           "action",
+                          "actorId",
                           "actor",
                           "targetId",
                           "targetUsername",
@@ -22098,7 +22134,8 @@
                 "settings_app",
                 "feedback",
                 "catalog",
-                "maintenance"
+                "maintenance",
+                "note"
               ]
             },
             "in": "query",
@@ -22118,6 +22155,41 @@
               "type": "string"
             },
             "in": "query",
+            "name": "actorId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "in": "query",
+            "name": "q",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "from",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "to",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
             "name": "cursor",
             "required": false
           },
@@ -22125,7 +22197,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 100,
+              "maximum": 500,
               "default": 50
             },
             "in": "query",
@@ -22150,6 +22222,9 @@
                             "type": "string"
                           },
                           "action": {
+                            "type": "string"
+                          },
+                          "actorId": {
                             "type": "string"
                           },
                           "actor": {
@@ -22191,6 +22266,7 @@
                         "required": [
                           "id",
                           "action",
+                          "actorId",
                           "actor",
                           "targetId",
                           "targetUsername",
@@ -22210,6 +22286,46 @@
                     "nextCursor"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/audit/actors": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "count": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "username",
+                      "count"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               }
             }
@@ -23195,6 +23311,287 @@
         }
       }
     },
+    "/api/v1/admin/users/{id}/notes": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "pinned": {
+                        "type": "boolean"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "author": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarPath": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "avatarPath"
+                        ],
+                        "additionalProperties": false,
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "text",
+                      "pinned",
+                      "createdAt",
+                      "author"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2000
+                  },
+                  "pinned": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "pinned": {
+                        "type": "boolean"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "author": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarPath": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "avatarPath"
+                        ],
+                        "additionalProperties": false,
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "text",
+                      "pinned",
+                      "createdAt",
+                      "author"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users/{id}/notes/{noteId}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "noteId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "pinned": {
+                        "type": "boolean"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "author": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarPath": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "avatarPath"
+                        ],
+                        "additionalProperties": false,
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "text",
+                      "pinned",
+                      "createdAt",
+                      "author"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/content": {
       "get": {
         "tags": [
@@ -23540,6 +23937,31 @@
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      "hitCount": {
+                        "type": "number"
+                      },
+                      "lastHitAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "createdBy": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username"
+                        ],
+                        "additionalProperties": false,
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -23547,7 +23969,10 @@
                       "kind",
                       "pattern",
                       "note",
-                      "createdAt"
+                      "createdAt",
+                      "hitCount",
+                      "lastHitAt",
+                      "createdBy"
                     ],
                     "additionalProperties": false
                   }
@@ -23622,6 +24047,31 @@
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "hitCount": {
+                      "type": "number"
+                    },
+                    "lastHitAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdBy": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "username"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -23629,7 +24079,10 @@
                     "kind",
                     "pattern",
                     "note",
-                    "createdAt"
+                    "createdAt",
+                    "hitCount",
+                    "lastHitAt",
+                    "createdBy"
                   ],
                   "additionalProperties": false
                 }
@@ -31377,6 +31830,93 @@
         }
       }
     },
+    "/api/v1/admin/search": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "in": "query",
+            "name": "q",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "user",
+                              "room",
+                              "quiz",
+                              "show",
+                              "sticker",
+                              "product",
+                              "post"
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "subtitle": {
+                            "type": "string"
+                          },
+                          "to": {
+                            "type": "string"
+                          },
+                          "image": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "badge": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "id",
+                          "title",
+                          "subtitle",
+                          "to",
+                          "image",
+                          "badge"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/reports": {
       "get": {
         "tags": [
@@ -31478,11 +32018,23 @@
                               },
                               "username": {
                                 "type": "string"
+                              },
+                              "total": {
+                                "type": "number"
+                              },
+                              "actioned": {
+                                "type": "number"
+                              },
+                              "noisy": {
+                                "type": "boolean"
                               }
                             },
                             "required": [
                               "id",
-                              "username"
+                              "username",
+                              "total",
+                              "actioned",
+                              "noisy"
                             ],
                             "additionalProperties": false,
                             "nullable": true
@@ -31557,12 +32109,43 @@
                               "missing"
                             ],
                             "additionalProperties": false
+                          },
+                          "authorHistory": {
+                            "type": "object",
+                            "properties": {
+                              "reports": {
+                                "type": "number"
+                              },
+                              "actioned": {
+                                "type": "number"
+                              },
+                              "isBanned": {
+                                "type": "boolean"
+                              },
+                              "joinedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "hasViolation": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "reports",
+                              "actioned",
+                              "isBanned",
+                              "joinedAt",
+                              "hasViolation"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
                           "reporter",
                           "pendingOnTarget",
-                          "target"
+                          "target",
+                          "authorHistory"
                         ]
                       }
                     ]
@@ -31651,6 +32234,87 @@
                   "required": [
                     "ok",
                     "closed"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/reports/bulk": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "minItems": 1,
+                    "maxItems": 200
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "reviewed",
+                      "actioned"
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "hide"
+                    ],
+                    "default": "none"
+                  },
+                  "note": {
+                    "type": "string",
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "ids",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "closed": {
+                      "type": "number"
+                    },
+                    "hidden": {
+                      "type": "number"
+                    },
+                    "failed": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "closed",
+                    "hidden",
+                    "failed"
                   ],
                   "additionalProperties": false
                 }

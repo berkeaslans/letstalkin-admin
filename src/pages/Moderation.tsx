@@ -120,7 +120,11 @@ export function Content() {
       ) : res.isError ? (
         <ErrorState error={res.error} retry={() => res.refetch()} />
       ) : !items.length ? (
-        <EmptyState icon="search" title="Sonuç yok" />
+        <EmptyState
+          icon="search"
+          title="Sonuç yok"
+          body="Metinde ara ya da @kullanıcı adı yaz. Gizlenen içerikler için yukarıdaki 'Gizlenen' filtresine geç."
+        />
       ) : (
         items.map((i) => (
           <div key={i.id} className="flex gap-3 px-[18px] py-3.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
@@ -223,7 +227,11 @@ export function Rooms() {
       ) : res.isError ? (
         <ErrorState error={res.error} retry={() => res.refetch()} />
       ) : !rows.length ? (
-        <EmptyState icon="groups" title="Oda yok" />
+        <EmptyState
+          icon="groups"
+          title="Oda yok"
+          body="Bu filtrede oda bulunamadı. Kullanıcılar sarı tikli, dizi sayfası, güvenilir ya da takipçi eşiğini geçmişse oda açabilir; sen de Yayın ekranından hesap seçerek açabilirsin."
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[13.5px]">
@@ -367,7 +375,7 @@ export function RoomPage() {
                 </div>
               ))
             ) : (
-              <EmptyState icon="info" title="Mesaj yok" />
+              <EmptyState icon="info" title="Mesaj yok" body="Bu odada henüz kimse yazmamış." />
             )}
           </div>
         </Card>
@@ -696,14 +704,29 @@ export function Rules() {
           {list.isLoading ? (
             <Rows n={3} />
           ) : !list.data?.length ? (
-            <EmptyState icon="shield" title="Liste boş" />
+            <EmptyState
+              icon="shield"
+              title="Liste boş"
+              body="Spam bağlantıları (ör. takipçi satan siteler) ve istemediğin kelimeleri ekle. Eklediğin an gönderi, yorum, oda mesajı, DM, hikâye ve profil metinlerinde uygulanır — kullanıcı neye takıldığını görmez."
+            />
           ) : (
             <div className="overflow-hidden rounded-[14px] bg-elev2">
               {list.data.map((t) => (
                 <div key={t.id} className="flex items-center gap-3 px-3.5 py-2.5 text-[13.5px] shadow-[inset_0_-0.5px_0_var(--color-line)]">
                   <Tag tone={t.kind === 'link' ? 'blue' : undefined}>{t.kind === 'link' ? 'Bağlantı' : 'Kelime'}</Tag>
-                  <code className="min-w-0 flex-1 truncate text-[13px]">{t.pattern}</code>
-                  <span className="text-[11.5px] text-faint">{timeAgo(t.createdAt)}</span>
+                  <div className="min-w-0 flex-1">
+                    <code className="block truncate text-[13px]">{t.pattern}</code>
+                    <p className="truncate text-[11.5px] text-faint">
+                      {t.note ? `${t.note} · ` : ''}
+                      {t.createdBy ? `@${t.createdBy.username}` : 'silinmiş hesap'} · {timeAgo(t.createdAt)}
+                    </p>
+                  </div>
+                  <span
+                    className={cn('flex-none text-right text-[12px] tabular', t.hitCount ? 'font-semibold text-up' : 'text-faint')}
+                    title={t.hitCount ? `Son yakalama: ${timeAgo(t.lastHitAt)}` : 'Bu kural henüz hiçbir içeriği engellemedi'}
+                  >
+                    {t.hitCount ? `${fmt(t.hitCount)} yakalama` : '—'}
+                  </span>
                   {isAdmin && (
                     <Button size="xs" variant="ghost" onClick={() => del.mutate(t.id)}>
                       Kaldır
@@ -813,7 +836,7 @@ export function Summary() {
               {!s ? (
                 <Rows n={3} />
               ) : !s.topReported.length ? (
-                <EmptyState title="Kimse yok" />
+                <EmptyState title="Kimse yok" body="Bu dönemde hakkında şikayet açılan kullanıcı olmadı." />
               ) : (
                 s.topReported.map((u) => (
                   <button
@@ -833,7 +856,10 @@ export function Summary() {
               {!s ? (
                 <Rows n={3} />
               ) : !s.moderators.length ? (
-                <EmptyState title="Bu dönemde karar yok" />
+                <EmptyState
+                  title="Bu dönemde karar yok"
+                  body="Şikayetlere karar verildikçe hangi moderatörün kaç karar verdiği burada görünür."
+                />
               ) : (
                 s.moderators.map((m) => (
                   <div

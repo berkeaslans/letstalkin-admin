@@ -1,12 +1,15 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import type { IconName } from '@/components/ui/icon-names';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
 import { Pills } from '@/components/ui/Tabs';
 import { type AuditKind, type AuditRow, adminApi } from '@/lib/api/admin';
+import { errorMessage } from '@/lib/api/client';
+import { collectAll, downloadCsv } from '@/lib/csv';
 import { fmt, timeAgo } from '@/lib/format';
+import { toast } from '@/stores/ui';
 
 const KIND: Record<string, [string, IconName, 'yellow' | 'blue' | 'live' | 'up' | undefined]> = {
   tick: ['Tik', 'verified', 'yellow'],
@@ -34,12 +37,54 @@ const KIND: Record<string, [string, IconName, 'yellow' | 'blue' | 'live' | 'up' 
   setting: ['Ayar', 'settings', undefined],
   publish: ['Yayın', 'campaign', 'yellow'],
   quiz: ['Quiz', 'bolt', undefined],
+  live: ['Canlı yayın', 'tv', 'live'],
+  broadcast: ['Duyuru', 'campaign', 'yellow'],
+  sticker: ['Sticker', 'toll', 'yellow'],
+  market: ['Pazar', 'toll', undefined],
+  product: ['Ürün', 'toll', undefined],
+  settings_app: ['Sistem ayarı', 'settings', 'blue'],
+  maintenance: ['Bakım', 'settings', 'live'],
+  feedback: ['Geri bildirim', 'campaign', 'up'],
+  catalog: ['Katalog', 'theaters', undefined],
+  note: ['Ekip notu', 'info', undefined],
+};
+const STICKER_OP: Record<string, string> = { create: 'basıldı', edit: 'düzenlendi', delete: 'silindi', grant: 'hediye edildi' };
+const PRODUCT_OP: Record<string, string> = { create: 'eklendi', edit: 'düzenlendi', delete: 'silindi' };
+const QUEUE_OP: Record<string, string> = {
+  queue_retry: 'başarısız işler yeniden denendi',
+  queue_clean: 'başarısız işler temizlendi',
+  queue_pause: 'kuyruk duraklatıldı',
+  queue_resume: 'kuyruk sürdürüldü',
+  run_job: 'bakım işi çalıştırıldı',
 };
 const TICK: Record<string, string> = { none: 'tik yok', yellow: 'sarı', blue: 'mavi' };
 const ROLE: Record<string, string> = { user: 'kullanıcı', moderator: 'moderatör', admin: 'admin' };
 const PUBLISH_KIND: Record<string, string> = { post: 'gönderi', room: 'oda', room_message: 'oda mesajı', quiz: 'quiz' };
 const QUIZ_OP: Record<string, string> = { edit: 'düzenlendi', start: 'başlatıldı', end: 'erken bitirildi', delete: 'silindi' };
 const REPORT_ACTION: Record<string, string> = { none: 'yoksayıldı', hide: 'içerik kaldırıldı', ban: 'kullanıcı banlandı' };
+const SETTING_LABEL: Record<string, string> = {
+  'app.registrationOpen': 'Yeni kayıtlar',
+  'app.maintenance': 'Bakım modu',
+  'app.minVersion': 'Asgari sürüm',
+  'coins.rewards': 'Coin ödülleri',
+  'limits.rooms': 'Oda eşikleri',
+  'moderation.autoHideThreshold': 'Otomatik gizleme eşiği',
+  'publish.accounts': 'Yayın hesapları',
+};
+/** Ayar değerini tek satıra sığdır (nesne ise alanları, dizi ise sayısı). */
+function short(v: unknown): string {
+  if (v == null || v === '') return 'boş';
+  if (typeof v === 'boolean') return v ? 'açık' : 'kapalı';
+  if (Array.isArray(v)) return `${v.length} kayıt`;
+  if (typeof v === 'object')
+    return (
+      Object.entries(v as Record<string, unknown>)
+        .filter(([, x]) => x !== '' && x != null)
+        .map(([k, x]) => `${k}: ${typeof x === 'boolean' ? (x ? 'açık' : 'kapalı') : x}`)
+        .join(', ') || 'boş'
+    );
+  return String(v);
+}
 
 /** detail JSON'unu okunur cümleye çevirir. */
 export function describe(a: AuditRow): string {
@@ -60,6 +105,7 @@ export function describe(a: AuditRow): string {
     case 'flag':
       return d.enabled === null ? 'varsayılana döndü' : d.enabled ? 'açıldı' : 'kapatıldı';
     case 'report':
+      if (d.op === 'bulk') return `toplu karar: ${d.closed} şikayet kapandı${d.hidden ? `, ${d.hidden} içerik kaldırıldı` : ''}`;
       return `${d.targetType} şikayeti · ${REPORT_ACTION[String(d.action)] ?? d.status}`;
     case 'verification':
       return d.approve ? 'mavi tik onaylandı' : 'başvuru reddedildi';
@@ -109,6 +155,32 @@ export function describe(a: AuditRow): string {
       return `${d.op === 'add' ? 'eklendi' : 'çıkarıldı'}: ${d.pattern}`;
     case 'setting':
       return `${a.targetId}: ${d.from} → ${d.to}`;
+    case 'live':
+      return `canlı yayın sonlandırıldı${d.title ? `: ${d.title}` : ''}`;
+    case 'broadcast':
+      return `${d.label ?? ''} kitlesine duyuru${d.title ? ` — "${d.title}"` : ''}${d.sent != null ? ` · ${d.sent}/${d.queued} gönderildi` : ''}`;
+    case 'sticker':
+      return `sticker ${STICKER_OP[String(d.op)] ?? String(d.op)}${d.name ? `: ${d.name}` : ''}`;
+    case 'market':
+      return `ilan kaldırıldı${d.sticker ? `: ${d.sticker}` : ''}${d.price ? ` (${d.price} coin)` : ''}`;
+    case 'product':
+      return `ürün ${PRODUCT_OP[String(d.op)] ?? String(d.op)}${d.name ? `: ${d.name}` : ''}`;
+    case 'settings_app':
+      return `${SETTING_LABEL[String(d.key)] ?? String(d.key ?? a.targetId)}: ${short(d.from)} → ${short(d.to)}`;
+    case 'maintenance':
+      // Hem bakım modu anahtarı hem kuyruk/iş işlemleri bu türle yazılır.
+      if (d.op) return `${QUEUE_OP[String(d.op)] ?? String(d.op)}${d.label ? `: ${d.label}` : ''}${d.affected ? ` (${d.affected})` : ''}`;
+      return `${SETTING_LABEL[String(d.key)] ?? String(d.key ?? a.targetId)}: ${short(d.from)} → ${short(d.to)}`;
+    case 'feedback':
+      return d.op === 'reply'
+        ? 'geri bildirim yanıtlandı'
+        : `geri bildirim ${d.to === 'resolved' ? 'çözüldü işaretlendi' : 'okundu işaretlendi'}`;
+    case 'catalog':
+      return d.op === 'featured'
+        ? `vitrin güncellendi: ${(d.to as string[] | undefined)?.join(', ') || 'boşaltıldı'}`
+        : 'TMDB bilgisi tazelendi';
+    case 'note':
+      return d.op === 'delete' ? 'ekip notu silindi' : `ekip notu eklendi${d.pinned ? ' (sabitlendi)' : ''}`;
     case 'series_page':
       return `${d.kind === 'official' ? 'resmi' : 'fan'} sayfa ${d.revoked ? 'kaldırıldı' : d.approve ? 'onaylandı' : 'reddedildi'}`;
     default:
@@ -170,23 +242,146 @@ const FILTERS: Array<{ key: AuditKind | 'all'; label: string }> = [
   { key: 'publish', label: 'Yayın' },
   { key: 'quiz', label: 'Quiz' },
   { key: 'room', label: 'Oda' },
+  { key: 'broadcast', label: 'Duyuru' },
+  { key: 'sticker', label: 'Sticker' },
+  { key: 'product', label: 'Ürün' },
+  { key: 'settings_app', label: 'Ayar' },
+  { key: 'maintenance', label: 'Bakım' },
+  { key: 'catalog', label: 'Katalog' },
+  { key: 'feedback', label: 'Geri bildirim' },
+  { key: 'content', label: 'İçerik kaldırma' },
+  { key: 'auto_hide', label: 'Otomatik gizleme' },
+  { key: 'note', label: 'Ekip notu' },
 ];
 
 export function Audit() {
   const [kind, setKind] = useState<AuditKind | 'all'>('all');
+  const [actor, setActor] = useState('');
+  const [text, setText] = useState('');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const term = useDebounced(text.trim());
+  const actors = useQuery({ queryKey: ['admin', 'audit', 'actors'], queryFn: adminApi.auditActors });
+
+  const params = {
+    action: kind === 'all' ? undefined : kind,
+    actorId: actor || undefined,
+    q: term || undefined,
+    from: from || undefined,
+    to: to || undefined,
+  };
   const q = useInfiniteQuery({
-    queryKey: ['admin', 'audit', kind],
-    queryFn: ({ pageParam }) => adminApi.audit({ action: kind === 'all' ? undefined : kind, cursor: pageParam }),
+    queryKey: ['admin', 'audit', params],
+    queryFn: ({ pageParam }) => adminApi.audit({ ...params, cursor: pageParam }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (p) => p.nextCursor ?? undefined,
   });
   const items = q.data?.pages.flatMap((p) => p.items) ?? [];
+  const filtered = kind !== 'all' || actor || term || from || to;
+
+  async function exportCsv() {
+    setExporting(true);
+    try {
+      const all = await collectAll<AuditRow>((cursor) => adminApi.audit({ ...params, cursor, limit: 500 }));
+      downloadCsv('denetim-kaydi', all, [
+        { header: 'Zaman', value: (a) => new Date(a.createdAt) },
+        { header: 'Yönetici', value: (a) => (a.actor ? `@${a.actor.username}` : 'Sistem') },
+        { header: 'İşlem', value: (a) => (KIND[a.action] ?? ['İşlem'])[0] },
+        { header: 'Hedef', value: (a) => (a.targetUsername ? `@${a.targetUsername}` : a.targetId) },
+        { header: 'Ayrıntı', value: (a) => describe(a) },
+        { header: 'Gerekçe', value: (a) => a.note },
+      ]);
+      toast(`${all.length} kayıt indirildi`);
+    } catch (e) {
+      toast(errorMessage(e), 'error');
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  const dateInput = 'h-[34px] rounded-full bg-elev2 px-3 text-[12.5px] text-sub outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)]';
   return (
     <Card>
-      <div className="px-[18px] py-3.5">
+      <div className="px-[18px] pt-3.5">
         <Pills items={FILTERS} value={kind} onChange={setKind} />
       </div>
-      {q.isLoading ? <Rows /> : q.isError ? <ErrorState error={q.error} retry={() => q.refetch()} /> : <AuditList items={items} />}
+      <div className="flex flex-wrap items-center gap-2 px-[18px] py-3">
+        <label className="flex h-[34px] min-w-[200px] flex-1 items-center gap-2 rounded-full bg-elev2 px-3 shadow-[inset_0_0_0_0.5px_var(--color-line2)]">
+          <Icon name="search" size={17} className="text-faint" />
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Gerekçede ve ayrıntıda ara"
+            className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-faint"
+          />
+        </label>
+        <select
+          aria-label="Yönetici"
+          value={actor}
+          onChange={(e) => setActor(e.target.value)}
+          className="h-[34px] rounded-full bg-elev2 px-3 text-[12.5px] font-semibold text-sub outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)]"
+        >
+          <option value="">Herkes</option>
+          {(actors.data ?? []).map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.username ? `@${a.username}` : a.id === 'system' ? 'Sistem' : 'silinmiş hesap'} ({a.count})
+            </option>
+          ))}
+        </select>
+        <input
+          aria-label="Başlangıç"
+          type="date"
+          className={dateInput}
+          value={from}
+          max={to || undefined}
+          onChange={(e) => setFrom(e.target.value)}
+        />
+        <span className="text-[12px] text-faint">–</span>
+        <input
+          aria-label="Bitiş"
+          type="date"
+          className={dateInput}
+          value={to}
+          min={from || undefined}
+          onChange={(e) => setTo(e.target.value)}
+        />
+        {filtered && (
+          <Button
+            size="xs"
+            variant="ghost"
+            onClick={() => {
+              setKind('all');
+              setActor('');
+              setText('');
+              setFrom('');
+              setTo('');
+            }}
+          >
+            Temizle
+          </Button>
+        )}
+        <Button size="xs" variant="outline" busy={exporting} onClick={exportCsv} title="Bu filtredeki kayıtları CSV indir">
+          CSV
+        </Button>
+      </div>
+      {q.isLoading ? (
+        <Rows />
+      ) : q.isError ? (
+        <ErrorState error={q.error} retry={() => q.refetch()} />
+      ) : !items.length ? (
+        <EmptyState
+          icon="history"
+          title={filtered ? 'Bu filtrede kayıt yok' : 'Henüz işlem yok'}
+          body={
+            filtered
+              ? 'Tarih aralığını genişlet ya da filtreyi temizle.'
+              : 'Panelden yapılan her işlem — tik, rol, ban, coin, içerik kaldırma, ayar değişikliği — kim, ne zaman, neden bilgisiyle buraya yazılır. Kayıtlar silinemez.'
+          }
+        />
+      ) : (
+        <AuditList items={items} />
+      )}
       {q.hasNextPage && (
         <div className="flex justify-center p-4">
           <Button size="sm" variant="outline" busy={q.isFetchingNextPage} onClick={() => q.fetchNextPage()}>
@@ -196,4 +391,13 @@ export function Audit() {
       )}
     </Card>
   );
+}
+
+function useDebounced<T>(v: T, ms = 350) {
+  const [d, setD] = useState(v);
+  useEffect(() => {
+    const t = setTimeout(() => setD(v), ms);
+    return () => clearTimeout(t);
+  }, [v, ms]);
+  return d;
 }

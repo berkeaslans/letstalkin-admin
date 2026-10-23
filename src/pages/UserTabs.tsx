@@ -470,7 +470,7 @@ export function ContentTab({ u }: { u: UserDetail }) {
       ) : q.isError ? (
         <ErrorState error={q.error} />
       ) : !items.length ? (
-        <EmptyState icon="info" title="İçerik yok" />
+        <EmptyState icon="info" title="İçerik yok" body="Bu kullanıcının bu türde içeriği yok." />
       ) : (
         items.map((c) => (
           <div key={c.id} className="flex items-start gap-3 px-[18px] py-3 shadow-[inset_0_0.5px_0_var(--color-line)]">
@@ -539,7 +539,7 @@ export function RelationsTab({ u }: { u: UserDetail }) {
       ) : q.isError ? (
         <ErrorState error={q.error} />
       ) : !q.data?.items.length ? (
-        <EmptyState icon="groups" title="Kimse yok" />
+        <EmptyState icon="groups" title="Kimse yok" body="Bu listede kimse yok." />
       ) : (
         <>
           <p className="px-[18px] pb-2 text-[12px] text-faint">

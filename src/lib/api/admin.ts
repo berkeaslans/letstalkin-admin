@@ -23,8 +23,14 @@ export type Flag = Res<'/api/v1/admin/flags', 'get'>[number];
 export type Tick = UserRow['tick'];
 export type Role = UserRow['role'];
 export type UserFilter = NonNullable<Q<'/api/v1/admin/users'>['filter']>;
+export type UserSort = NonNullable<Q<'/api/v1/admin/users'>['sort']>;
 export type ReportStatus = Report['status'];
 export type AuditKind = NonNullable<Q<'/api/v1/admin/audit'>['action']>;
+export type AuditQuery = Q<'/api/v1/admin/audit'>;
+export type AuditActor = Res<'/api/v1/admin/audit/actors', 'get'>[number];
+export type SearchHit = Res<'/api/v1/admin/search', 'get'>['items'][number];
+export type SearchKind = SearchHit['kind'];
+export type AdminNote = Res<'/api/v1/admin/users/{id}/notes', 'get'>[number];
 export type AccountInfo = Res<'/api/v1/admin/users/{id}/account', 'get'>;
 export type UserContent = Res<'/api/v1/admin/users/{id}/content', 'get'>;
 export type ContentKind = NonNullable<Q<'/api/v1/admin/users/{id}/content'>['type']>;
@@ -122,7 +128,8 @@ export const adminApi = {
   reportAction: (id: string, status: 'reviewed' | 'actioned', action: 'none' | 'hide' | 'ban', note?: string) =>
     api.post<{ ok: boolean; closed: number }>(`/admin/reports/${id}/action`, { status, action, note: note || undefined }),
 
-  users: (p: { q?: string; filter?: UserFilter; cursor?: string }) => api.get<UserPage>('/admin/users', { ...p, limit: 30 }),
+  users: (p: { q?: string; filter?: UserFilter; sort?: UserSort; cursor?: string; limit?: number }) =>
+    api.get<UserPage>('/admin/users', { ...p, limit: p.limit ?? 30 }),
   user: (id: string) => api.get<UserDetail>(`/admin/users/${id}`),
   /** tick=null: elle verileni kaldır, otomatik hesaba dön. */
   setTick: (id: string, tick: Tick | null, note?: string) =>
@@ -261,7 +268,14 @@ export const adminApi = {
   googleSearch: (days: number) => api.get<ScReport>('/admin/google/search', { days }),
   googleAdsense: (days: number) => api.get<AdsReport>('/admin/google/adsense', { days }),
 
-  audit: (p: { action?: AuditKind; targetId?: string; cursor?: string }) => api.get<AuditPage>('/admin/audit', { ...p, limit: 50 }),
+  audit: (p: AuditQuery & { cursor?: string }) => api.get<AuditPage>('/admin/audit', { ...p, limit: p.limit ?? 50 }),
+  auditActors: () => api.get<AuditActor[]>('/admin/audit/actors'),
+  search: (q: string) => api.get<{ items: SearchHit[] }>('/admin/search', { q }),
+  notes: (id: string) => api.get<AdminNote[]>(`/admin/users/${id}/notes`),
+  addNote: (id: string, text: string, pinned = false) => api.post<AdminNote[]>(`/admin/users/${id}/notes`, { text, pinned }),
+  removeNote: (id: string, noteId: string) => request<AdminNote[]>(`/admin/users/${id}/notes/${noteId}`, { method: 'DELETE' }),
+  bulkReports: (ids: string[], status: 'reviewed' | 'actioned', action: 'none' | 'hide', note?: string) =>
+    api.post<{ closed: number; hidden: number; failed: number }>('/admin/reports/bulk', { ids, status, action, note: note || undefined }),
 
   verifications: (status: 'pending_review' | 'active' | 'rejected') => api.get<Verification[]>('/admin/verifications', { status }),
   decideVerification: (userId: string, approve: boolean, note?: string) =>

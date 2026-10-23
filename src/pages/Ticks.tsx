@@ -74,7 +74,15 @@ function Applications() {
       ) : q.isError ? (
         <ErrorState error={q.error} retry={() => q.refetch()} />
       ) : !q.data?.length ? (
-        <EmptyState icon="verified" title={status === 'pending_review' ? 'Bekleyen başvuru yok' : 'Kayıt yok'} />
+        <EmptyState
+          icon="verified"
+          title={status === 'pending_review' ? 'Bekleyen başvuru yok' : 'Kayıt yok'}
+          body={
+            status === 'pending_review'
+              ? 'Mavi tik başvuruları kimlik belgesiyle gelir; belge yalnız karar anında görünür, profilde asla gösterilmez. Sarı tiki ise kişinin sayfasındaki Yönetim sekmesinden elle verirsin.'
+              : 'Bu durumda başvuru yok.'
+          }
+        />
       ) : (
         q.data.map((v) => (
           <div key={v.userId} className="flex flex-col gap-3 px-[18px] py-4 shadow-[inset_0_0.5px_0_var(--color-line)]">

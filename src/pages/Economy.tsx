@@ -21,6 +21,7 @@ import {
 } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
+import { collectAll, downloadCsv } from '@/lib/csv';
 import { compact, fmt, timeAgo } from '@/lib/format';
 import { go, paths } from '@/lib/go';
 import { playSound } from '@/lib/sound';
@@ -154,7 +155,11 @@ export function Revenue() {
           {subs.isLoading ? (
             <Rows />
           ) : !subs.data?.length ? (
-            <EmptyState icon="verified" title="Kayıt yok" />
+            <EmptyState
+              icon="verified"
+              title="Kayıt yok"
+              body="Mavi tik aboneliği olan hesap yok. Abonelikler App Store ve Google Play üzerinden alınır; kimlik doğrulaması onaylanınca aktifleşir."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-[13px]">
@@ -237,6 +242,7 @@ export function Revenue() {
 export function Coins() {
   const [days, setDays] = useState<Days>('30');
   const [reason, setReason] = useState('');
+  const [exporting, setExporting] = useState(false);
   const s = useQuery({ queryKey: ['admin', 'economy', days], queryFn: () => adminApi.economy(Number(days)) });
   const led = useInfiniteQuery({
     queryKey: ['admin', 'economy', 'ledger', reason],
@@ -291,7 +297,37 @@ export function Coins() {
         </Card>
       </div>
       <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Card title="Hareketler">
+        <Card
+          title="Hareketler"
+          right={
+            <Button
+              size="xs"
+              variant="outline"
+              busy={exporting}
+              onClick={async () => {
+                setExporting(true);
+                try {
+                  const all = await collectAll((cursor) => adminApi.ledger({ reason: reason || undefined, cursor }));
+                  downloadCsv('coin-hareketleri', all, [
+                    { header: 'Zaman', value: (r) => new Date(r.createdAt) },
+                    { header: 'Kullanıcı', value: (r) => (r.user ? `@${r.user.username}` : '') },
+                    { header: 'Tür', value: (r) => REASON[r.reason] ?? r.reason },
+                    { header: 'Miktar', value: (r) => r.amount },
+                    { header: 'Sonraki bakiye', value: (r) => r.balanceAfter },
+                    { header: 'Referans', value: (r) => r.refKey },
+                  ]);
+                  toast(`${fmt(all.length)} hareket indirildi`);
+                } catch (e) {
+                  toast(errorMessage(e), 'error');
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              CSV
+            </Button>
+          }
+        >
           <div className="px-[18px] pb-3">
             <select className={cn(field, 'max-w-[260px]')} value={reason} onChange={(e) => setReason(e.target.value)}>
               <option value="">Tüm türler</option>
@@ -305,7 +341,11 @@ export function Coins() {
           {led.isLoading ? (
             <Rows />
           ) : !rows.length ? (
-            <EmptyState icon="toll" title="Hareket yok" />
+            <EmptyState
+              icon="toll"
+              title="Hareket yok"
+              body="Coin kazanımı ve harcaması burada satır satır görünür: hoş geldin ödülü, günlük gönderi, quiz, pazar alışverişi ve yönetici düzeltmeleri."
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-[13px]">
@@ -653,7 +693,7 @@ export function StickerPage() {
         </Card>
         <Card title="Satış geçmişi">
           {!s.trades.length ? (
-            <EmptyState icon="toll" title="Henüz satış yok" />
+            <EmptyState icon="toll" title="Henüz satış yok" body="Bu sticker ikinci el pazarda hiç el değiştirmedi." />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-[13px]">
@@ -678,7 +718,11 @@ export function StickerPage() {
         </Card>
         <Card title="Sahipler">
           {!s.holders.length ? (
-            <EmptyState icon="person" title="Henüz sahibi yok" />
+            <EmptyState
+              icon="person"
+              title="Henüz sahibi yok"
+              body="Kimse bu sticker'a sahip değil. Mağazadan satın alınabilir, quiz ödülü olabilir ya da buradan hediye edebilirsin."
+            />
           ) : (
             s.holders.map((h) => (
               <div key={h.id} className="flex items-center gap-3 px-[18px] py-2 text-[13px] shadow-[inset_0_0.5px_0_var(--color-line)]">
@@ -790,7 +834,11 @@ export function Market() {
       ) : q.isError ? (
         <ErrorState error={q.error} retry={() => q.refetch()} />
       ) : !rows.length ? (
-        <EmptyState icon="toll" title="İlan yok" />
+        <EmptyState
+          icon="toll"
+          title="İlan yok"
+          body="Kullanıcılar sahip oldukları sticker'ları ikinci el pazara koyduğunda ilanlar burada görünür; şüpheli fiyatlı olanları kaldırabilirsin."
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[13px]">

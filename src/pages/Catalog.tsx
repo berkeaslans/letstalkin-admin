@@ -231,7 +231,7 @@ export function ShowPage() {
       <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <Card title="Son gönderiler">
           {!s.recentPosts.length ? (
-            <EmptyState icon="movie" title="Henüz gönderi yok" />
+            <EmptyState icon="movie" title="Henüz gönderi yok" body="Bu yapım hakkında kimse paylaşım yapmamış." />
           ) : (
             s.recentPosts.map((p) => (
               <div key={p.id} className="flex flex-col gap-1 px-[18px] py-3 shadow-[inset_0_0.5px_0_var(--color-line)]">

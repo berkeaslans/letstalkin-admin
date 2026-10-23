@@ -5,8 +5,9 @@ import { Avatar, Tick } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
+import { Switch } from '@/components/ui/Switch';
 import { Pills, Segment } from '@/components/ui/Tabs';
-import { adminApi, type Role, type Tick as TickKind, type UserDetail } from '@/lib/api/admin';
+import { type AdminNote, adminApi, type Role, type Tick as TickKind, type UserDetail } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
@@ -41,7 +42,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return <p className="text-[12.5px] font-semibold text-sub">{children}</p>;
 }
 
-const TABS = ['manage', 'profile', 'account', 'content', 'relations', 'reports', 'history'] as const;
+const TABS = ['manage', 'profile', 'account', 'content', 'relations', 'reports', 'notes', 'history'] as const;
 type TabKey = (typeof TABS)[number];
 
 export function UserPage() {
@@ -64,6 +65,8 @@ export function UserPage() {
 
 function Body({ u }: { u: UserDetail }) {
   const [params, setParams] = useSearchParams();
+  const notes = useQuery({ queryKey: ['admin', 'notes', u.id], queryFn: () => adminApi.notes(u.id) });
+  const pinned = (notes.data ?? []).filter((n) => n.pinned);
   const tab: TabKey = (TABS as readonly string[]).includes(params.get('sekme') ?? '') ? (params.get('sekme') as TabKey) : 'manage';
   const setTab = (t: TabKey) => setParams(t === 'manage' ? {} : { sekme: t }, { replace: true });
   if (u.deletion)
@@ -74,6 +77,21 @@ function Body({ u }: { u: UserDetail }) {
     );
   return (
     <div className="grid items-start gap-3.5 lg:grid-cols-[340px_minmax(0,1fr)]">
+      {!!pinned.length && (
+        <div className="flex flex-col gap-2 rounded-card bg-live/10 px-[18px] py-3.5 shadow-[inset_0_0_0_0.5px_rgb(255_59_78/0.3)] lg:col-span-2">
+          {pinned.map((n) => (
+            <div key={n.id} className="flex items-start gap-2.5 text-[13.5px]">
+              <Icon name="error" size={18} className="mt-px flex-none text-live" />
+              <p className="min-w-0 flex-1 break-words whitespace-pre-line">
+                {n.text}
+                <span className="ml-1.5 text-[11.5px] text-faint">
+                  — @{n.author?.username ?? 'ekip'} · {timeAgo(n.createdAt)}
+                </span>
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
       <Card className="lg:sticky lg:top-[76px]">
         <div className="flex flex-col items-center gap-2 px-[18px] pt-6 pb-4 text-center">
           <Avatar src={u.avatarPath} name={u.displayName ?? u.username} size={84} />
@@ -130,6 +148,7 @@ function Body({ u }: { u: UserDetail }) {
               { key: 'content', label: 'İçerik' },
               { key: 'relations', label: 'Bağlantılar' },
               { key: 'reports', label: 'Şikayetler', count: u.reports.length },
+              { key: 'notes', label: 'Notlar', count: notes.data?.length },
               { key: 'history', label: 'Geçmiş', count: u.history.length },
             ]}
             value={tab}
@@ -155,6 +174,7 @@ function Body({ u }: { u: UserDetail }) {
             ) : (
               <EmptyState icon="workspace_premium" title="Temiz sicil" body="Bu hesap hakkında şikayet yok." />
             ))}
+          {tab === 'notes' && <NotesTab userId={u.id} />}
           {tab === 'history' && <AuditList items={u.history} compact />}
         </div>
       </Card>
@@ -406,6 +426,100 @@ function Manage({ u }: { u: UserDetail }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Ekip notları: panelde kalır, kullanıcı asla göremez. */
+function NotesTab({ userId }: { userId: string }) {
+  const qc = useQueryClient();
+  const [text, setText] = useState('');
+  const [pin, setPin] = useState(false);
+  const q = useQuery({ queryKey: ['admin', 'notes', userId], queryFn: () => adminApi.notes(userId) });
+  const me = useSession((s) => s.me);
+  const isAdmin = useIsAdmin();
+  const after = (rows: AdminNote[]) => {
+    qc.setQueryData(['admin', 'notes', userId], rows);
+    qc.invalidateQueries({ queryKey: ['admin', 'audit'] });
+  };
+  const add = useMutation({
+    mutationFn: () => adminApi.addNote(userId, text.trim(), pin),
+    onSuccess: (rows) => {
+      toast('Not eklendi');
+      playSound('ok');
+      setText('');
+      setPin(false);
+      after(rows);
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  const del = useMutation({
+    mutationFn: (id: string) => adminApi.removeNote(userId, id),
+    onSuccess: (rows) => {
+      toast('Not silindi');
+      after(rows);
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  const rows = q.data ?? [];
+  return (
+    <div className="flex flex-col gap-3 px-[18px] pt-1 pb-5">
+      <form
+        className="flex flex-col gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          add.mutate();
+        }}
+      >
+        <textarea
+          className="min-h-[76px] w-full resize-y rounded-[14px] bg-elev2 px-3.5 py-2.5 text-[14px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Ekip için not: ne oldu, ne konuşuldu, neye dikkat edilmeli…"
+          maxLength={2000}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Switch checked={pin} onChange={setPin} label="Sayfanın üstünde uyarı olarak göster" />
+          <span className="text-[12.5px] text-sub">Sayfanın üstünde uyarı olarak göster</span>
+          <Button type="submit" size="sm" variant="primary" className="ml-auto" busy={add.isPending} disabled={text.trim().length < 2}>
+            Not ekle
+          </Button>
+        </div>
+      </form>
+      <p className="flex items-center gap-1.5 text-[12px] text-faint">
+        <Icon name="lock" size={14} />
+        Notlar yalnız panelde görünür; kullanıcıya hiçbir yerde gösterilmez.
+      </p>
+      {q.isLoading ? (
+        <Rows n={2} />
+      ) : !rows.length ? (
+        <EmptyState
+          icon="info"
+          title="Not yok"
+          body="Bu hesapla ilgili bir şey tespit ettiysen yaz; sonra bakan ekip arkadaşın aynı şeyi baştan araştırmasın."
+        />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {rows.map((n) => (
+            <div key={n.id} className="flex items-start gap-3 rounded-[14px] bg-elev2 px-3.5 py-3">
+              {n.author && <Avatar src={n.author.avatarPath} name={n.author.displayName ?? n.author.username} size={28} />}
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-1.5 text-[12px] text-faint">
+                  <b className="font-semibold text-sub">@{n.author?.username ?? 'silinmiş hesap'}</b>
+                  {timeAgo(n.createdAt)}
+                  {n.pinned && <Tag tone="live">Sabit</Tag>}
+                </p>
+                <p className="mt-0.5 text-[13.5px] break-words whitespace-pre-line">{n.text}</p>
+              </div>
+              {(isAdmin || n.author?.id === me?.id) && (
+                <Button size="xs" variant="ghost" busy={del.isPending && del.variables === n.id} onClick={() => del.mutate(n.id)}>
+                  Sil
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

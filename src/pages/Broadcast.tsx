@@ -189,7 +189,11 @@ export function Broadcast() {
           {history.isLoading ? (
             <Rows n={3} />
           ) : !history.data?.items.length ? (
-            <EmptyState icon="campaign" title="Henüz duyuru yok" />
+            <EmptyState
+              icon="campaign"
+              title="Henüz duyuru yok"
+              body="Gönderdiğin duyurular kaç kişiye ulaştığıyla birlikte burada listelenir."
+            />
           ) : (
             history.data.items.slice(0, 12).map((h) => {
               const d = (h.detail ?? {}) as { title?: string; label?: string; sent?: number; queued?: number; username?: string };

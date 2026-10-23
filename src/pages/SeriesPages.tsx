@@ -55,7 +55,15 @@ export function SeriesPages() {
       ) : q.isError ? (
         <ErrorState error={q.error} retry={() => q.refetch()} />
       ) : !q.data?.length ? (
-        <EmptyState icon="movie" title={status === 'pending' ? 'Bekleyen başvuru yok' : 'Kayıt yok'} />
+        <EmptyState
+          icon="movie"
+          title={status === 'pending' ? 'Bekleyen başvuru yok' : 'Kayıt yok'}
+          body={
+            status === 'pending'
+              ? 'Kullanıcılar bir dizinin fan ya da resmi sayfası olmak için başvurduğunda burada belirir. Onaylanan resmi sayfalar sarı tik alır ve oda, quiz açabilir.'
+              : 'Bu durumda başvuru yok.'
+          }
+        />
       ) : (
         q.data.map((a) => (
           <div key={a.id} className="flex gap-3.5 px-[18px] py-4 shadow-[inset_0_0.5px_0_var(--color-line)]">

@@ -3,6 +3,7 @@ import { type ComponentType, lazy, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { NAV } from '@/components/layout/nav';
+import { Palette, ShortcutHelp } from '@/components/layout/Palette';
 import { Shell } from '@/components/layout/Shell';
 import { ConfirmDialog, Toaster } from '@/components/ui/Overlays';
 import { ApiError } from '@/lib/api/client';
@@ -152,6 +153,9 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <App />
+        {/* Router içinde: palet ve yardım katmanı sayfa geçişi yapabiliyor. */}
+        <Palette />
+        <ShortcutHelp />
       </BrowserRouter>
       <Toaster />
       <ConfirmDialog />

@@ -208,7 +208,11 @@ export function LiveNow() {
           <div className="grid gap-3.5 lg:grid-cols-2">
             <Card title="Canlı yayınlar">
               {!d.streams.length ? (
-                <EmptyState icon="tv" title="Yayın yok" />
+                <EmptyState
+                  icon="tv"
+                  title="Yayın yok"
+                  body="Canlı yayın özelliği Sistem → Özellik bayrakları ekranından açılır; açıkken başlayan yayınlar burada anında görünür."
+                />
               ) : (
                 d.streams.map((s) => (
                   <div key={s.id} className="flex items-center gap-3 px-[18px] py-3 shadow-[inset_0_0.5px_0_var(--color-line)]">
@@ -241,7 +245,11 @@ export function LiveNow() {
             </Card>
             <Card title="Quizler" sub="canlı ve 24 saat içinde başlayacak">
               {!d.quizzes.length ? (
-                <EmptyState icon="bolt" title="Quiz yok" />
+                <EmptyState
+                  icon="bolt"
+                  title="Quiz yok"
+                  body="Şu an canlı ya da 24 saat içinde başlayacak quiz yok. Yayın → Yeni yayın ekranından oluşturabilirsin."
+                />
               ) : (
                 d.quizzes.map((x) => (
                   <button
@@ -282,7 +290,7 @@ export function LiveNow() {
           {events.length ? (
             events.slice(0, 14).map((e, i) => <FeedRow key={`${e.at}${e.text}`} e={e} fresh={i < 2} />)
           ) : (
-            <EmptyState icon="bolt" title="Henüz olay yok" />
+            <EmptyState icon="bolt" title="Henüz olay yok" body="Uygulamada olan her şey burada anında belirir." />
           )}
         </Card>
       </div>

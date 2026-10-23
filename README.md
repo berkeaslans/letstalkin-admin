@@ -8,16 +8,22 @@ kullandığı için ikisi de buradan yönetilir. Ayrı bir projedir; yalnız bac
 |---|---|
 | Genel bakış | Bugünün sayıları, gündem (bekleyen işler), canlı akış, TV duvar ekranı |
 | Canlı | Hareketli odalar, canlı yayınlar (sonlandır), canlı quizler; anlık olay akışı |
-| Moderasyon | Şikayetler, içerik ara/kaldır/geri al, odalar, eşleşme, kara liste, özet, geri bildirim kutusu |
-| Kullanıcılar | Liste, kullanıcı sayfası (tik, rol, ban, coin, profil, hesap, oturumlar, içerik, bağlantılar, geçmiş), mavi tik ve dizi sayfası başvuruları, ekip |
+| Moderasyon | Şikayetler (toplu karar, şikayetçi ve yazar sicili), içerik ara/kaldır/geri al, odalar, eşleşme, kara liste (kural başına yakalama sayısı), özet, geri bildirim kutusu |
+| Kullanıcılar | Liste (sıralama, CSV), kullanıcı sayfası (tik, rol, ban, coin, profil, hesap, oturumlar, içerik, bağlantılar, ekip notları, geçmiş), mavi tik ve dizi sayfası başvuruları, ekip |
 | Yayın | Seçilen hesap adına gönderi/anket/oda/quiz, quiz yönetimi, toplu bildirim, yayın hesapları |
 | Katalog | Yapımlar ve yapım karnesi, ana sayfa vitrini |
 | Ekonomi | Abonelik geliri, coin, sticker basımı, pazar, merch ürünleri |
 | Analiz | Özellik kullanımı, kitle (DAU/WAU/MAU, platform, elde tutma), Google (GA4, Search Console, AdSense) |
-| Sistem | Ayarlar (kayıt, bakım modu, asgari sürüm, ödüller, eşikler), özellik bayrakları, servis durumu ve kuyruklar, denetim kaydı |
+| Sistem | Ayarlar (kayıt, bakım modu, asgari sürüm, ödüller, eşikler), özellik bayrakları, servis durumu ve kuyruklar, denetim kaydı (yönetici, metin ve tarih filtresi, CSV) |
 
 Her ayrıntı (kullanıcı, oda, quiz, sticker, yapım) kendi adresinde açılır; bağlantı
 paylaşılabilir, geri tuşu çalışır.
+
+**Klavye:** `⌘K` (Windows'ta `Ctrl+K`) komut paletini açar — tek kutudan kullanıcı,
+oda, quiz, yapım, sticker ve ürün aranır (kimlik yapıştırmak da çalışır), sayfalara
+ve sık yapılan işlere gidilir. `g` sonra bir harf bölüme atlar (`g m` şikayetler,
+`g u` kullanıcılar…). Şikayet kuyruğunda `j`/`k` gezer, `x` seçer, `e` yoksayar,
+`h` içeriği kaldırır. Tam liste `?` ile açılır.
 
 **Gerçek zamanlı:** panel backend'in Socket.IO `admin` kanalına bağlanır (yalnız
 ekip katılabilir). Kayıt, gönderi, şikayet, oda, quiz, satış, başvuru ve geri
@@ -42,7 +48,9 @@ hesabıyla yapılır ve yalnız `moderator` / `admin` rolleri içeri girer.
 | Ekonomi (coin, sticker, pazar, ürün, gelir), vitrin | | ✓ |
 | Sistem ayarları, bakım modu, bayraklar, kuyruklar, denetim kaydı, Google | | ✓ |
 
-Her yönetim işlemi backend'de `AdminAction` tablosuna yazılır (kim, kime, ne, gerekçe).
+Her yönetim işlemi backend'de `AdminAction` tablosuna yazılır (kim, kime, ne, gerekçe);
+kayıtlar panelden silinemez. Bir hesap hakkında tutulan **ekip notları** yalnız panelde
+görünür, kullanıcıya hiçbir yerde gösterilmez.
 
 ## Geliştirme
 

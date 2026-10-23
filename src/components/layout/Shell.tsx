@@ -11,6 +11,7 @@ import { cn } from '@/lib/cn';
 import { fmt } from '@/lib/format';
 import { setNavigator } from '@/lib/go';
 import { startRealtime, stopRealtime, useLive } from '@/lib/realtime';
+import { META, openPalette, useGlobalShortcuts, useOverlay } from '@/lib/shortcuts';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin, useSession } from '@/stores/session';
 import { toast, useUi } from '@/stores/ui';
@@ -51,6 +52,7 @@ export function Shell() {
   useEffect(() => {
     setNavigator((to) => navigate(to));
   }, [navigate]);
+  useGlobalShortcuts(navigate);
   useEffect(() => {
     startRealtime(qc);
     return () => stopRealtime();
@@ -189,6 +191,19 @@ export function Shell() {
           </button>
           <button
             type="button"
+            onClick={() => useOverlay.setState({ help: true })}
+            title="Klavye kısayolları (?)"
+            className={cn(
+              'press flex h-11 items-center gap-3.5 rounded-[14px] px-3 text-[14.5px] font-medium text-sub hover:bg-white/5 hover:text-text',
+              mini && 'md:justify-center md:px-0',
+            )}
+          >
+            <Icon name="info" size={23} />
+            <span className={cn('flex-1 text-left', mini && 'md:hidden')}>Kısayollar</span>
+            <kbd className={cn('rounded-[5px] bg-elev2 px-1.5 py-0.5 text-[10.5px] text-faint', mini && 'md:hidden')}>?</kbd>
+          </button>
+          <button
+            type="button"
             onClick={() => setMini(!mini)}
             title={mini ? 'Genişlet' : 'Daralt'}
             className={cn(
@@ -218,6 +233,17 @@ export function Shell() {
             </h1>
             {here && <p className="truncate text-[12px] text-sub">{here.detail ? `${here.group.label} · ayrıntı` : here.sub.desc}</p>}
           </div>
+          <button
+            type="button"
+            onClick={openPalette}
+            title={`Ara ve git (${META}K)`}
+            className="press hidden h-[34px] min-w-[180px] items-center gap-2 rounded-full bg-elev2 pr-2 pl-3 text-[13px] text-faint shadow-[inset_0_0_0_0.5px_var(--color-line2)] hover:text-sub lg:flex"
+          >
+            <Icon name="search" size={17} />
+            <span className="flex-1 text-left">Ara ve git…</span>
+            <kbd className="rounded-[5px] bg-elev3 px-1.5 py-0.5 text-[10.5px]">{META}K</kbd>
+          </button>
+          <IconButton icon="search" label="Ara ve git" className="lg:hidden" onClick={openPalette} />
           <Link
             to="/canli/akis"
             title={

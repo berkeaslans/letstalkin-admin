@@ -91,7 +91,12 @@ export function Overview() {
       ) : (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
           <Stat label="Çevrimiçi" icon="bolt" value={o ? fmt(o.online) : '—'} sub="şu an bağlı" tone="live" onClick={() => nav('/canli')} />
-          <Stat label="Bugün aktif" icon="group" value={o ? fmt(o.activeToday) : '—'} sub="İstanbul saatiyle" />
+          <Stat
+            label="Bugün aktif"
+            icon="group"
+            value={o ? fmt(o.activeToday) : '—'}
+            sub={o ? <DayDelta now={o.activeToday} prev={o.activeYesterday} /> : 'İstanbul saatiyle'}
+          />
           <Stat
             label="Yeni kayıt"
             icon="person"
@@ -110,6 +115,20 @@ export function Overview() {
         </div>
       )}
 
+      {o && (o.myActionsToday > 0 || o.decisionsToday > 0) && (
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-sub">
+          <Icon name="check_circle" size={16} className="text-up" />
+          Bugün ekip <b className="text-text">{fmt(o.decisionsToday)}</b> şikayet kararı verdi
+          {o.myActionsToday > 0 && (
+            <>
+              · senin <b className="text-text">{fmt(o.myActionsToday)}</b> işlemin var
+            </>
+          )}
+          <button type="button" className="text-faint underline decoration-dotted hover:text-text" onClick={() => nav('/sistem/denetim')}>
+            denetim kaydı
+          </button>
+        </p>
+      )}
       <div className="grid items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card title="Gündem" sub={o ? (todo.length ? `${todo.length} iş bekliyor` : 'her şey yolunda') : undefined}>
           {!o ? (
@@ -172,5 +191,17 @@ export function Overview() {
         </div>
       </div>
     </>
+  );
+}
+
+/** Düne göre fark. Dün günün tamamı olduğu için kıyas kabaca; başlıkta anlatılır. */
+function DayDelta({ now, prev }: { now: number; prev: number }) {
+  if (!prev) return <>bugün · dün hiç yoktu</>;
+  const p = Math.round(((now - prev) / prev) * 100);
+  return (
+    <span title={`Dün bugünün tamamında ${prev} kişiydi`}>
+      bugün · dün {fmt(prev)}
+      {p !== 0 && <span className={p > 0 ? 'text-up' : 'text-faint'}> ({p > 0 ? `+${p}` : p}%)</span>}
+    </span>
   );
 }

@@ -10604,6 +10604,10 @@ export interface paths {
                             newFeedback: number;
                             liveQuizzes: number;
                             liveStreams: number;
+                            signupsYesterday: number;
+                            activeYesterday: number;
+                            myActionsToday: number;
+                            decisionsToday: number;
                         };
                     };
                 };
@@ -10629,6 +10633,7 @@ export interface paths {
                 query?: {
                     q?: string;
                     filter?: "all" | "tick" | "staff" | "banned" | "pages" | "reported" | "deleting";
+                    sort?: "new" | "old" | "followers" | "active" | "balance";
                     cursor?: string;
                     limit?: number;
                 };
@@ -10769,6 +10774,7 @@ export interface paths {
                             history: {
                                 id: string;
                                 action: string;
+                                actorId: string;
                                 actor: {
                                     id: string;
                                     username: string;
@@ -10995,8 +11001,12 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    action?: "tick" | "role" | "ban" | "unban" | "coin" | "flag" | "report" | "verification" | "series_page" | "password_reset" | "sessions" | "email" | "profile" | "account_type" | "trusted" | "deletion" | "auto_hide" | "content" | "restore" | "room" | "match" | "blocklist" | "setting" | "publish" | "quiz" | "live" | "broadcast" | "sticker" | "market" | "product" | "settings_app" | "feedback" | "catalog" | "maintenance";
+                    action?: "tick" | "role" | "ban" | "unban" | "coin" | "flag" | "report" | "verification" | "series_page" | "password_reset" | "sessions" | "email" | "profile" | "account_type" | "trusted" | "deletion" | "auto_hide" | "content" | "restore" | "room" | "match" | "blocklist" | "setting" | "publish" | "quiz" | "live" | "broadcast" | "sticker" | "market" | "product" | "settings_app" | "feedback" | "catalog" | "maintenance" | "note";
                     targetId?: string;
+                    actorId?: string;
+                    q?: string;
+                    from?: string;
+                    to?: string;
                     cursor?: string;
                     limit?: number;
                 };
@@ -11016,6 +11026,7 @@ export interface paths {
                             items: {
                                 id: string;
                                 action: string;
+                                actorId: string;
                                 actor: {
                                     id: string;
                                     username: string;
@@ -11029,6 +11040,45 @@ export interface paths {
                             }[];
                             nextCursor: string | null;
                         };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/audit/actors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            username: string | null;
+                            count: number;
+                        }[];
                     };
                 };
             };
@@ -11646,6 +11696,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users/{id}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            text: string;
+                            pinned: boolean;
+                            /** Format: date-time */
+                            createdAt: string;
+                            author: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            } | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string;
+                        /** @default false */
+                        pinned?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            text: string;
+                            pinned: boolean;
+                            /** Format: date-time */
+                            createdAt: string;
+                            author: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            } | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/notes/{noteId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    noteId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            text: string;
+                            pinned: boolean;
+                            /** Format: date-time */
+                            createdAt: string;
+                            author: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            } | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/content": {
         parameters: {
             query?: never;
@@ -11836,6 +12026,13 @@ export interface paths {
                             note: string | null;
                             /** Format: date-time */
                             createdAt: string;
+                            hitCount: number;
+                            /** Format: date-time */
+                            lastHitAt: string | null;
+                            createdBy: {
+                                id: string;
+                                username: string;
+                            } | null;
                         }[];
                     };
                 };
@@ -11874,6 +12071,13 @@ export interface paths {
                             note: string | null;
                             /** Format: date-time */
                             createdAt: string;
+                            hitCount: number;
+                            /** Format: date-time */
+                            lastHitAt: string | null;
+                            createdBy: {
+                                id: string;
+                                username: string;
+                            } | null;
                         };
                     };
                 };
@@ -15448,6 +15652,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    q: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** @enum {string} */
+                                kind: "user" | "room" | "quiz" | "show" | "sticker" | "product" | "post";
+                                id: string;
+                                title: string;
+                                subtitle: string;
+                                to: string;
+                                image: string | null;
+                                badge: string | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports": {
         parameters: {
             query?: never;
@@ -15490,6 +15742,9 @@ export interface paths {
                             reporter: {
                                 id: string;
                                 username: string;
+                                total: number;
+                                actioned: number;
+                                noisy: boolean;
                             } | null;
                             pendingOnTarget: number;
                             target: {
@@ -15507,6 +15762,14 @@ export interface paths {
                                 hidden: boolean;
                                 missing: boolean;
                             };
+                            authorHistory: {
+                                reports: number;
+                                actioned: number;
+                                isBanned: boolean;
+                                /** Format: date-time */
+                                joinedAt: string;
+                                hasViolation: boolean;
+                            } | null;
                         })[];
                     };
                 };
@@ -15567,6 +15830,59 @@ export interface paths {
                         "application/json": {
                             ok: boolean;
                             closed: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        ids: string[];
+                        /** @enum {string} */
+                        status: "reviewed" | "actioned";
+                        /**
+                         * @default none
+                         * @enum {string}
+                         */
+                        action?: "none" | "hide";
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            closed: number;
+                            hidden: number;
+                            failed: number;
                         };
                     };
                 };
