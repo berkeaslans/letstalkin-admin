@@ -9,15 +9,23 @@
 ### Gerekenler
 
 - **Node.js 22+** → [nodejs.org](https://nodejs.org) (Mac: `brew install node`)
-- **Docker Desktop** → [docker.com](https://www.docker.com/products/docker-desktop)
-  (yalnız veritabanı ve Redis için; bilgisayarında Postgres/Redis varsa gerekmez)
+- **Postgres + Redis** — betik ikisini de kendi kurar, iki yoldan biriyle:
+  - **Docker Desktop** varsa ve açıksa onu kullanır → [docker.com](https://www.docker.com/products/docker-desktop)
+  - yoksa (ya da Docker kapalıysa) **Homebrew** ile Mac'e doğrudan kurar → [brew.sh](https://brew.sh)
+
+  Yani ikisinden *biri* yeterli. Bilgisayarında Postgres/Redis zaten
+  çalışıyorsa hiçbiri gerekmez, betik onları kullanır.
 
 Kurulu mu, kontrol et:
 
 ```bash
-node -v      # v22 veya üstü olmalı  → yoksa: brew install node
-docker ps    # hata vermemeli        → yoksa Docker Desktop'ı kur ve bir kez aç
+node -v      # v22 veya üstü olmalı → yoksa: brew install node
+brew -v      # ya da Docker Desktop açık olsun
 ```
+
+> Docker kurulu ama Docker Desktop kapalıysa `docker` komutu süresiz
+> bekleyebilir. Betik bunu 10 saniyede anlar ve Homebrew yoluna geçer;
+> beklemede kalmaz.
 
 ### İki depo yan yana dursun
 
@@ -86,7 +94,8 @@ Bu ad(lar)daki hesaplar açılışta admin olur. Sonrasında panelden
 |---|---|
 | `no such file or directory: letstalkin-admin` | Depoyu henüz klonlamadın. Yukarıdaki `git clone` adımına dön. |
 | `letstalkin-backend bulunamadı` | İki depo yan yana değil. Klasör düzenini kontrol et. |
-| `docker: command not found` | Docker Desktop kurulu değil ya da açık değil. |
+| `Ne Docker ne Homebrew var` | İkisinden birini kur: Docker Desktop ya da `brew.sh`. |
+| Docker'da takıldı | Docker Desktop'ı aç (balina simgesi sabitlenene kadar bekle) ya da kapat; kapalıysa betik Homebrew'a geçer. |
 | `5190 portu dolu` | Orada çalışan bir şey var. `lsof -ti:5190 \| xargs kill` (Windows: `netstat -ano \| findstr :5190`) |
 | `Docker yok` | Docker Desktop'ı kur ve çalıştır. |
 | Backend açılmadı | `/tmp/letstalkin-api.log` dosyasına bak. |

@@ -27,26 +27,34 @@ NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
 [ "$NODE_MAJOR" -ge 20 ] || die "Node.js $NODE_MAJOR çok eski; 22 veya üstü gerekiyor."
 
 # ---------- 1. Altyapı: Postgres + Redis ----------
-DB_URL="postgresql://letstalkin:devpassword123@127.0.0.1:5433/letstalkin_dev"
+# İki yol var: Docker (varsayılan) ya da Mac'e doğrudan kurulum (Homebrew).
+# Docker yoksa veya yanıt vermiyorsa ikinciye kendiliğinden geçer.
+PG_PORT=5433        # Docker yolunda 5433; Homebrew yolunda 5432'ye döner
 REDIS_URL="redis://127.0.0.1:6379"
 
-pg_up() { (exec 3<>/dev/tcp/127.0.0.1/5433) 2>/dev/null; }
-redis_up() { (exec 3<>/dev/tcp/127.0.0.1/6379) 2>/dev/null; }
+port_open() { (exec 3<>/dev/tcp/127.0.0.1/"$1") 2>/dev/null; }
+pg_up()    { port_open "$PG_PORT"; }
+redis_up() { port_open 6379; }
 
-if ! pg_up || ! redis_up; then
-  command -v docker >/dev/null || die "Postgres/Redis çalışmıyor ve Docker da yok.
-    Docker Desktop kur (docker.com) ya da Postgres'i 5433, Redis'i 6379 portunda kendin başlat."
-  docker info >/dev/null 2>&1 || die "Docker kurulu ama çalışmıyor. Docker Desktop'ı aç, simge kararlı hale gelince tekrar dene."
+# Docker Desktop kapalıyken `docker info` süresiz bekleyebiliyor; 10 sn tanı.
+docker_hazir() {
+  command -v docker >/dev/null || return 1
+  (docker info >/dev/null 2>&1) &
+  local pid=$!
+  local i=0
+  while kill -0 "$pid" 2>/dev/null && [ "$i" -lt 10 ]; do sleep 1; i=$((i + 1)); done
+  if kill -0 "$pid" 2>/dev/null; then kill -9 "$pid" 2>/dev/null || true; return 1; fi
+  wait "$pid"
+}
 
-  # İlk seferde görüntü indirilir (~150 MB); ilerlemeyi gizlemeyelim ki
-  # ekran sessiz kalmasın ve takıldı sanılmasın.
+altyapi_docker() {
   for img in postgres:16 redis:7; do
     docker image inspect "$img" >/dev/null 2>&1 && continue
     info "Docker görüntüsü indiriliyor: $img (ilk seferde birkaç dakika)"
     docker pull "$img" || die "$img indirilemedi. İnternet bağlantını kontrol et."
   done
 
-  info "Veritabanı ve Redis başlatılıyor…"
+  info "Veritabanı ve Redis başlatılıyor (Docker)…"
   docker start lt-pg >/dev/null 2>&1 || docker run -d --name lt-pg \
     -e POSTGRES_USER=letstalkin -e POSTGRES_PASSWORD=devpassword123 \
     -e POSTGRES_DB=letstalkin_dev -e TZ=UTC -e PGTZ=UTC -p 127.0.0.1:5433:5432 \
@@ -55,10 +63,57 @@ if ! pg_up || ! redis_up; then
     -p 127.0.0.1:6379:6379 redis:7 >/dev/null
 
   for _ in $(seq 1 60); do pg_up && redis_up && break; sleep 1; done
-  pg_up || die "Veritabanı açılmadı. 'docker logs lt-pg' ile bak."
+  pg_up    || die "Veritabanı açılmadı. 'docker logs lt-pg' ile bak."
   redis_up || die "Redis açılmadı. 'docker logs lt-redis' ile bak."
+}
+
+altyapi_brew() {
+  command -v brew >/dev/null || die "Ne Docker ne Homebrew var.
+    Şunlardan birini yap:
+      1) Docker Desktop kur ve aç  → docker.com/products/docker-desktop
+      2) Homebrew kur             → brew.sh  (sonra bu komutu tekrar çalıştır)"
+
+  PG_PORT=5432   # Homebrew Postgres kendi varsayılan portunda çalışır
+  local PGBIN
+  if ! brew list postgresql@16 >/dev/null 2>&1; then
+    info "Postgres kuruluyor (Homebrew, bir kerelik)…"
+    brew install postgresql@16 || die "Postgres kurulamadı."
+  fi
+  PGBIN="$(brew --prefix postgresql@16)/bin"
+  export PATH="$PGBIN:$PATH"
+
+  if ! brew list redis >/dev/null 2>&1; then
+    info "Redis kuruluyor (Homebrew, bir kerelik)…"
+    brew install redis || die "Redis kurulamadı."
+  fi
+
+  pg_up    || { info "Postgres başlatılıyor…"; brew services start postgresql@16 >/dev/null; }
+  redis_up || { info "Redis başlatılıyor…";    brew services start redis >/dev/null; }
+
+  for _ in $(seq 1 60); do pg_up && redis_up && break; sleep 1; done
+  pg_up    || die "Postgres açılmadı. 'brew services list' ile bak."
+  redis_up || die "Redis açılmadı. 'brew services list' ile bak."
+
+  # Uygulamanın beklediği rol ve veritabanı (yeni kurulumda yoklar).
+  psql -p "$PG_PORT" -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='letstalkin'" 2>/dev/null | grep -q 1 \
+    || createuser -p "$PG_PORT" -s letstalkin 2>/dev/null || true
+  psql -p "$PG_PORT" -d postgres -c "ALTER ROLE letstalkin WITH LOGIN PASSWORD 'devpassword123'" >/dev/null 2>&1 || true
+  psql -p "$PG_PORT" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='letstalkin_dev'" 2>/dev/null | grep -q 1 \
+    || createdb -p "$PG_PORT" -O letstalkin letstalkin_dev 2>/dev/null || true
+}
+
+if ! pg_up || ! redis_up; then
+  if docker_hazir; then
+    altyapi_docker
+  else
+    if command -v docker >/dev/null; then
+      info "Docker kurulu ama yanıt vermiyor (Docker Desktop kapalı olabilir) — Homebrew ile kuruluma geçiliyor."
+    fi
+    altyapi_brew
+  fi
 fi
-ok "Veritabanı ve Redis hazır"
+DB_URL="postgresql://letstalkin:devpassword123@127.0.0.1:${PG_PORT}/letstalkin_dev"
+ok "Veritabanı ve Redis hazır (port ${PG_PORT})"
 
 # ---------- 2. Backend ----------
 cd "$API_DIR"
