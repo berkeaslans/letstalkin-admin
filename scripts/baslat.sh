@@ -36,19 +36,33 @@ redis_up() { (exec 3<>/dev/tcp/127.0.0.1/6379) 2>/dev/null; }
 if ! pg_up || ! redis_up; then
   command -v docker >/dev/null || die "Postgres/Redis çalışmıyor ve Docker da yok.
     Docker Desktop kur (docker.com) ya da Postgres'i 5433, Redis'i 6379 portunda kendin başlat."
-  info "Veritabanı ve Redis başlatılıyor (Docker)…"
-  docker run -d --name lt-pg -e POSTGRES_USER=letstalkin -e POSTGRES_PASSWORD=devpassword123 \
+  docker info >/dev/null 2>&1 || die "Docker kurulu ama çalışmıyor. Docker Desktop'ı aç, simge kararlı hale gelince tekrar dene."
+
+  # İlk seferde görüntü indirilir (~150 MB); ilerlemeyi gizlemeyelim ki
+  # ekran sessiz kalmasın ve takıldı sanılmasın.
+  for img in postgres:16 redis:7; do
+    docker image inspect "$img" >/dev/null 2>&1 && continue
+    info "Docker görüntüsü indiriliyor: $img (ilk seferde birkaç dakika)"
+    docker pull "$img" || die "$img indirilemedi. İnternet bağlantını kontrol et."
+  done
+
+  info "Veritabanı ve Redis başlatılıyor…"
+  docker start lt-pg >/dev/null 2>&1 || docker run -d --name lt-pg \
+    -e POSTGRES_USER=letstalkin -e POSTGRES_PASSWORD=devpassword123 \
     -e POSTGRES_DB=letstalkin_dev -e TZ=UTC -e PGTZ=UTC -p 127.0.0.1:5433:5432 \
-    -v lt-pgdata:/var/lib/postgresql/data postgres:16 >/dev/null 2>&1 || docker start lt-pg >/dev/null
-  docker run -d --name lt-redis -p 127.0.0.1:6379:6379 redis:7 >/dev/null 2>&1 || docker start lt-redis >/dev/null
-  for _ in $(seq 1 30); do pg_up && redis_up && break; sleep 1; done
+    -v lt-pgdata:/var/lib/postgresql/data postgres:16 >/dev/null
+  docker start lt-redis >/dev/null 2>&1 || docker run -d --name lt-redis \
+    -p 127.0.0.1:6379:6379 redis:7 >/dev/null
+
+  for _ in $(seq 1 60); do pg_up && redis_up && break; sleep 1; done
   pg_up || die "Veritabanı açılmadı. 'docker logs lt-pg' ile bak."
+  redis_up || die "Redis açılmadı. 'docker logs lt-redis' ile bak."
 fi
 ok "Veritabanı ve Redis hazır"
 
 # ---------- 2. Backend ----------
 cd "$API_DIR"
-[ -d node_modules ] || { info "Backend paketleri kuruluyor (bir kerelik, birkaç dakika)…"; npm install --silent; }
+[ -d node_modules ] || { info "Backend paketleri kuruluyor (bir kerelik, birkaç dakika)…"; npm install --no-audit --no-fund; }
 
 export DATABASE_URL="$DB_URL"
 export REDIS_URL="$REDIS_URL"
@@ -87,7 +101,7 @@ ok "Backend hazır · günlük: /tmp/letstalkin-api.log"
 
 # ---------- 3. Panel ----------
 cd "$PANEL_DIR"
-[ -d node_modules ] || { info "Panel paketleri kuruluyor (bir kerelik)…"; npm install --silent; }
+[ -d node_modules ] || { info "Panel paketleri kuruluyor (bir kerelik)…"; npm install --no-audit --no-fund; }
 
 cat <<MESAJ
 
@@ -106,10 +120,13 @@ fi
 echo "  Durdurmak için: Ctrl+C"
 echo
 
-# strictPort: port doluysa sessizce başka porta kaymaz, net hata verir.
-LT_DEV_BACKEND=http://localhost:3000 npx vite --port 5190 --strictPort || {
-  echo
+# Portu önce biz kontrol edelim: Ctrl+C ile kapatınca "port dolu" demesin.
+if (exec 3<>/dev/tcp/127.0.0.1/5190) 2>/dev/null; then
   die "5190 portu dolu. Orada çalışan şeyi kapat ya da şunu dene:
     lsof -ti:5190 | xargs kill      (macOS/Linux)
     netstat -ano | findstr :5190    (Windows — PID'i bulup Görev Yöneticisi'nden kapat)"
-}
+fi
+
+# strictPort: yine de doluysa sessizce başka porta kaymasın.
+# exec KULLANMA: kabuk ayakta kalsın ki çıkış tuzağı backend'i kapatabilsin.
+LT_DEV_BACKEND=http://localhost:3000 npx vite --port 5190 --strictPort
