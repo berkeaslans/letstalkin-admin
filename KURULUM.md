@@ -116,7 +116,32 @@ Uygulama sunucuda zaten çalışıyorsa panel onun üstüne ekleniyor: aynı
 `docker compose`, aynı ortak Caddy. Backend deposundaki `docs/YAYIN.md` ana
 rehberdir; burası panele ait kısım.
 
-### a) Alan adı
+> **Bu bölümdeki komutlar sunucuda çalışır, kendi bilgisayarında değil.**
+> `docker compose …` komutlarını Mac'inde yazarsan
+> `no configuration file provided: not found` der — çünkü orada ne o klasör
+> ne o konteynerler var.
+
+### Sunucuya bağlan ve klasörü bul
+
+```bash
+ssh root@<sunucu-ip>          # kendi bilgisayarından
+```
+
+Komut satırının başı değişince sunucudasın. Backend'in klasörü makineye
+göre değişir; bu rehberde `/srv/letstalkin-backend` yazıyor ama seninkini
+şöyle bul:
+
+```bash
+docker compose ls             # çalışan projeler + yapılandırma dosyasının yolu
+```
+
+Çıkan yol farklıysa aşağıdaki komutlarda onu kullan. Liste boşsa:
+
+```bash
+find / -name docker-compose.yml -path '*letstalkin*' 2>/dev/null
+```
+
+### a) Alan adı — bunu ilk yap
 
 Alan adı panelinde A kaydı aç — sertifikayı ortak Caddy kendisi alır:
 
@@ -124,8 +149,13 @@ Alan adı panelinde A kaydı aç — sertifikayı ortak Caddy kendisi alır:
 yonetim.letstalkin.com   A   <sunucu-ip>
 ```
 
-Bunu ilk yap: Caddy'yi sonra yeniden yüklediğinde kayıt yayılmış olur,
-sertifika ilk denemede çıkar.
+Bunu en başta yap — alan adı panelinden, sunucuya bağlanmadan. Yayılması
+dakikalar sürebilir; Caddy'ye sıra geldiğinde kayıt hazır olur ve sertifika
+ilk denemede çıkar.
+
+```bash
+dig +short yonetim.letstalkin.com    # sunucu IP'sini döndürmeli
+```
 
 ### b) Backend `.env` — iki satır
 
