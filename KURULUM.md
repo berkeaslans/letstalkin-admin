@@ -195,34 +195,46 @@ caddy reload  --config /etc/caddy/Caddyfile   # diğer siteler kesilmez
 
 `validate` hata verirse `reload` yapma — mevcut yapılandırma ayakta kalır.
 
-### f) Panele girecek hesaplar
+### f) İlk admin — tek komut
 
-Hesap varsa yalnız rolü değişir; yoksa oluşturulur ve tek seferlik şifre
-ekrana yazılır:
+Panelin **Ekip** ekranından hesap açmak için zaten admin olman gerekiyor, o
+yüzden ilk yetkiyi sunucudan bir kez veriyorsun. `.env`'e dokunmaya, API'yi
+yeniden başlatmaya gerek yok:
 
 ```bash
 cd /srv/letstalkin-backend
-
-# Kendini admin yap (uygulamada hesabın zaten var):
 docker compose exec api node dist/scripts/ekip.js --kullanici berke --rol admin
-
-# Ortağın için hesap aç:
-docker compose exec api node dist/scripts/ekip.js \
-  --kullanici ortak --eposta ortak@letstalkin.com --rol admin --isim "Ad Soyad"
-
-# Kimler girebiliyor:
-docker compose exec api node dist/scripts/ekip.js --liste
-
-# Yetkiyi geri al:
-docker compose exec api node dist/scripts/ekip.js --kullanici eskici --rol user
 ```
 
-Roller: `admin` her şeyi yapar; `moderator` şikayet, içerik ve kullanıcı
-işlemlerini yapar ama ayarlara, ekonomiye ve rol değiştirmeye dokunamaz.
-Yeni hesabın şifresi bir daha gösterilmez — ilet ve ilk girişten sonra
-değiştirmesini söyle. Sonrası panelden: **Kullanıcılar → kişi → Yönetim → Rol**.
+Çalışan API bunu en geç 15 saniyede görür. **Bundan sonrası panelden.**
 
-### g) Kontrol
+### g) Ekibi panelden yönet
+
+**Kullanıcılar → Ekip** ekranında üç iş var:
+
+- **Mevcut hesaba yetki ver** — uygulamada hesabı olan birini ara, rolünü seç.
+  Kendi şifresiyle panele girer, yeni şifre üretilmez.
+- **Yeni panel hesabı aç** — uygulamada hesabı olmayan biri için. Kullanıcı adı,
+  e-posta ve rol ver; panel şifreyi üretir ve kopyalanabilir bir kutuda
+  gösterir. **Bir daha gösterilmez**, o anda ilet.
+- **Çıkar** — yönetim yetkisini alır. Hesap silinmez, uygulamayı normal
+  kullanmaya devam eder.
+
+Panelin açtığı hesapların yanında kilit simgesi durur; onlar için **Şifre**
+düğmesiyle yeni şifre üretebilirsin. Uygulamada kendi kaydolmuş birinin
+şifresini yönetici değiştiremez — o kişi uygulamadan "şifremi unuttum" ile
+yeniler. (Aksi hâlde yönetici herkesin hesabını devralabilirdi.)
+
+Roller: **admin** her şeyi yapar; **moderatör** şikayet, içerik ve kullanıcı
+işlemlerini yapar ama ayarlara, ekonomiye, yayına ve rol değiştirmeye
+dokunamaz. Kimse kendi rolünü değiştiremez ve kendi şifresini panelden
+yenileyemez. Her değişiklik **Sistem → Denetim kaydı**'na düşer.
+
+> Sunucudan yapmayı tercih edersen aynı işler `ekip.js` betiğinde de var:
+> `--liste`, `--kullanici <ad> --rol <rol>`,
+> `--kullanici <ad> --eposta <e-posta> --rol admin`.
+
+### h) Kontrol
 
 ```bash
 curl -I https://yonetim.letstalkin.com     # 200 + x-robots-tag: noindex
@@ -235,7 +247,7 @@ Tarayıcıdan `https://yonetim.letstalkin.com` → kendi hesabınla gir →
 Worker satırı "hiç worker bağlı değil" diyorsa `docker compose ps worker`
 ile bak; zamanlanmış duyurular ve quiz ilerletme ona bağlı.
 
-### h) Güncelleme
+### i) Güncelleme
 
 ```bash
 cd /srv/letstalkin-admin && git pull
@@ -250,7 +262,7 @@ Yalnız panelde değişiklik varsa sondaki listeyi `admin` ile sınırlayabilirs
 | Belirti | Sebep ve çözüm |
 |---|---|
 | Panel açılıyor, giriş "ağ hatası" | `CORS_ORIGINS`'e panel adresi eklenmemiş. Ekle, `docker compose up -d api`. |
-| Giriş oluyor, "yönetim yetkisi yok" | Rol verilmemiş. `ekip.js --kullanici <ad> --rol admin`, 15 saniye içinde geçer. |
+| Giriş oluyor, "yönetim yetkisi yok" | Rol verilmemiş. Adım (f)'yi çalıştır; 15 saniye içinde geçer. |
 | `admin` servisi derlenmiyor | `../letstalkin-admin` klasörü yok ya da eski. Klonla / `git pull`. |
 | Sertifika çıkmıyor | DNS henüz yayılmamış. `dig yonetim.letstalkin.com` ile bak, bekle. |
 | API migration'da duruyor | `docker compose logs api`. Yedekten dönmek için: `docker compose exec -T db psql -U letstalkin letstalkin < ~/yedek-....sql`. |

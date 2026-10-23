@@ -52,7 +52,7 @@ const Settings = page(() => import('@/pages/System'), 'Settings');
 const Status = page(() => import('@/pages/System'), 'Status');
 const Ticks = page(() => import('@/pages/Ticks'), 'Ticks');
 const UserPage = page(() => import('@/pages/UserPage'), 'UserPage');
-const Team = page(() => import('@/pages/Users'), 'Team');
+const Team = page(() => import('@/pages/Team'), 'Team');
 const Users = page(() => import('@/pages/Users'), 'Users');
 
 const PAGES: Record<string, ComponentType> = {

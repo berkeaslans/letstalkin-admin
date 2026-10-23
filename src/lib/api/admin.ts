@@ -124,6 +124,26 @@ export const authApi = {
   me: () => api.get<Me>('/users/me'),
 };
 
+export interface StaffRow {
+  id: string;
+  username: string;
+  displayName: string | null;
+  email: string;
+  role: 'moderator' | 'admin';
+  emailVerified: boolean;
+  /** Panelin açtığı hesap: şifresi buradan yenilenebilir. */
+  panelAccount: boolean;
+  isSelf: boolean;
+  lastActiveAt: string | null;
+  createdAt: string;
+}
+export interface StaffCredentials {
+  id: string;
+  username: string;
+  /** Bir daha gösterilmez. */
+  password: string;
+}
+
 export const adminApi = {
   overview: () => api.get<Overview>('/admin/overview'),
 
@@ -300,6 +320,13 @@ export const adminApi = {
   decideSeriesPage: (id: string, approve: boolean, note?: string) =>
     api.post<{ ok: boolean }>(`/admin/series-pages/${id}/decide`, { approve, note: note || undefined }),
   revokeSeriesPage: (id: string, note: string) => api.post<{ ok: boolean }>(`/admin/series-pages/${id}/revoke`, { note }),
+
+  staff: () => api.get<StaffRow[]>('/admin/staff'),
+  createStaff: (body: { username: string; email: string; role: 'moderator' | 'admin'; displayName?: string; note?: string }) =>
+    api.post<StaffCredentials>('/admin/staff', body),
+  resetStaffPassword: (id: string, note?: string) => api.post<StaffCredentials>(`/admin/staff/${id}/password`, { note: note || undefined }),
+  setStaffRole: (id: string, role: 'user' | 'moderator' | 'admin', note?: string) =>
+    api.post<StaffRow[]>(`/admin/staff/${id}/role`, { role, note: note || undefined }),
 
   flags: () => api.get<Flag[]>('/admin/flags'),
   setFlag: (key: Flag['key'], enabled: boolean | null) => api.put<Flag[]>(`/admin/flags/${key}`, { enabled }),
