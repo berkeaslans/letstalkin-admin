@@ -8,27 +8,45 @@
 
 ### Gerekenler
 
-- **Node.js 22+** → [nodejs.org](https://nodejs.org)
+- **Node.js 22+** → [nodejs.org](https://nodejs.org) (Mac: `brew install node`)
 - **Docker Desktop** → [docker.com](https://www.docker.com/products/docker-desktop)
   (yalnız veritabanı ve Redis için; bilgisayarında Postgres/Redis varsa gerekmez)
 
-### İki depo yan yana dursun
-
-```
-bir-klasor/
-  letstalkin-backend/
-  letstalkin-admin/
-```
+Kurulu mu, kontrol et:
 
 ```bash
-git clone https://github.com/berkeaslans/letstalkin-backend
-git clone https://github.com/berkeaslans/letstalkin-admin
+node -v      # v22 veya üstü olmalı  → yoksa: brew install node
+docker ps    # hata vermemeli        → yoksa Docker Desktop'ı kur ve bir kez aç
 ```
+
+### İki depo yan yana dursun
+
+Panel ve backend ayrı depolarda; betik backend'i `../letstalkin-backend`
+klasöründe arar. Çalışma **branch'lerde** duruyor, o yüzden `-b` ile klonla:
+
+```bash
+cd ~
+mkdir -p letstalkin && cd letstalkin
+
+git clone -b claude/admin-uclari https://github.com/berkeaslans/letstalkin-backend
+git clone -b claude/admin-panel  https://github.com/berkeaslans/letstalkin-admin
+```
+
+Sonuç:
+
+```
+~/letstalkin/
+  letstalkin-backend/     ← branch: claude/admin-uclari
+  letstalkin-admin/       ← branch: claude/admin-panel
+```
+
+> Branch'ler main'e birleştirildikten sonra `-b ...` kısmına gerek kalmaz.
 
 ### Tek komut
 
 ```bash
-cd letstalkin-admin
+cd ~/letstalkin/letstalkin-admin
+npm install
 npm run baslat -- --ornek-veri
 ```
 
@@ -47,7 +65,7 @@ Bittiğinde **http://localhost:5190** adresine git:
 **Sonraki açılışlarda** örnek veriyi tekrar eklemene gerek yok:
 
 ```bash
-npm run baslat
+cd ~/letstalkin/letstalkin-admin && npm run baslat
 ```
 
 ### Kendi hesabını admin yapmak
@@ -66,7 +84,9 @@ Bu ad(lar)daki hesaplar açılışta admin olur. Sonrasında panelden
 
 | Sorun | Çözüm |
 |---|---|
+| `no such file or directory: letstalkin-admin` | Depoyu henüz klonlamadın. Yukarıdaki `git clone` adımına dön. |
 | `letstalkin-backend bulunamadı` | İki depo yan yana değil. Klasör düzenini kontrol et. |
+| `docker: command not found` | Docker Desktop kurulu değil ya da açık değil. |
 | `5190 portu dolu` | Orada çalışan bir şey var. `lsof -ti:5190 \| xargs kill` (Windows: `netstat -ano \| findstr :5190`) |
 | `Docker yok` | Docker Desktop'ı kur ve çalıştır. |
 | Backend açılmadı | `/tmp/letstalkin-api.log` dosyasına bak. |
