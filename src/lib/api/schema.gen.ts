@@ -189,6 +189,12 @@ export interface paths {
                                 defaultUi: string;
                                 contentFilterByLanguage: boolean;
                             };
+                            web: {
+                                googleMeasurementId: string;
+                                googleSiteVerification: string;
+                                adsenseClient: string;
+                                adsTxt: string;
+                            };
                             app: {
                                 registrationOpen: boolean;
                                 maintenance: {
@@ -244,6 +250,137 @@ export interface paths {
                                 title: string;
                                 posterPath: string | null;
                                 note?: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/translate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string;
+                        to: string;
+                        from?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            text: string;
+                            from: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subtitles/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            enabled: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subtitles/range": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    show: string;
+                    season?: number;
+                    episode?: number;
+                    from: number;
+                    to: number;
+                    lang?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            language: string;
+                            lines: {
+                                at: number;
+                                text: string;
                             }[];
                         };
                     };
@@ -5887,6 +6024,7 @@ export interface paths {
                 query?: {
                     cursor?: string;
                     limit?: number;
+                    sort?: "new" | "old" | "liked";
                 };
                 header?: never;
                 path: {
@@ -6122,6 +6260,92 @@ export interface paths {
                         videoAssetId?: string;
                         /** Format: uuid */
                         sharedPostId?: string;
+                        layout?: {
+                            text?: {
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                                color?: string;
+                                boxed?: boolean;
+                            };
+                            photo?: {
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            };
+                            stickers?: ({
+                                /** @enum {string} */
+                                kind: "emoji";
+                                value: string;
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "show";
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "music";
+                                /** Format: uri */
+                                url: string;
+                                title?: string;
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "mention";
+                                username: string;
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "poll";
+                                question?: string;
+                                options: string[];
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "question";
+                                prompt: string;
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "text";
+                                value: string;
+                                color?: string;
+                                boxed?: boolean;
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "image";
+                                /** Format: uri */
+                                url: string;
+                                x: number;
+                                y: number;
+                                scale: number;
+                                rot: number;
+                            })[];
+                        };
                     };
                 };
             };
@@ -6202,6 +6426,92 @@ export interface paths {
                                 showTitle: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                layout?: {
+                                    text?: {
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                        color?: string;
+                                        boxed?: boolean;
+                                    };
+                                    photo?: {
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    };
+                                    stickers?: ({
+                                        /** @enum {string} */
+                                        kind: "emoji";
+                                        value: string;
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "show";
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "music";
+                                        /** Format: uri */
+                                        url: string;
+                                        title?: string;
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "mention";
+                                        username: string;
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "poll";
+                                        question?: string;
+                                        options: string[];
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "question";
+                                        prompt: string;
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "text";
+                                        value: string;
+                                        color?: string;
+                                        boxed?: boolean;
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    } | {
+                                        /** @enum {string} */
+                                        kind: "image";
+                                        /** Format: uri */
+                                        url: string;
+                                        x: number;
+                                        y: number;
+                                        scale: number;
+                                        rot: number;
+                                    })[];
+                                } | null;
                                 /** Format: date-time */
                                 createdAt: string;
                                 video: ({
@@ -6272,6 +6582,12 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 seen: boolean;
+                                liked: boolean;
+                                polls?: {
+                                    sticker: number;
+                                    counts: number[];
+                                    mine: number | null;
+                                }[];
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -6321,6 +6637,99 @@ export interface paths {
                             ok: boolean;
                         } & {
                             [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stories/{id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        liked: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            liked: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stories/{id}/poll": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        sticker: number;
+                        choice: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            sticker: number;
+                            counts: number[];
+                            mine: number | null;
                         };
                     };
                 };
@@ -6404,6 +6813,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            liked: boolean;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -6740,6 +7150,7 @@ export interface paths {
                             warned15: boolean;
                             /** Format: date-time */
                             closesAt: string | null;
+                            slowModeSec?: number;
                             language: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -6995,6 +7406,7 @@ export interface paths {
                             warned15: boolean;
                             /** Format: date-time */
                             closesAt: string | null;
+                            slowModeSec?: number;
                             language: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -7006,6 +7418,7 @@ export interface paths {
                             ownedByMe: boolean;
                             /** @enum {string|null} */
                             requestStatus: "pending" | "accepted" | "rejected" | null;
+                            pendingRequests?: number;
                         } & {
                             [key: string]: unknown;
                         };
@@ -7061,6 +7474,10 @@ export interface paths {
                         /** @enum {string} */
                         privacy?: "public" | "requestToJoin" | "inviteOnly";
                         summaryEnabled?: boolean;
+                        description?: string | null;
+                        slowModeSec?: 0 | 5 | 10 | 30 | 60 | 300;
+                        /** Format: date-time */
+                        closesAt?: string | null;
                     };
                 };
             };
@@ -7093,6 +7510,7 @@ export interface paths {
                             warned15: boolean;
                             /** Format: date-time */
                             closesAt: string | null;
+                            slowModeSec?: number;
                             language: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -7704,6 +8122,14 @@ export interface paths {
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
+                                replyToId?: string | null;
+                                replyTo?: {
+                                    id: string;
+                                    text: string;
+                                    username: string | null;
+                                } | null;
+                                likeCount?: number;
+                                liked?: boolean;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -7730,6 +8156,8 @@ export interface paths {
                     "application/json": {
                         text: string;
                         stickerId?: string;
+                        /** Format: uuid */
+                        replyToId?: string;
                     };
                 };
             };
@@ -7758,6 +8186,14 @@ export interface paths {
                             } & {
                                 [key: string]: unknown;
                             }) | null;
+                            replyToId?: string | null;
+                            replyTo?: {
+                                id: string;
+                                text: string;
+                                username: string | null;
+                            } | null;
+                            likeCount?: number;
+                            liked?: boolean;
                         } & {
                             [key: string]: unknown;
                         };
@@ -7766,6 +8202,72 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rooms/{id}/messages/{msgId}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    msgId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            liked: boolean;
+                            likeCount: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    msgId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            liked: boolean;
+                            likeCount: number;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -9488,6 +9990,7 @@ export interface paths {
                             joined: boolean;
                             myScore: number | null;
                             questionCount: number;
+                            questionElapsedMs: number | null;
                             questions: ({
                                 order: number;
                                 text: string;
@@ -16039,6 +16542,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/google/keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            keys: {
+                                measurementId: string;
+                                siteVerification: string;
+                                adsenseClient: string;
+                                adsTxt: string;
+                                ga4PropertyId: string;
+                                searchConsoleSite: string;
+                                adsenseAccount: string;
+                            };
+                            secrets: {
+                                serviceAccountJson: boolean;
+                                adsenseClientId: boolean;
+                                adsenseClientSecret: boolean;
+                                adsenseRefreshToken: boolean;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        measurementId?: string;
+                        siteVerification?: string;
+                        adsenseClient?: string;
+                        adsTxt?: string;
+                        ga4PropertyId?: string;
+                        searchConsoleSite?: string;
+                        adsenseAccount?: string;
+                        serviceAccountJson?: string;
+                        adsenseClientId?: string;
+                        adsenseClientSecret?: string;
+                        adsenseRefreshToken?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            keys: {
+                                measurementId: string;
+                                siteVerification: string;
+                                adsenseClient: string;
+                                adsTxt: string;
+                                ga4PropertyId: string;
+                                searchConsoleSite: string;
+                                adsenseAccount: string;
+                            };
+                            secrets: {
+                                serviceAccountJson: boolean;
+                                adsenseClientId: boolean;
+                                adsenseClientSecret: boolean;
+                                adsenseRefreshToken: boolean;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/google/status": {
         parameters: {
             query?: never;
@@ -17232,6 +17837,11 @@ export interface paths {
                             muted?: boolean;
                             filter?: number;
                             overlayText?: string;
+                            subtitles?: {
+                                startMs: number;
+                                endMs: number;
+                                text: string;
+                            }[];
                         };
                     };
                 };
@@ -17294,7 +17904,25 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": unknown | ({
+                        edit?: {
+                            trimStartMs?: number;
+                            trimEndMs?: number;
+                            coverAtMs?: number;
+                            muted?: boolean;
+                            filter?: number;
+                            overlayText?: string;
+                            subtitles?: {
+                                startMs: number;
+                                endMs: number;
+                                text: string;
+                            }[];
+                        };
+                    } | null);
+                };
+            };
             responses: {
                 /** @description Default Response */
                 200: {

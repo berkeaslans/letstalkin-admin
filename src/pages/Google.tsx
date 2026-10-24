@@ -1,14 +1,17 @@
 // Google: Analytics 4 (site ziyaretçileri), Search Console (Google aramaları) ve
 // AdSense (reklam geliri). Anahtarlar backend ortamındadır; panel yalnız okur.
 // Bağlı değilse adım adım kurulum gösterilir — sahte veri yok.
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { DailyBars, HBars } from '@/components/ui/Chart';
 import { Icon } from '@/components/ui/Icon';
 import { Card, ErrorState, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Pills, Segment } from '@/components/ui/Tabs';
-import { adminApi, type GoogleStatus } from '@/lib/api/admin';
+import { adminApi, type GoogleKeys, type GoogleKeysPatch, type GoogleStatus } from '@/lib/api/admin';
+import { errorMessage } from '@/lib/api/client';
 import { compact, fmt, timeAgo } from '@/lib/format';
+import { toast } from '@/stores/ui';
 
 const DAYS = [
   { key: '7', label: '7 gün' },
@@ -16,7 +19,7 @@ const DAYS = [
   { key: '90', label: '90 gün' },
 ] as const;
 type Days = (typeof DAYS)[number]['key'];
-type Tab = 'analytics' | 'search' | 'adsense';
+type Tab = 'analytics' | 'search' | 'adsense' | 'keys';
 
 const CHANNEL: Record<string, string> = {
   'Organic Search': 'Google araması',
@@ -37,7 +40,7 @@ const DEVICE: Record<string, string> = {
 };
 const dur = (s: number) => (s >= 60 ? `${Math.floor(s / 60)} dk ${s % 60} sn` : `${s} sn`);
 
-function Setup({ title, steps, env }: { title: string; steps: ReactNode[]; env: string[] }) {
+function Setup({ title, steps, env, onKeys }: { title: string; steps: ReactNode[]; env: string[]; onKeys?: () => void }) {
   return (
     <Card title={title} sub={<Tag>Bağlı değil</Tag>}>
       <ol className="flex list-decimal flex-col gap-2 px-[18px] pb-4 pl-[38px] text-[13.5px] text-sub marker:text-faint">
@@ -45,8 +48,16 @@ function Setup({ title, steps, env }: { title: string; steps: ReactNode[]; env: 
           <li key={i}>{s}</li>
         ))}
       </ol>
+      {onKeys && (
+        <div className="px-[18px] pb-4">
+          <Button size="sm" variant="primary" icon="settings" onClick={onKeys}>
+            Bağlantı sekmesinde gir
+          </Button>
+          <p className="mt-2 text-[12.5px] text-sub">Google'ın verdiği değerleri panele yapıştırıyorsun; sunucuya dokunmak gerekmez.</p>
+        </div>
+      )}
       <div className="mx-[18px] mb-5 rounded-[12px] bg-elev2 px-3.5 py-3">
-        <p className="mb-1.5 text-[12px] font-semibold text-sub">Backend ortam değişkenleri</p>
+        <p className="mb-1.5 text-[12px] font-semibold text-sub">Sunucudan vermeyi tercih edersen ortam değişkenleri</p>
         {env.map((e) => (
           <code key={e} className="block text-[12.5px]">
             {e}
@@ -59,6 +70,242 @@ function Setup({ title, steps, env }: { title: string; steps: ReactNode[]; env: 
 
 function Cached({ at }: { at: string }) {
   return <p className="text-right text-[11.5px] text-faint">Google verisi · {timeAgo(at)} alındı · 15 dk önbellek</p>;
+}
+
+// ---------------- Bağlantı (anahtarlar) ----------------
+const kinput =
+  'h-10 w-full rounded-option bg-elev2 px-3 font-mono text-[13px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]';
+const klabel = 'mb-1 block text-[12.5px] font-semibold';
+
+function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
+  return (
+    <div>
+      <span className={klabel}>{label}</span>
+      {children}
+      {hint && <p className="mt-1 text-[12px] text-sub">{hint}</p>}
+    </div>
+  );
+}
+
+/** Sır alanı: kayıtlıysa değeri göstermez. Üç durum var — dokunulmadı,
+ *  yeni değer giriliyor, ya da silinmek üzere işaretlendi. Boş kaydetmek
+ *  kazara silmeye yol açmasın diye silme ayrı ve açık bir eylem. */
+function Secret({
+  label,
+  saved,
+  value,
+  silinecek,
+  onChange,
+  onSil,
+  hint,
+  area,
+}: {
+  label: string;
+  saved: boolean;
+  value: string | undefined;
+  silinecek: boolean;
+  onChange: (v: string | undefined) => void;
+  onSil: (v: boolean) => void;
+  hint?: ReactNode;
+  area?: boolean;
+}) {
+  return (
+    <Field label={label} hint={hint}>
+      {value !== undefined ? (
+        <div className="flex flex-col gap-1.5">
+          {area ? (
+            <textarea
+              autoFocus
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              rows={5}
+              className={`${kinput} h-auto py-2.5 leading-snug`}
+              placeholder="JSON'un tamamını ya da base64 hâlini yapıştır"
+            />
+          ) : (
+            <input autoFocus value={value} onChange={(e) => onChange(e.target.value)} className={kinput} />
+          )}
+          <button type="button" className="self-start text-[12px] text-sub hover:text-text" onClick={() => onChange(undefined)}>
+            Vazgeç
+          </button>
+        </div>
+      ) : silinecek ? (
+        <div className="flex items-center gap-2">
+          <Tag tone="live">Kaydedince silinecek</Tag>
+          <Button size="xs" variant="ghost" onClick={() => onSil(false)}>
+            Vazgeç
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          {saved ? <Tag tone="up">Kayıtlı</Tag> : <Tag>Boş</Tag>}
+          <Button size="xs" variant="ghost" onClick={() => onChange('')}>
+            {saved ? 'Değiştir' : 'Gir'}
+          </Button>
+          {saved && (
+            <Button size="xs" variant="ghost" onClick={() => onSil(true)} title="Ortam değişkenine geri döner">
+              Sil
+            </Button>
+          )}
+        </div>
+      )}
+    </Field>
+  );
+}
+
+function KeysTab() {
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ['admin', 'google', 'keys'], queryFn: adminApi.googleKeys });
+  const [form, setForm] = useState<Partial<GoogleKeys>>({});
+  const [secrets, setSecrets] = useState<Record<string, string | undefined>>({});
+  const [silinecek, setSilinecek] = useState<Record<string, boolean>>({});
+  const save = useMutation({
+    mutationFn: () => {
+      const sirlar: Record<string, string> = {};
+      // Boş bırakılan düzenleme "değişiklik yok" demektir; silme ayrı işaretle gelir.
+      for (const [k2, v2] of Object.entries(secrets)) if (v2?.trim()) sirlar[k2] = v2.trim();
+      for (const [k2, v2] of Object.entries(silinecek)) if (v2) sirlar[k2] = '';
+      return adminApi.saveGoogleKeys({ ...form, ...sirlar } as GoogleKeysPatch);
+    },
+    onSuccess: (r) => {
+      toast('Google ayarları kaydedildi', 'success', 'Web sitesi en geç 15 saniyede yeni etiketleri kullanır');
+      setForm({});
+      setSecrets({});
+      setSilinecek({});
+      qc.setQueryData(['admin', 'google', 'keys'], r);
+      void qc.invalidateQueries({ queryKey: ['admin', 'google', 'status'] });
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+
+  if (q.isError || !q.data) return <Card>{q.isError ? <ErrorState error={q.error} retry={() => q.refetch()} /> : <Rows n={5} />}</Card>;
+
+  const k = q.data.keys;
+  const v = <K extends keyof GoogleKeys>(key: K) => form[key] ?? k[key];
+  const set =
+    <K extends keyof GoogleKeys>(key: K) =>
+    (e: { target: { value: string } }) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }));
+  const kirli = Object.keys(form).length > 0 || Object.values(secrets).some((x) => !!x?.trim()) || Object.values(silinecek).some(Boolean);
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      <Card title="Web sitesi etiketleri" sub="sayfa kaynağında görünür, gizli değil">
+        <div className="grid gap-4 px-[18px] pb-5 sm:grid-cols-2">
+          <Field label="GA4 ölçüm kimliği" hint={<>Analytics → Yönetici → Veri akışları → akışa tıkla. “G-” ile başlar.</>}>
+            <input className={kinput} value={v('measurementId')} onChange={set('measurementId')} placeholder="G-XXXXXXXXXX" />
+          </Field>
+          <Field
+            label="Site doğrulama kodu"
+            hint={
+              <>
+                Search Console → Mülk ekle → <b>HTML etiketi</b> yöntemi. Etiketin tamamını değil, yalnız <code>content="…"</code> içindeki
+                değeri yapıştır.
+              </>
+            }
+          >
+            <input className={kinput} value={v('siteVerification')} onChange={set('siteVerification')} placeholder="abcDEF123..." />
+          </Field>
+          <Field label="AdSense yayıncı kimliği" hint={<>AdSense → Hesap → Hesap bilgileri. “ca-pub-” ile başlar.</>}>
+            <input className={kinput} value={v('adsenseClient')} onChange={set('adsenseClient')} placeholder="ca-pub-0000000000000000" />
+          </Field>
+          <Field label="ads.txt" hint={<>AdSense → Siteler → ads.txt uyarısındaki satır. letstalkin.com/ads.txt adresinde sunulur.</>}>
+            <textarea
+              rows={3}
+              className={`${kinput} h-auto py-2.5 leading-snug`}
+              value={v('adsTxt')}
+              onChange={set('adsTxt')}
+              placeholder="google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"
+            />
+          </Field>
+        </div>
+      </Card>
+
+      <Card title="Panel raporları" sub="bu ekrandaki grafikler için; yalnız sunucuda kalır">
+        <div className="grid gap-4 px-[18px] pb-5 sm:grid-cols-2">
+          <Field label="GA4 mülk kimliği" hint={<>Analytics → Yönetici → Mülk ayarları. Yalnız rakam.</>}>
+            <input className={kinput} value={v('ga4PropertyId')} onChange={set('ga4PropertyId')} placeholder="412345678" />
+          </Field>
+          <Field label="Search Console sitesi" hint={<>Alan adı mülkü için “sc-domain:letstalkin.com”, URL mülkü için adresin tamamı.</>}>
+            <input
+              className={kinput}
+              value={v('searchConsoleSite')}
+              onChange={set('searchConsoleSite')}
+              placeholder="sc-domain:letstalkin.com"
+            />
+          </Field>
+          <Field label="AdSense hesap kimliği" hint={<>“accounts/pub-…” biçiminde.</>}>
+            <input
+              className={kinput}
+              value={v('adsenseAccount')}
+              onChange={set('adsenseAccount')}
+              placeholder="accounts/pub-0000000000000000"
+            />
+          </Field>
+          <Secret
+            label="Servis hesabı JSON"
+            saved={q.data.secrets.serviceAccountJson}
+            value={secrets.serviceAccountJson}
+            silinecek={!!silinecek.serviceAccountJson}
+            onChange={(x) => setSecrets((s2) => ({ ...s2, serviceAccountJson: x }))}
+            onSil={(x) => setSilinecek((s2) => ({ ...s2, serviceAccountJson: x }))}
+            area
+            hint={
+              <>
+                Google Cloud → IAM → Hizmet hesapları → anahtar oluştur (JSON). Sonra o hesabın e-postasını GA4 mülküne <b>Görüntüleyen</b>,
+                Search Console mülküne <b>tam</b> yetkiyle ekle.
+              </>
+            }
+          />
+          <Secret
+            label="AdSense OAuth istemci kimliği"
+            saved={q.data.secrets.adsenseClientId}
+            value={secrets.adsenseClientId}
+            silinecek={!!silinecek.adsenseClientId}
+            onChange={(x) => setSecrets((s2) => ({ ...s2, adsenseClientId: x }))}
+            onSil={(x) => setSilinecek((s2) => ({ ...s2, adsenseClientId: x }))}
+            hint="AdSense servis hesabını desteklemiyor; OAuth gerekiyor."
+          />
+          <Secret
+            label="AdSense OAuth istemci sırrı"
+            saved={q.data.secrets.adsenseClientSecret}
+            value={secrets.adsenseClientSecret}
+            silinecek={!!silinecek.adsenseClientSecret}
+            onChange={(x) => setSecrets((s2) => ({ ...s2, adsenseClientSecret: x }))}
+            onSil={(x) => setSilinecek((s2) => ({ ...s2, adsenseClientSecret: x }))}
+          />
+          <Secret
+            label="AdSense yenileme token'ı"
+            saved={q.data.secrets.adsenseRefreshToken}
+            value={secrets.adsenseRefreshToken}
+            silinecek={!!silinecek.adsenseRefreshToken}
+            onChange={(x) => setSecrets((s2) => ({ ...s2, adsenseRefreshToken: x }))}
+            onSil={(x) => setSilinecek((s2) => ({ ...s2, adsenseRefreshToken: x }))}
+            hint="OAuth Playground ile adsense.readonly kapsamında alınır."
+          />
+        </div>
+      </Card>
+
+      <div className="flex items-center gap-2">
+        <Button variant="primary" busy={save.isPending} disabled={!kirli} onClick={() => save.mutate()}>
+          Kaydet
+        </Button>
+        {kirli && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setForm({});
+              setSecrets({});
+              setSilinecek({});
+            }}
+          >
+            Değişiklikleri at
+          </Button>
+        )}
+        <p className="ml-auto text-[12px] text-faint">Sırlar panele geri okunmaz; yalnız kayıtlı olup olmadığı görünür.</p>
+      </div>
+    </div>
+  );
 }
 
 export function GooglePage() {
@@ -114,22 +361,26 @@ export function GooglePage() {
             { key: 'analytics', label: 'Analytics' },
             { key: 'search', label: 'Search Console' },
             { key: 'adsense', label: 'AdSense' },
+            { key: 'keys', label: 'Bağlantı' },
           ]}
           value={tab}
           onChange={setTab}
         />
-        <div className="ml-auto w-[260px]">
-          <Segment value={days} onChange={setDays} items={DAYS.map((d) => ({ key: d.key, label: d.label }))} />
-        </div>
+        {tab !== 'keys' && (
+          <div className="ml-auto w-[260px]">
+            <Segment value={days} onChange={setDays} items={DAYS.map((d) => ({ key: d.key, label: d.label }))} />
+          </div>
+        )}
       </div>
-      {tab === 'analytics' && <AnalyticsTab s={s} days={Number(days)} />}
-      {tab === 'search' && <SearchTab s={s} days={Number(days)} />}
-      {tab === 'adsense' && <AdsenseTab s={s} days={Number(days)} />}
+      {tab === 'analytics' && <AnalyticsTab s={s} days={Number(days)} onKeys={() => setTab('keys')} />}
+      {tab === 'search' && <SearchTab s={s} days={Number(days)} onKeys={() => setTab('keys')} />}
+      {tab === 'adsense' && <AdsenseTab s={s} days={Number(days)} onKeys={() => setTab('keys')} />}
+      {tab === 'keys' && <KeysTab />}
     </>
   );
 }
 
-function AnalyticsTab({ s, days }: { s: GoogleStatus; days: number }) {
+function AnalyticsTab({ s, days, onKeys }: { s: GoogleStatus; days: number; onKeys?: () => void }) {
   const q = useQuery({
     queryKey: ['admin', 'google', 'ga', days],
     queryFn: () => adminApi.googleAnalytics(days),
@@ -139,6 +390,7 @@ function AnalyticsTab({ s, days }: { s: GoogleStatus; days: number }) {
   if (!s.analytics.configured)
     return (
       <Setup
+        onKeys={onKeys}
         title="Google Analytics 4'ü bağla"
         steps={[
           'Google Cloud Console → IAM → Hizmet hesapları → yeni hesap aç, JSON anahtarı indir.',
@@ -199,7 +451,7 @@ function AnalyticsTab({ s, days }: { s: GoogleStatus; days: number }) {
   );
 }
 
-function SearchTab({ s, days }: { s: GoogleStatus; days: number }) {
+function SearchTab({ s, days, onKeys }: { s: GoogleStatus; days: number; onKeys?: () => void }) {
   const q = useQuery({
     queryKey: ['admin', 'google', 'sc', days],
     queryFn: () => adminApi.googleSearch(days),
@@ -209,6 +461,7 @@ function SearchTab({ s, days }: { s: GoogleStatus; days: number }) {
   if (!s.searchConsole.configured)
     return (
       <Setup
+        onKeys={onKeys}
         title="Search Console'u bağla"
         steps={[
           'Analytics için açtığın aynı hizmet hesabını kullanabilirsin (yoksa yeni aç, JSON indir).',
@@ -274,7 +527,7 @@ function SearchTab({ s, days }: { s: GoogleStatus; days: number }) {
   );
 }
 
-function AdsenseTab({ s, days }: { s: GoogleStatus; days: number }) {
+function AdsenseTab({ s, days, onKeys }: { s: GoogleStatus; days: number; onKeys?: () => void }) {
   const q = useQuery({
     queryKey: ['admin', 'google', 'ads', days],
     queryFn: () => adminApi.googleAdsense(days),
@@ -284,6 +537,7 @@ function AdsenseTab({ s, days }: { s: GoogleStatus; days: number }) {
   if (!s.adsense.configured)
     return (
       <Setup
+        onKeys={onKeys}
         title="AdSense'i bağla"
         steps={[
           'AdSense API hizmet hesabını desteklemez; bir kez Google hesabınla izin vermen gerekir.',

@@ -155,6 +155,29 @@ export interface OnlineUser {
   lastActiveAt: string | null;
 }
 
+export interface GoogleKeys {
+  measurementId: string;
+  siteVerification: string;
+  adsenseClient: string;
+  adsTxt: string;
+  ga4PropertyId: string;
+  searchConsoleSite: string;
+  adsenseAccount: string;
+}
+export interface GoogleSecretState {
+  serviceAccountJson: boolean;
+  adsenseClientId: boolean;
+  adsenseClientSecret: boolean;
+  adsenseRefreshToken: boolean;
+}
+export type GoogleKeysResponse = { keys: GoogleKeys; secrets: GoogleSecretState };
+export type GoogleKeysPatch = Partial<GoogleKeys> & {
+  serviceAccountJson?: string;
+  adsenseClientId?: string;
+  adsenseClientSecret?: string;
+  adsenseRefreshToken?: string;
+};
+
 export const adminApi = {
   overview: () => api.get<Overview>('/admin/overview'),
 
@@ -300,6 +323,8 @@ export const adminApi = {
   // Analiz
   analytics: (days: number) => api.get<Analytics>('/admin/analytics/overview', { days }),
   googleStatus: () => api.get<GoogleStatus>('/admin/google/status'),
+  googleKeys: () => api.get<GoogleKeysResponse>('/admin/google/keys'),
+  saveGoogleKeys: (body: GoogleKeysPatch) => api.put<GoogleKeysResponse>('/admin/google/keys', body),
   googleAnalytics: (days: number) => api.get<GaReport>('/admin/google/analytics', { days }),
   googleSearch: (days: number) => api.get<ScReport>('/admin/google/search', { days }),
   googleAdsense: (days: number) => api.get<AdsReport>('/admin/google/adsense', { days }),
