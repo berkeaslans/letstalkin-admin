@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "format": "biome format --write src",
+    "api:sync": "cp ../letstalkin-backend/openapi.json contracts/openapi.json && npm run api:types",
     "api:types": "openapi-typescript contracts/openapi.json -o src/lib/api/schema.gen.ts",
     "icons": "node scripts/fetch-icon-font.mjs"
   },

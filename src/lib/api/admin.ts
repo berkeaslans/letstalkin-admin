@@ -49,6 +49,7 @@ export type ModSummary = Res<'/api/v1/admin/moderation/summary', 'get'>;
 export type RoomPage = Res<'/api/v1/admin/rooms', 'get'>;
 export type RoomRow = RoomPage['items'][number];
 export type RoomDetail = Res<'/api/v1/admin/rooms/{id}', 'get'>;
+export type PostDetail = Res<'/api/v1/admin/content/post/{id}', 'get'>;
 export type MatchRow = Res<'/api/v1/admin/match/profiles', 'get'>[number];
 export type AccountType = UserRow['accountType'];
 export type PublishAccounts = Res<'/api/v1/admin/publish/accounts', 'get'>;
@@ -331,6 +332,9 @@ export const adminApi = {
   decideSeriesPage: (id: string, approve: boolean, note?: string) =>
     api.post<{ ok: boolean }>(`/admin/series-pages/${id}/decide`, { approve, note: note || undefined }),
   revokeSeriesPage: (id: string, note: string) => api.post<{ ok: boolean }>(`/admin/series-pages/${id}/revoke`, { note }),
+
+  post: (id: string) => api.get<PostDetail>(`/admin/content/post/${id}`),
+  commentPost: (id: string) => api.get<{ postId: string }>(`/admin/content/comment/${id}`),
 
   staff: () => api.get<StaffRow[]>('/admin/staff'),
   createStaff: (body: { username: string; email: string; role: 'moderator' | 'admin'; displayName?: string; note?: string }) =>

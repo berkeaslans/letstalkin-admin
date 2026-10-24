@@ -291,6 +291,8 @@ export interface paths {
                         marketingConsent?: boolean;
                         /** @enum {string} */
                         accountType?: "person" | "fan";
+                        /** @enum {string} */
+                        preferredLang?: "tr" | "en" | "es" | "pt" | "de" | "fr" | "it" | "ru" | "ar" | "hi" | "id" | "zh" | "ja" | "ko" | "pl" | "el";
                     };
                 };
             };
@@ -1297,6 +1299,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -1393,6 +1396,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -1452,6 +1456,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -1552,6 +1557,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -1611,6 +1617,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -2795,6 +2802,7 @@ export interface paths {
                 query?: {
                     cursor?: string;
                     limit?: number;
+                    types?: string;
                 };
                 header?: never;
                 path: {
@@ -2825,6 +2833,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -2884,6 +2893,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -2944,7 +2954,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users/{username}/reshares": {
+    "/api/v1/users/{username}/likes": {
         parameters: {
             query?: never;
             header?: never;
@@ -2986,6 +2996,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -3045,6 +3056,210 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
+                                mediaPaths?: unknown;
+                                showTmdbId: string | null;
+                                showTitle: string | null;
+                                episodeTag: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                minute: number | null;
+                                rating: number | null;
+                                quote: string | null;
+                                isSpoiler: boolean;
+                                spoilerNote: string | null;
+                                likeCount: number;
+                                commentCount: number;
+                                shareCount: number;
+                                saveCount: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                editedAt: string | null;
+                                video: {
+                                    url: string | null;
+                                    thumbUrl: string | null;
+                                    durationSec: number | null;
+                                    width: number | null;
+                                    height: number | null;
+                                } | null;
+                                liked: boolean;
+                                saved: boolean;
+                                reshared: boolean;
+                                poll: {
+                                    options: {
+                                        index: number;
+                                        label: string;
+                                        voteCount: number;
+                                    }[];
+                                    myVote: number | null;
+                                    /** Format: date-time */
+                                    endsAt: string | null;
+                                    ended: boolean;
+                                    closed: boolean;
+                                } | null;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            nextCursor: string | null;
+                        } & {
+                            [key: string]: unknown;
+                        });
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{username}/watchlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            favorites: string[] | null;
+                            watched: string[] | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{username}/reshares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            /** @enum {string} */
+                            type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            text: string | null;
+                            language?: string;
+                            mediaPaths?: unknown;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            episodeTag: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            minute: number | null;
+                            rating: number | null;
+                            quote: string | null;
+                            isSpoiler: boolean;
+                            spoilerNote: string | null;
+                            likeCount: number;
+                            commentCount: number;
+                            shareCount: number;
+                            saveCount: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                            video: {
+                                url: string | null;
+                                thumbUrl: string | null;
+                                durationSec: number | null;
+                                width: number | null;
+                                height: number | null;
+                            } | null;
+                            liked: boolean;
+                            saved: boolean;
+                            reshared: boolean;
+                            poll: {
+                                options: {
+                                    index: number;
+                                    label: string;
+                                    voteCount: number;
+                                }[];
+                                myVote: number | null;
+                                /** Format: date-time */
+                                endsAt: string | null;
+                                ended: boolean;
+                                closed: boolean;
+                            } | null;
+                        } & {
+                            [key: string]: unknown;
+                        })[] | ({
+                            items: ({
+                                id: string;
+                                /** @enum {string} */
+                                type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -3290,6 +3505,11 @@ export interface paths {
                             isBlocked: boolean;
                             isMuted: boolean;
                             canViewContent: boolean;
+                            visibleTabs: {
+                                likes: boolean;
+                                favorites: boolean;
+                                watched: boolean;
+                            };
                             pages: ({
                                 /** @enum {string} */
                                 kind: "official" | "fan";
@@ -3347,6 +3567,9 @@ export interface paths {
                             id: string;
                             title: string;
                             posterUrl: string | null;
+                            /** @enum {string} */
+                            kind: "tv" | "movie";
+                            year: string | null;
                         }[];
                     };
                 };
@@ -3414,6 +3637,7 @@ export interface paths {
             parameters: {
                 query: {
                     q: string;
+                    lang?: "tr" | "en" | "es" | "pt" | "de" | "fr" | "it" | "ru" | "ar" | "hi" | "id" | "zh" | "ja" | "ko" | "pl" | "el";
                 };
                 header?: never;
                 path?: never;
@@ -3431,6 +3655,9 @@ export interface paths {
                             id: string;
                             title: string;
                             posterUrl: string | null;
+                            /** @enum {string} */
+                            kind: "tv" | "movie";
+                            year: string | null;
                         }[];
                     };
                 };
@@ -4328,6 +4555,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -4429,6 +4657,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -4531,6 +4760,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -4638,6 +4868,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -4873,6 +5104,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -4966,6 +5198,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -5086,6 +5319,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -5450,6 +5684,7 @@ export interface paths {
                                 [key: string]: unknown;
                             }) | null;
                             text: string | null;
+                            language?: string;
                             mediaPaths?: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
@@ -5671,6 +5906,7 @@ export interface paths {
                             items: ({
                                 id: string;
                                 text: string;
+                                language?: string | null;
                                 isSpoiler: boolean;
                                 parentId: string | null;
                                 likeCount: number;
@@ -5990,6 +6226,7 @@ export interface paths {
                                         [key: string]: unknown;
                                     }) | null;
                                     text: string | null;
+                                    language?: string;
                                     mediaPaths?: unknown;
                                     showTmdbId: string | null;
                                     showTitle: string | null;
@@ -9828,6 +10065,9 @@ export interface paths {
                             showReadReceipts: boolean;
                             showActivityStatus: boolean;
                             webVisible: boolean;
+                            profileShowLikes: boolean;
+                            profileShowFavorites: boolean;
+                            profileShowWatched: boolean;
                             /** Format: date-time */
                             updatedAt: string;
                         } & {
@@ -9870,6 +10110,9 @@ export interface paths {
                         showReadReceipts?: boolean;
                         showActivityStatus?: boolean;
                         webVisible?: boolean;
+                        profileShowLikes?: boolean;
+                        profileShowFavorites?: boolean;
+                        profileShowWatched?: boolean;
                     };
                 };
             };
@@ -9900,6 +10143,9 @@ export interface paths {
                             showReadReceipts: boolean;
                             showActivityStatus: boolean;
                             webVisible: boolean;
+                            profileShowLikes: boolean;
+                            profileShowFavorites: boolean;
+                            profileShowWatched: boolean;
                             /** Format: date-time */
                             updatedAt: string;
                         } & {
@@ -10288,6 +10534,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -10511,6 +10758,7 @@ export interface paths {
                                     [key: string]: unknown;
                                 }) | null;
                                 text: string | null;
+                                language?: string;
                                 mediaPaths?: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
@@ -11207,6 +11455,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users/{id}/temp-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        note: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            username: string;
+                            password: string;
+                            sessionsRevoked: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/users/{id}/sessions/revoke": {
         parameters: {
             query?: never;
@@ -11885,6 +12181,153 @@ export interface paths {
                                 createdAt: string;
                             }[];
                             nextCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/content/post/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            type: string;
+                            text: string | null;
+                            quote: string | null;
+                            media: string[];
+                            show: {
+                                tmdbId: string;
+                                name: string;
+                                posterPath: string | null;
+                            } | null;
+                            episodeTag: string | null;
+                            rating: number | null;
+                            isSpoiler: boolean;
+                            spoilerNote: string | null;
+                            language: string;
+                            likeCount: number;
+                            commentCount: number;
+                            shareCount: number;
+                            saveCount: number;
+                            hidden: boolean;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                            author: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } | null;
+                            poll: {
+                                label: string;
+                                voteCount: number;
+                            }[];
+                            /** Format: date-time */
+                            pollEndsAt: string | null;
+                            reports: {
+                                id: string;
+                                reason: string;
+                                status: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                                reporter: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            }[];
+                            comments: {
+                                id: string;
+                                text: string;
+                                likeCount: number;
+                                hidden: boolean;
+                                /** Format: date-time */
+                                createdAt: string;
+                                author: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                                reportCount: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/content/comment/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            postId: string;
                         };
                     };
                 };
@@ -13586,6 +14029,57 @@ export interface paths {
                         "application/json": {
                             count: number;
                             label: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/live/online": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            total: number;
+                            users: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                /** @enum {string} */
+                                role: "user" | "moderator" | "admin";
+                                /** Format: date-time */
+                                lastActiveAt: string | null;
+                            }[];
                         };
                     };
                 };
@@ -16000,6 +16494,149 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            username: string;
+                            displayName: string | null;
+                            email: string;
+                            /** @enum {string} */
+                            role: "moderator" | "admin";
+                            emailVerified: boolean;
+                            panelAccount: boolean;
+                            isSelf: boolean;
+                            /** Format: date-time */
+                            lastActiveAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        username: string;
+                        /** Format: email */
+                        email: string;
+                        /** @enum {string} */
+                        role: "moderator" | "admin";
+                        displayName?: string;
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            username: string;
+                            password: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        role: "user" | "moderator" | "admin";
+                        note?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            username: string;
+                            displayName: string | null;
+                            email: string;
+                            /** @enum {string} */
+                            role: "moderator" | "admin";
+                            emailVerified: boolean;
+                            panelAccount: boolean;
+                            isSelf: boolean;
+                            /** Format: date-time */
+                            lastActiveAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;

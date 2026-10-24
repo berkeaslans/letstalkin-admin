@@ -471,6 +471,27 @@
                       "person",
                       "fan"
                     ]
+                  },
+                  "preferredLang": {
+                    "type": "string",
+                    "enum": [
+                      "tr",
+                      "en",
+                      "es",
+                      "pt",
+                      "de",
+                      "fr",
+                      "it",
+                      "ru",
+                      "ar",
+                      "hi",
+                      "id",
+                      "zh",
+                      "ja",
+                      "ko",
+                      "pl",
+                      "el"
+                    ]
                   }
                 },
                 "required": [
@@ -2183,6 +2204,9 @@
                         "type": "string",
                         "nullable": true
                       },
+                      "language": {
+                        "type": "string"
+                      },
                       "mediaPaths": {
                         "nullable": true
                       },
@@ -2469,6 +2493,9 @@
                             "type": "string",
                             "nullable": true
                           },
+                          "language": {
+                            "type": "string"
+                          },
                           "mediaPaths": {
                             "nullable": true
                           },
@@ -2719,6 +2746,9 @@
                               "text": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "language": {
+                                "type": "string"
                               },
                               "mediaPaths": {
                                 "nullable": true
@@ -3019,6 +3049,9 @@
                             "type": "string",
                             "nullable": true
                           },
+                          "language": {
+                            "type": "string"
+                          },
                           "mediaPaths": {
                             "nullable": true
                           },
@@ -3269,6 +3302,9 @@
                               "text": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "language": {
+                                "type": "string"
                               },
                               "mediaPaths": {
                                 "nullable": true
@@ -5012,6 +5048,14 @@
           },
           {
             "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "types",
+            "required": false
+          },
+          {
+            "schema": {
               "type": "string",
               "minLength": 1
             },
@@ -5085,6 +5129,9 @@
                           "text": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
                           },
                           "mediaPaths": {
                             "nullable": true
@@ -5336,6 +5383,9 @@
                               "text": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "language": {
+                                "type": "string"
                               },
                               "mediaPaths": {
                                 "nullable": true
@@ -5545,7 +5595,7 @@
         }
       }
     },
-    "/api/v1/users/{username}/reshares": {
+    "/api/v1/users/{username}/likes": {
       "get": {
         "tags": [
           "users"
@@ -5644,6 +5694,9 @@
                           "text": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
                           },
                           "mediaPaths": {
                             "nullable": true
@@ -5895,6 +5948,625 @@
                               "text": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "language": {
+                                "type": "string"
+                              },
+                              "mediaPaths": {
+                                "nullable": true
+                              },
+                              "showTmdbId": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "showTitle": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "episodeTag": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "season": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "episode": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "minute": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "rating": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "quote": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "isSpoiler": {
+                                "type": "boolean"
+                              },
+                              "spoilerNote": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "likeCount": {
+                                "type": "number"
+                              },
+                              "commentCount": {
+                                "type": "number"
+                              },
+                              "shareCount": {
+                                "type": "number"
+                              },
+                              "saveCount": {
+                                "type": "number"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "editedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "url": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "thumbUrl": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "durationSec": {
+                                    "type": "number",
+                                    "nullable": true
+                                  },
+                                  "width": {
+                                    "type": "number",
+                                    "nullable": true
+                                  },
+                                  "height": {
+                                    "type": "number",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "url",
+                                  "thumbUrl",
+                                  "durationSec",
+                                  "width",
+                                  "height"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              },
+                              "liked": {
+                                "type": "boolean"
+                              },
+                              "saved": {
+                                "type": "boolean"
+                              },
+                              "reshared": {
+                                "type": "boolean"
+                              },
+                              "poll": {
+                                "type": "object",
+                                "properties": {
+                                  "options": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "index": {
+                                          "type": "number"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "voteCount": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "index",
+                                        "label",
+                                        "voteCount"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "myVote": {
+                                    "type": "number",
+                                    "nullable": true
+                                  },
+                                  "endsAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "nullable": true
+                                  },
+                                  "ended": {
+                                    "type": "boolean"
+                                  },
+                                  "closed": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "options",
+                                  "myVote",
+                                  "endsAt",
+                                  "ended",
+                                  "closed"
+                                ],
+                                "additionalProperties": false,
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "author",
+                              "text",
+                              "showTmdbId",
+                              "showTitle",
+                              "episodeTag",
+                              "season",
+                              "episode",
+                              "minute",
+                              "rating",
+                              "quote",
+                              "isSpoiler",
+                              "spoilerNote",
+                              "likeCount",
+                              "commentCount",
+                              "shareCount",
+                              "saveCount",
+                              "createdAt",
+                              "editedAt",
+                              "video",
+                              "liked",
+                              "saved",
+                              "reshared",
+                              "poll"
+                            ],
+                            "additionalProperties": true
+                          }
+                        },
+                        "nextCursor": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "items",
+                        "nextCursor"
+                      ],
+                      "additionalProperties": true
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{username}/watchlist": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "username",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "favorites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    },
+                    "watched": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "favorites",
+                    "watched"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{username}/reshares": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "username",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "post",
+                              "review",
+                              "poll",
+                              "quote",
+                              "story",
+                              "clip"
+                            ]
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "avatarPath": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": true,
+                            "nullable": true
+                          },
+                          "text": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
+                          },
+                          "mediaPaths": {
+                            "nullable": true
+                          },
+                          "showTmdbId": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "showTitle": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "episodeTag": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "season": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "episode": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "minute": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "rating": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "quote": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "isSpoiler": {
+                            "type": "boolean"
+                          },
+                          "spoilerNote": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "likeCount": {
+                            "type": "number"
+                          },
+                          "commentCount": {
+                            "type": "number"
+                          },
+                          "shareCount": {
+                            "type": "number"
+                          },
+                          "saveCount": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "editedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "video": {
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "thumbUrl": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "durationSec": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "width": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "height": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "thumbUrl",
+                              "durationSec",
+                              "width",
+                              "height"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          },
+                          "liked": {
+                            "type": "boolean"
+                          },
+                          "saved": {
+                            "type": "boolean"
+                          },
+                          "reshared": {
+                            "type": "boolean"
+                          },
+                          "poll": {
+                            "type": "object",
+                            "properties": {
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "index": {
+                                      "type": "number"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    },
+                                    "voteCount": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "index",
+                                    "label",
+                                    "voteCount"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "myVote": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "endsAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                              },
+                              "ended": {
+                                "type": "boolean"
+                              },
+                              "closed": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "options",
+                              "myVote",
+                              "endsAt",
+                              "ended",
+                              "closed"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "author",
+                          "text",
+                          "showTmdbId",
+                          "showTitle",
+                          "episodeTag",
+                          "season",
+                          "episode",
+                          "minute",
+                          "rating",
+                          "quote",
+                          "isSpoiler",
+                          "spoilerNote",
+                          "likeCount",
+                          "commentCount",
+                          "shareCount",
+                          "saveCount",
+                          "createdAt",
+                          "editedAt",
+                          "video",
+                          "liked",
+                          "saved",
+                          "reshared",
+                          "poll"
+                        ],
+                        "additionalProperties": true
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "post",
+                                  "review",
+                                  "poll",
+                                  "quote",
+                                  "story",
+                                  "clip"
+                                ]
+                              },
+                              "author": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "username": {
+                                    "type": "string"
+                                  },
+                                  "displayName": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "avatarPath": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "tick": {
+                                    "type": "string",
+                                    "enum": [
+                                      "none",
+                                      "yellow",
+                                      "blue"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "username",
+                                  "displayName",
+                                  "avatarPath",
+                                  "tick"
+                                ],
+                                "additionalProperties": true,
+                                "nullable": true
+                              },
+                              "text": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "language": {
+                                "type": "string"
                               },
                               "mediaPaths": {
                                 "nullable": true
@@ -6480,6 +7152,26 @@
                     "canViewContent": {
                       "type": "boolean"
                     },
+                    "visibleTabs": {
+                      "type": "object",
+                      "properties": {
+                        "likes": {
+                          "type": "boolean"
+                        },
+                        "favorites": {
+                          "type": "boolean"
+                        },
+                        "watched": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "likes",
+                        "favorites",
+                        "watched"
+                      ],
+                      "additionalProperties": false
+                    },
                     "pages": {
                       "type": "array",
                       "items": {
@@ -6549,6 +7241,7 @@
                     "isBlocked",
                     "isMuted",
                     "canViewContent",
+                    "visibleTabs",
                     "pages"
                   ],
                   "additionalProperties": true
@@ -6596,12 +7289,25 @@
                       "posterUrl": {
                         "type": "string",
                         "nullable": true
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "tv",
+                          "movie"
+                        ]
+                      },
+                      "year": {
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
                       "id",
                       "title",
-                      "posterUrl"
+                      "posterUrl",
+                      "kind",
+                      "year"
                     ],
                     "additionalProperties": false
                   }
@@ -6686,6 +7392,32 @@
             "in": "query",
             "name": "q",
             "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tr",
+                "en",
+                "es",
+                "pt",
+                "de",
+                "fr",
+                "it",
+                "ru",
+                "ar",
+                "hi",
+                "id",
+                "zh",
+                "ja",
+                "ko",
+                "pl",
+                "el"
+              ]
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
           }
         ],
         "responses": {
@@ -6707,12 +7439,25 @@
                       "posterUrl": {
                         "type": "string",
                         "nullable": true
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "tv",
+                          "movie"
+                        ]
+                      },
+                      "year": {
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
                       "id",
                       "title",
-                      "posterUrl"
+                      "posterUrl",
+                      "kind",
+                      "year"
                     ],
                     "additionalProperties": false
                   }
@@ -8533,6 +9278,9 @@
                             "type": "string",
                             "nullable": true
                           },
+                          "language": {
+                            "type": "string"
+                          },
                           "mediaPaths": {
                             "nullable": true
                           },
@@ -8831,6 +9579,9 @@
                           "text": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
                           },
                           "mediaPaths": {
                             "nullable": true
@@ -9138,6 +9889,9 @@
                           "text": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
                           },
                           "mediaPaths": {
                             "nullable": true
@@ -9516,6 +10270,9 @@
                           "text": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
                           },
                           "mediaPaths": {
                             "nullable": true
@@ -10107,6 +10864,9 @@
                       "type": "string",
                       "nullable": true
                     },
+                    "language": {
+                      "type": "string"
+                    },
                     "mediaPaths": {
                       "nullable": true
                     },
@@ -10377,6 +11137,9 @@
                     "text": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "language": {
+                      "type": "string"
                     },
                     "mediaPaths": {
                       "nullable": true
@@ -10681,6 +11444,9 @@
                     "text": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "language": {
+                      "type": "string"
                     },
                     "mediaPaths": {
                       "nullable": true
@@ -11394,6 +12160,9 @@
                       "type": "string",
                       "nullable": true
                     },
+                    "language": {
+                      "type": "string"
+                    },
                     "mediaPaths": {
                       "nullable": true
                     },
@@ -11904,6 +12673,10 @@
                           "text": {
                             "type": "string"
                           },
+                          "language": {
+                            "type": "string",
+                            "nullable": true
+                          },
                           "isSpoiler": {
                             "type": "boolean"
                           },
@@ -12400,6 +13173,9 @@
                                 "text": {
                                   "type": "string",
                                   "nullable": true
+                                },
+                                "language": {
+                                  "type": "string"
                                 },
                                 "mediaPaths": {
                                   "nullable": true
@@ -19166,7 +19942,7 @@
           {
             "schema": {
               "type": "string",
-              "pattern": "^\\d{1,10}$"
+              "pattern": "^(m:)?\\d{1,10}$"
             },
             "in": "path",
             "name": "showTmdbId",
@@ -19247,7 +20023,7 @@
           {
             "schema": {
               "type": "string",
-              "pattern": "^\\d{1,10}$"
+              "pattern": "^(m:)?\\d{1,10}$"
             },
             "in": "path",
             "name": "showTmdbId",
@@ -19513,6 +20289,15 @@
                     "webVisible": {
                       "type": "boolean"
                     },
+                    "profileShowLikes": {
+                      "type": "boolean"
+                    },
+                    "profileShowFavorites": {
+                      "type": "boolean"
+                    },
+                    "profileShowWatched": {
+                      "type": "boolean"
+                    },
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
@@ -19533,6 +20318,9 @@
                     "showReadReceipts",
                     "showActivityStatus",
                     "webVisible",
+                    "profileShowLikes",
+                    "profileShowFavorites",
+                    "profileShowWatched",
                     "updatedAt"
                   ],
                   "additionalProperties": true
@@ -19608,6 +20396,15 @@
                   },
                   "webVisible": {
                     "type": "boolean"
+                  },
+                  "profileShowLikes": {
+                    "type": "boolean"
+                  },
+                  "profileShowFavorites": {
+                    "type": "boolean"
+                  },
+                  "profileShowWatched": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -19677,6 +20474,15 @@
                     "webVisible": {
                       "type": "boolean"
                     },
+                    "profileShowLikes": {
+                      "type": "boolean"
+                    },
+                    "profileShowFavorites": {
+                      "type": "boolean"
+                    },
+                    "profileShowWatched": {
+                      "type": "boolean"
+                    },
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
@@ -19697,6 +20503,9 @@
                     "showReadReceipts",
                     "showActivityStatus",
                     "webVisible",
+                    "profileShowLikes",
+                    "profileShowFavorites",
+                    "profileShowWatched",
                     "updatedAt"
                   ],
                   "additionalProperties": true
@@ -20463,6 +21272,9 @@
                             "type": "string",
                             "nullable": true
                           },
+                          "language": {
+                            "type": "string"
+                          },
                           "mediaPaths": {
                             "nullable": true
                           },
@@ -21004,6 +21816,9 @@
                           "text": {
                             "type": "string",
                             "nullable": true
+                          },
+                          "language": {
+                            "type": "string"
                           },
                           "mediaPaths": {
                             "nullable": true
@@ -22558,6 +23373,78 @@
         }
       }
     },
+    "/api/v1/admin/users/{id}/temp-password": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "sessionsRevoked": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "password",
+                    "sessionsRevoked"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/users/{id}/sessions/revoke": {
       "post": {
         "tags": [
@@ -23745,6 +24632,385 @@
                   "required": [
                     "items",
                     "nextCursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content/post/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "quote": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "media": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "show": {
+                      "type": "object",
+                      "properties": {
+                        "tmdbId": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "posterPath": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "tmdbId",
+                        "name",
+                        "posterPath"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "episodeTag": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "rating": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "isSpoiler": {
+                      "type": "boolean"
+                    },
+                    "spoilerNote": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "language": {
+                      "type": "string"
+                    },
+                    "likeCount": {
+                      "type": "number"
+                    },
+                    "commentCount": {
+                      "type": "number"
+                    },
+                    "shareCount": {
+                      "type": "number"
+                    },
+                    "saveCount": {
+                      "type": "number"
+                    },
+                    "hidden": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "editedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "author": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "avatarPath": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "tick": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "yellow",
+                            "blue"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "poll": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "voteCount": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "voteCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pollEndsAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "reports": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "reporter": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "avatarPath": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "reason",
+                          "status",
+                          "createdAt",
+                          "reporter"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "likeCount": {
+                            "type": "number"
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "avatarPath": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
+                          },
+                          "reportCount": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "text",
+                          "likeCount",
+                          "hidden",
+                          "createdAt",
+                          "author",
+                          "reportCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "text",
+                    "quote",
+                    "media",
+                    "show",
+                    "episodeTag",
+                    "rating",
+                    "isSpoiler",
+                    "spoilerNote",
+                    "language",
+                    "likeCount",
+                    "commentCount",
+                    "shareCount",
+                    "saveCount",
+                    "hidden",
+                    "createdAt",
+                    "editedAt",
+                    "author",
+                    "poll",
+                    "pollEndsAt",
+                    "reports",
+                    "comments"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content/comment/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "postId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "postId"
                   ],
                   "additionalProperties": false
                 }
@@ -26990,6 +28256,101 @@
                   "required": [
                     "count",
                     "label"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/live/online": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 60
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "number"
+                    },
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "avatarPath": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "tick": {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "yellow",
+                              "blue"
+                            ]
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "user",
+                              "moderator",
+                              "admin"
+                            ]
+                          },
+                          "lastActiveAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "avatarPath",
+                          "tick",
+                          "role",
+                          "lastActiveAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "users"
                   ],
                   "additionalProperties": false
                 }
@@ -32495,6 +33856,272 @@
                       "shared",
                       "mine",
                       "owner",
+                      "createdAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/staff": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "displayName": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "string",
+                        "enum": [
+                          "moderator",
+                          "admin"
+                        ]
+                      },
+                      "emailVerified": {
+                        "type": "boolean"
+                      },
+                      "panelAccount": {
+                        "type": "boolean"
+                      },
+                      "isSelf": {
+                        "type": "boolean"
+                      },
+                      "lastActiveAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "username",
+                      "displayName",
+                      "email",
+                      "role",
+                      "emailVerified",
+                      "panelAccount",
+                      "isSelf",
+                      "lastActiveAt",
+                      "createdAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 24,
+                    "pattern": "^[a-z0-9_.]+$"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "moderator",
+                      "admin"
+                    ]
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "note": {
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "username",
+                  "email",
+                  "role"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "password"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/staff/{id}/role": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "user",
+                      "moderator",
+                      "admin"
+                    ]
+                  },
+                  "note": {
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "role"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "displayName": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "string",
+                        "enum": [
+                          "moderator",
+                          "admin"
+                        ]
+                      },
+                      "emailVerified": {
+                        "type": "boolean"
+                      },
+                      "panelAccount": {
+                        "type": "boolean"
+                      },
+                      "isSelf": {
+                        "type": "boolean"
+                      },
+                      "lastActiveAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "username",
+                      "displayName",
+                      "email",
+                      "role",
+                      "emailVerified",
+                      "panelAccount",
+                      "isSelf",
+                      "lastActiveAt",
                       "createdAt"
                     ],
                     "additionalProperties": false

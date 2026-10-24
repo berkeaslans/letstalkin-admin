@@ -13,6 +13,7 @@ export const paths = {
   user: (id: string) => `/kullanicilar/${id}`,
   room: (id: string) => `/moderasyon/odalar/${id}`,
   quiz: (id: string) => `/yayin/quizler/${id}`,
+  post: (id: string) => `/moderasyon/icerik/${id}`,
   sticker: (id: string) => `/ekonomi/sticker/${id}`,
   show: (tmdbId: string) => `/katalog/${tmdbId}`,
 };

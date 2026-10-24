@@ -35,6 +35,9 @@ export const KIND: Record<ActivityKind, [string, IconName, string]> = {
 
 /** Olayın gittiği yer (tıklanınca). */
 function target(e: Activity): string | null {
+  // Gönderi ve yorum olayları gönderinin kendisine gitsin; yoruma tıklayınca
+  // hangi gönderide olduğu panelde çözülür (bkz. FeedRow).
+  if (e.kind === 'post' && e.refId) return paths.post(e.refId);
   if (e.kind === 'room' && e.refId) return paths.room(e.refId);
   if (e.kind === 'quiz' && e.refId) return paths.quiz(e.refId);
   if (e.kind === 'report') return '/moderasyon';
@@ -48,12 +51,27 @@ function target(e: Activity): string | null {
 
 export function FeedRow({ e, fresh }: { e: Activity; fresh?: boolean }) {
   const [label, icon, tone] = KIND[e.kind];
+  const yorum = e.kind === 'comment' && e.refId ? e.refId : null;
   const to = target(e);
+  const git = async () => {
+    if (yorum) {
+      // Yorumun hangi gönderide olduğunu sor, sonra gönderiye git.
+      try {
+        const { postId } = await adminApi.commentPost(yorum);
+        go(paths.post(postId));
+        return;
+      } catch {
+        toast('Yorumun gönderisi bulunamadı', 'error');
+        return;
+      }
+    }
+    if (to) go(to);
+  };
   return (
     <button
       type="button"
-      disabled={!to}
-      onClick={() => to && go(to)}
+      disabled={!to && !yorum}
+      onClick={git}
       className={cn(
         'flex w-full items-center gap-3 px-[18px] py-2.5 text-left shadow-[inset_0_0.5px_0_var(--color-line)] enabled:hover:bg-white/3',
         fresh && 'feed-in',

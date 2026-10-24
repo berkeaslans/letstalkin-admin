@@ -39,6 +39,7 @@ const LiveNow = page(() => import('@/pages/Live'), 'LiveNow');
 const Content = page(() => import('@/pages/Moderation'), 'Content');
 const Match = page(() => import('@/pages/Moderation'), 'Match');
 const RoomPage = page(() => import('@/pages/Moderation'), 'RoomPage');
+const PostPage = page(() => import('@/pages/Moderation'), 'PostPage');
 const Rooms = page(() => import('@/pages/Moderation'), 'Rooms');
 const Rules = page(() => import('@/pages/Moderation'), 'Rules');
 const Summary = page(() => import('@/pages/Moderation'), 'Summary');
@@ -94,6 +95,7 @@ const PAGES: Record<string, ComponentType> = {
 const DETAILS: Array<{ path: string; parent: string; page: ComponentType }> = [
   { path: '/kullanicilar/:id', parent: '/kullanicilar', page: UserPage },
   { path: '/moderasyon/odalar/:id', parent: '/moderasyon/odalar', page: RoomPage },
+  { path: '/moderasyon/icerik/:id', parent: '/moderasyon/icerik', page: PostPage },
   { path: '/yayin/quizler/:id', parent: '/yayin/quizler', page: QuizPage },
   { path: '/ekonomi/sticker/:id', parent: '/ekonomi/sticker', page: StickerPage },
   { path: '/katalog/:tmdbId', parent: '/katalog', page: ShowPage },

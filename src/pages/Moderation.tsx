@@ -8,7 +8,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, LiveTag, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Switch } from '@/components/ui/Switch';
 import { Pills, Segment } from '@/components/ui/Tabs';
-import { adminApi, type ContentItem, type HideKind, mediaUrl, type RoomDetail } from '@/lib/api/admin';
+import { adminApi, type ContentItem, type HideKind, mediaUrl, type PostDetail, type RoomDetail } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
@@ -130,7 +130,13 @@ export function Content() {
         items.map((i) => (
           <div key={i.id} className="flex gap-3 px-[18px] py-3.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
             {mediaUrl(i.media) && <img src={mediaUrl(i.media)!} alt="" className="h-14 w-14 flex-none rounded-[10px] object-cover" />}
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div
+              className={cn('flex min-w-0 flex-1 flex-col gap-1', i.kind === 'post' && 'cursor-pointer')}
+              onClick={i.kind === 'post' ? () => go(paths.post(i.id)) : undefined}
+              onKeyDown={i.kind === 'post' ? (e) => e.key === 'Enter' && go(paths.post(i.id)) : undefined}
+              role={i.kind === 'post' ? 'link' : undefined}
+              tabIndex={i.kind === 'post' ? 0 : undefined}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <Author a={i.author} />
                 {i.hidden && <Tag tone="live">Gizli</Tag>}
@@ -182,6 +188,229 @@ export function Content() {
         </div>
       )}
     </Card>
+  );
+}
+
+// ---------------- Tek gönderi ----------------
+// Bildirimden ya da akıştan tıklanınca gelinen yer: gönderinin kendisi, kimin
+// şikayet ettiği ve yorumları bir arada; moderasyon kararı buradan verilir.
+const POST_TYPE: Record<string, string> = {
+  post: 'Gönderi',
+  review: 'İnceleme',
+  quote: 'Alıntı',
+  poll: 'Anket',
+  clip: 'Klip',
+};
+
+export function PostPage() {
+  const { id } = useParams<{ id: string }>();
+  const q = useQuery({ queryKey: ['admin', 'post', id], queryFn: () => adminApi.post(id!), enabled: !!id });
+  const ok = useMod();
+  const hide = useMutation({
+    mutationFn: (note: string) => adminApi.hide('post', id!, note),
+    ...ok('Kaldırıldı · sahibine bildirim gitti'),
+  });
+  const restore = useMutation({ mutationFn: () => adminApi.restore('post', id!), ...ok('Geri alındı') });
+  const hideComment = useMutation({
+    mutationFn: ({ cid, note }: { cid: string; note: string }) => adminApi.hide('comment', cid, note),
+    ...ok('Yorum kaldırıldı'),
+  });
+  const restoreComment = useMutation({ mutationFn: (cid: string) => adminApi.restore('comment', cid), ...ok('Yorum geri alındı') });
+
+  if (q.isLoading)
+    return (
+      <Card>
+        <Rows n={8} />
+      </Card>
+    );
+  if (q.isError || !q.data)
+    return (
+      <Card>
+        <ErrorState error={q.error} retry={() => q.refetch()} />
+      </Card>
+    );
+  const d: PostDetail = q.data;
+  const toplamOy = d.poll.reduce((n, o) => n + o.voteCount, 0);
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      <Card
+        title={POST_TYPE[d.type] ?? d.type}
+        sub={timeAgo(d.createdAt)}
+        right={
+          d.hidden ? (
+            <Button size="sm" variant="outline" busy={restore.isPending} onClick={() => restore.mutate()}>
+              Geri al
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="danger"
+              icon="visibility_off"
+              busy={hide.isPending}
+              onClick={async () => {
+                const c = await confirmAction({
+                  title: 'Gönderi kaldırılsın mı?',
+                  body: 'Gizlenir; sahibine gerekçeli bildirim gider. Buradan geri alınabilir.',
+                  ok: 'Kaldır',
+                  danger: true,
+                  note: 'optional',
+                });
+                if (c.ok) hide.mutate(c.note);
+              }}
+            >
+              Kaldır
+            </Button>
+          )
+        }
+      >
+        <div className="flex flex-col gap-3 px-[18px] pb-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <Author a={d.author} />
+            {d.hidden && <Tag tone="live">Gizli</Tag>}
+            {d.isSpoiler && <Tag tone="epic">Spoiler{d.spoilerNote ? ` · ${d.spoilerNote}` : ''}</Tag>}
+            {d.editedAt && <Tag>düzenlendi</Tag>}
+            {d.language !== 'tr' && <Tag>{d.language}</Tag>}
+          </div>
+
+          {d.show && (
+            <Link
+              to={paths.show(d.show.tmdbId)}
+              className="flex w-fit items-center gap-2 rounded-option bg-elev2 py-1.5 pr-3 pl-1.5 hover:bg-white/6"
+            >
+              {d.show.posterPath ? (
+                <img
+                  src={`https://image.tmdb.org/t/p/w92${d.show.posterPath}`}
+                  alt=""
+                  className="h-9 w-6 flex-none rounded-[4px] object-cover"
+                />
+              ) : (
+                <Icon name="theaters" size={18} className="text-faint" />
+              )}
+              <span className="text-[13px] font-semibold">{d.show.name}</span>
+              {d.episodeTag && <span className="text-[12px] text-sub">{d.episodeTag}</span>}
+            </Link>
+          )}
+
+          {d.quote && <blockquote className="border-yellow/50 border-l-2 pl-3 text-[14px] text-sub italic">{d.quote}</blockquote>}
+          {d.text ? (
+            <p className="whitespace-pre-wrap text-[15px] leading-relaxed break-words">{d.text}</p>
+          ) : (
+            !d.quote && <p className="text-[13px] text-faint">Metin yok</p>
+          )}
+          {d.rating != null && (
+            <p className="text-[13.5px]">
+              <b className="text-yellow">{d.rating.toFixed(1)}</b> <span className="text-sub">puan</span>
+            </p>
+          )}
+
+          {!!d.media.length && (
+            <div className="flex flex-wrap gap-2">
+              {d.media.map((m) => (
+                <a key={m} href={mediaUrl(m) ?? undefined} target="_blank" rel="noreferrer">
+                  <img src={mediaUrl(m) ?? undefined} alt="" className="h-40 w-40 rounded-[12px] object-cover" />
+                </a>
+              ))}
+            </div>
+          )}
+
+          {!!d.poll.length && (
+            <div className="flex flex-col gap-1.5">
+              {d.poll.map((o) => (
+                <div key={o.label} className="relative overflow-hidden rounded-option bg-elev2 px-3 py-2">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-yellow/14"
+                    style={{ width: `${toplamOy ? Math.round((o.voteCount / toplamOy) * 100) : 0}%` }}
+                  />
+                  <div className="relative flex justify-between text-[13.5px]">
+                    <span>{o.label}</span>
+                    <span className="text-sub">
+                      {fmt(o.voteCount)} oy{toplamOy ? ` · %${Math.round((o.voteCount / toplamOy) * 100)}` : ''}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              <p className="text-[12px] text-faint">
+                {fmt(toplamOy)} oy
+                {d.pollEndsAt ? ` · ${new Date(d.pollEndsAt) > new Date() ? 'bitiş' : 'bitti'} ${timeAgo(d.pollEndsAt)}` : ''}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3.5 px-[18px] pb-5 lg:grid-cols-4">
+          <Stat icon="check_circle" label="Beğeni" value={compact(d.likeCount)} />
+          <Stat icon="info" label="Yorum" value={compact(d.commentCount)} />
+          <Stat icon="swap_horiz" label="Paylaşım" value={compact(d.shareCount)} />
+          <Stat icon="add_circle" label="Kaydetme" value={compact(d.saveCount)} />
+        </div>
+      </Card>
+
+      {!!d.reports.length && (
+        <Card title={`Şikayetler · ${d.reports.length}`} sub="en yeniden eskiye">
+          {d.reports.map((r) => {
+            const [label, tone] = REASON[r.reason as keyof typeof REASON] ?? [r.reason, undefined];
+            return (
+              <div key={r.id} className="flex flex-wrap items-center gap-2 px-[18px] py-2.5 shadow-[inset_0_0.5px_0_var(--color-line)]">
+                <Tag tone={tone}>{label}</Tag>
+                <Author a={r.reporter} />
+                <span className="ml-auto text-[12px] text-faint">{timeAgo(r.createdAt)}</span>
+              </div>
+            );
+          })}
+        </Card>
+      )}
+
+      <Card
+        title={`Yorumlar · ${d.comments.length}`}
+        sub={d.commentCount > d.comments.length ? `${fmt(d.commentCount)} yorumun ilki` : undefined}
+      >
+        {!d.comments.length ? (
+          <EmptyState icon="info" title="Yorum yok" body="Bu gönderiye henüz kimse yorum yazmamış." />
+        ) : (
+          d.comments.map((c) => (
+            <div key={c.id} className="flex gap-3 px-[18px] py-3 shadow-[inset_0_0.5px_0_var(--color-line)]">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Author a={c.author} />
+                  {c.hidden && <Tag tone="live">Gizli</Tag>}
+                  {c.reportCount > 0 && <Tag tone="yellow">{c.reportCount} şikayet</Tag>}
+                </div>
+                <p className="whitespace-pre-wrap text-[13.5px] break-words">{c.text}</p>
+                <p className="text-[12px] text-faint">
+                  {fmt(c.likeCount)} beğeni · {timeAgo(c.createdAt)}
+                </p>
+              </div>
+              <div className="flex-none self-center">
+                {c.hidden ? (
+                  <Button size="xs" variant="outline" onClick={() => restoreComment.mutate(c.id)}>
+                    Geri al
+                  </Button>
+                ) : (
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    icon="visibility_off"
+                    onClick={async () => {
+                      const conf = await confirmAction({
+                        title: 'Yorum kaldırılsın mı?',
+                        body: 'Gizlenir; sahibine gerekçeli bildirim gider.',
+                        ok: 'Kaldır',
+                        danger: true,
+                        note: 'optional',
+                      });
+                      if (conf.ok) hideComment.mutate({ cid: c.id, note: conf.note });
+                    }}
+                  >
+                    Kaldır
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </Card>
+    </div>
   );
 }
 
