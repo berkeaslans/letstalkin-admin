@@ -163,6 +163,49 @@ function toData(d: Draft): TitleData {
   };
 }
 
+/** TMDB üstüne yazılabilen tek alanlar (formdaki adı; boşaltınca TMDB'ye döner). */
+const SIMPLE: Array<[keyof Draft, string]> = [
+  ['originalTitle', 'Özgün adı'],
+  ['posterUrl', 'Afiş'],
+  ['backdropUrl', 'Arka plan'],
+  ['releaseDate', 'Yayın tarihi'],
+  ['status', 'Durum'],
+  ['endYear', 'Bitiş yılı'],
+  ['runtime', 'Süre'],
+  ['genreIds', 'Türler'],
+  ['creators', 'Yaratıcı / yönetmen'],
+  ['networks', 'Kanal / platform'],
+  ['trailer', 'Fragman'],
+  ['watchUrl', 'Nerede izlenir'],
+  ['cast', 'Oyuncular'],
+];
+const TEXT_LABEL = { title: 'Ad', overview: 'Konu', tagline: 'Slogan' } as const;
+const isFilled = (v: unknown) => (Array.isArray(v) ? v.length > 0 : typeof v === 'string' ? !!v.trim() : !!v);
+
+/** Taslakta TMDB'nin üstüne yazılan alanlar (etiketleriyle). */
+function editedFields(d: Draft) {
+  const out: Array<{ id: string; label: string }> = [];
+  for (const l of Object.keys(LANGS) as Lang[]) {
+    for (const k of ['title', 'overview', 'tagline'] as const) {
+      if (d.text[l]?.[k].trim()) out.push({ id: `text.${l}.${k}`, label: `${TEXT_LABEL[k]} (${LANGS[l]})` });
+    }
+  }
+  for (const [k, label] of SIMPLE) if (isFilled(d[k])) out.push({ id: k, label });
+  return out;
+}
+
+/** Alanı boşaltır → kaydedince TMDB'deki bilgi geçerli olur. */
+function clearField(d: Draft, id: string): Draft {
+  if (id.startsWith('text.')) {
+    const [, l, k] = id.split('.') as [string, Lang, keyof Text];
+    return { ...d, text: { ...d.text, [l]: { ...(d.text[l] ?? emptyText), [k]: '' } } };
+  }
+  const k = id as keyof Draft;
+  if (k === 'genreIds' || k === 'cast') return { ...d, [k]: [] };
+  if (k === 'watchUrl') return { ...d, watchUrl: '', watchLabel: '' };
+  return { ...d, [k]: '' };
+}
+
 /** Yeni yapım: /katalog/yeni */
 export function NewTitle() {
   return <TitleForm edit={null} />;
@@ -191,6 +234,12 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
   const setText = (k: keyof Text, v: string) =>
     setD((cur) => ({ ...cur, text: { ...cur.text, [lang]: { ...(cur.text[lang] ?? emptyText), [k]: v } } }));
   const dirty = creating ? JSON.stringify(d) !== JSON.stringify(fromData({})) : JSON.stringify(d) !== JSON.stringify(initial);
+  const edited = custom ? [] : editedFields(d);
+  const savedEdited = new Set(custom ? [] : editedFields(initial).map((f) => f.id));
+  const reset = (id: string) => setD((cur) => clearField(cur, id));
+  /** TMDB yapımında alanın altı: düzenlendiyse etiket + "TMDB'ye dön", değilse TMDB'deki değer. */
+  const tmdb = (id: string, was: string | null | undefined, fallback?: string) =>
+    custom ? fallback : <Override on={edited.some((f) => f.id === id)} was={was} onReset={() => reset(id)} readOnly={!isAdmin} />;
   const genres = useQuery({ queryKey: ['admin', 'genres', kind], queryFn: () => adminApi.genres(kind), staleTime: 3600_000 });
 
   // Sayfadan kaydedilmemiş değişiklikle çıkılırken uyar.
@@ -282,11 +331,55 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
       <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex min-w-0 flex-col gap-3.5">
           {!custom && (
-            <p className="flex items-start gap-2 rounded-card bg-elev px-[18px] py-3 text-[13px] leading-relaxed text-sub shadow-[inset_0_0_0_0.5px_var(--color-line)]">
-              <Icon name="info" size={18} className="mt-0.5 flex-none text-faint" />
-              Doldurduğun alan TMDB'deki bilginin yerine geçer; boş bıraktığın alan TMDB'den gelmeye devam eder. TMDB'nin düzenli
-              güncellemesi yaptığın değişikliği silmez.
-            </p>
+            <Card
+              title="Değiştirdiğin alanlar"
+              sub={edited.length ? `${edited.length} alan TMDB'nin yerine geçiyor` : "Henüz yok, bütün bilgi TMDB'den geliyor"}
+              right={
+                isAdmin &&
+                edited.length > 1 && (
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    icon="undo"
+                    onClick={() => setD((cur) => edited.reduce((x, f) => clearField(x, f.id), cur))}
+                  >
+                    Hepsini sıfırla
+                  </Button>
+                )
+              }
+            >
+              <div className="flex flex-col gap-3 px-[18px] pb-4">
+                {edited.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {edited.map((f) => (
+                      <span
+                        key={f.id}
+                        className="flex h-8 items-center gap-1 rounded-full bg-elev2 pr-1 pl-3 text-[12.5px] font-semibold shadow-[inset_0_0_0_0.5px_var(--color-line2)]"
+                      >
+                        {f.label}
+                        {!savedEdited.has(f.id) && <span className="text-faint">· kaydedilmedi</span>}
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => reset(f.id)}
+                            aria-label={`${f.label}: TMDB'ye dön`}
+                            title="TMDB'ye dön"
+                            className="press grid h-6 w-6 place-items-center rounded-full text-faint hover:bg-elev3 hover:text-text"
+                          >
+                            <Icon name="close" size={15} />
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <p className="flex items-start gap-2 text-[12.5px] leading-relaxed text-faint">
+                  <Icon name="info" size={16} className="mt-0.5 flex-none" />
+                  Doldurduğun alan TMDB'deki bilginin yerine geçer ve TMDB güncellemesi onu silmez. Bir alanı sıfırlayıp kaydedince o alan
+                  hemen TMDB'deki bilgiye döner ve sonraki güncellemelerle TMDB'den yenilenir.
+                </p>
+              </div>
+            </Card>
           )}
 
           <Card title="Ad ve konu">
@@ -311,11 +404,11 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
               <Field
                 label="Ad"
                 hint={
-                  !custom && base ? (
-                    <Was v={lang === 'tr' ? base.title : null} />
-                  ) : custom && lang !== 'tr' ? (
-                    'Boş bırakılırsa Türkçe ad kullanılır'
-                  ) : undefined
+                  !custom
+                    ? tmdb(`text.${lang}.title`, lang === 'tr' ? base?.title : null)
+                    : lang !== 'tr'
+                      ? 'Boş bırakılırsa Türkçe ad kullanılır'
+                      : undefined
                 }
               >
                 <input
@@ -329,7 +422,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                   readOnly={readOnly}
                 />
               </Field>
-              <Field label="Konu" hint={!custom && base && lang === 'tr' ? 'Boş bırakılırsa TMDB konusu görünür' : undefined}>
+              <Field label="Konu" hint={tmdb(`text.${lang}.overview`, null)}>
                 <textarea
                   className={area}
                   value={text.overview}
@@ -340,7 +433,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                 />
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Slogan">
+                <Field label="Slogan" hint={tmdb(`text.${lang}.tagline`, lang === 'tr' ? base?.tagline : null)}>
                   <input
                     className={field}
                     value={text.tagline}
@@ -350,7 +443,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                     readOnly={readOnly}
                   />
                 </Field>
-                <Field label="Özgün adı" hint="Yapımın kendi dilindeki adı">
+                <Field label="Özgün adı" hint={tmdb('originalTitle', base?.originalTitle, 'Yapımın kendi dilindeki adı')}>
                   <input
                     className={field}
                     value={d.originalTitle}
@@ -388,7 +481,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
           <Card title="Künye">
             <div className="flex flex-col gap-4 px-[18px] pb-5">
               <div className="grid gap-4 sm:grid-cols-3">
-                <Field label={kind === 'tv' ? 'İlk yayın tarihi' : 'Vizyon tarihi'} hint={base?.year ? <Was v={base.year} /> : undefined}>
+                <Field label={kind === 'tv' ? 'İlk yayın tarihi' : 'Vizyon tarihi'} hint={tmdb('releaseDate', base?.year)}>
                   <input
                     type="date"
                     className={field}
@@ -397,7 +490,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                     readOnly={readOnly}
                   />
                 </Field>
-                <Field label="Durum" hint={base?.status ? <Was v={STATUS[base.status] ?? base.status} /> : undefined}>
+                <Field label="Durum" hint={tmdb('status', base?.status ? (STATUS[base.status] ?? base.status) : null)}>
                   <select className={field} value={d.status} onChange={(e) => set('status', e.target.value)} disabled={readOnly}>
                     <option value="">{custom ? 'Seç' : "TMDB'deki"}</option>
                     {Object.entries(STATUS)
@@ -410,7 +503,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                   </select>
                 </Field>
                 {kind === 'tv' ? (
-                  <Field label="Bitiş yılı" hint={base?.endYear ? <Was v={base.endYear} /> : 'Bittiyse'}>
+                  <Field label="Bitiş yılı" hint={tmdb('endYear', base?.endYear, 'Bittiyse')}>
                     <input
                       className={field}
                       value={d.endYear}
@@ -422,7 +515,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                     />
                   </Field>
                 ) : (
-                  <Field label="Süre (dakika)" hint={base?.runtime ? <Was v={`${base.runtime} dk`} /> : undefined}>
+                  <Field label="Süre (dakika)" hint={tmdb('runtime', base?.runtime ? `${base.runtime} dk` : null)}>
                     <input
                       className={field}
                       value={d.runtime}
@@ -435,7 +528,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
               </div>
               {kind === 'tv' && (
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <Field label="Bölüm süresi (dakika)" hint={base?.runtime ? <Was v={`${base.runtime} dk`} /> : undefined}>
+                  <Field label="Bölüm süresi (dakika)" hint={tmdb('runtime', base?.runtime ? `${base.runtime} dk` : null)}>
                     <input
                       className={field}
                       value={d.runtime}
@@ -448,11 +541,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
               )}
               <Field
                 label="Türler"
-                hint={
-                  !custom && base?.genreIds.length && !d.genreIds.length
-                    ? `TMDB'deki: ${base.genreIds.map((g) => genres.data?.find((x) => x.id === g)?.name ?? g).join(', ')}`
-                    : 'En fazla 8'
-                }
+                hint={tmdb('genreIds', base?.genreIds.map((g) => genres.data?.find((x) => x.id === g)?.name ?? g).join(', '), 'En fazla 8')}
               >
                 <div className="flex flex-wrap gap-1.5">
                   {(genres.data ?? []).map((g) => {
@@ -478,10 +567,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                 </div>
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  label={kind === 'tv' ? 'Yaratıcı' : 'Yönetmen'}
-                  hint={base?.creators.length ? <Was v={base.creators.join(', ')} /> : 'Virgülle ayır'}
-                >
+                <Field label={kind === 'tv' ? 'Yaratıcı' : 'Yönetmen'} hint={tmdb('creators', base?.creators.join(', '), 'Virgülle ayır')}>
                   <input
                     className={field}
                     value={d.creators}
@@ -492,7 +578,7 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                 </Field>
                 <Field
                   label={kind === 'tv' ? 'Kanal / platform' : 'Yapım / dağıtım'}
-                  hint={base?.networks.length ? <Was v={base.networks.join(', ')} /> : 'Virgülle ayır'}
+                  hint={tmdb('networks', base?.networks.join(', '), 'Virgülle ayır')}
                 >
                   <input
                     className={field}
@@ -510,7 +596,10 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
             <div className="flex flex-col gap-4 px-[18px] pb-5">
               <Field
                 label="Fragman"
-                hint={base?.trailer ? <Was v={base.trailer} /> : 'YouTube adresi; sayfada "Fragman" düğmesiyle açılır'}
+                hint={
+                  tmdb('trailer', base?.trailer, 'YouTube adresi; sayfada "Fragman" düğmesiyle açılır') ??
+                  'YouTube adresi; sayfada "Fragman" düğmesiyle açılır'
+                }
               >
                 <input
                   className={field}
@@ -521,7 +610,10 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
                 />
               </Field>
               <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-                <Field label="Nerede izlenir" hint='"Nerede izlenir" bölümünde bağlantı olarak görünür (ör. YouTube oynatma listesi)'>
+                <Field
+                  label="Nerede izlenir"
+                  hint={tmdb('watchUrl', null, '"Nerede izlenir" bölümünde bağlantı olarak görünür (ör. YouTube oynatma listesi)')}
+                >
                   <input
                     className={field}
                     value={d.watchUrl}
@@ -625,12 +717,21 @@ function TitleForm({ edit }: { edit: TitleEdit | null }) {
   );
 }
 
-/** TMDB'deki değer (düzenlenen alanın altında). */
-function Was({ v }: { v: string | null | undefined }) {
-  if (!v) return null;
+/** TMDB yapımında alanın altı: düzenlendiyse etiket ve sıfırlama, her durumda TMDB'deki değer. */
+function Override({ on, was, onReset, readOnly }: { on: boolean; was?: string | null; onReset: () => void; readOnly: boolean }) {
   return (
-    <span className="line-clamp-1">
-      TMDB'deki: <span className="text-sub">{v}</span>
+    <span className="flex min-w-0 flex-wrap items-center gap-x-2">
+      {on && <span className="font-semibold text-yellow">Düzenlendi</span>}
+      {was && (
+        <span className="line-clamp-1 min-w-0">
+          TMDB'deki: <span className="text-sub">{was}</span>
+        </span>
+      )}
+      {on && !readOnly && (
+        <button type="button" onClick={onReset} className="font-semibold text-text hover:underline">
+          TMDB'ye dön
+        </button>
+      )}
     </span>
   );
 }
