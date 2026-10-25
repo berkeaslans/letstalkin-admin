@@ -100,7 +100,18 @@ export const NAV: NavGroup[] = [
     subs: [
       { to: '/katalog', label: 'Yapımlar', desc: 'Uygulamada konuşulan diziler ve filmler' },
       { to: '/katalog/vitrin', label: 'Vitrin', desc: 'Ana sayfada öne çıkan yapımlar ve sırası' },
-      { to: '/katalog/etkinlikler', label: 'Etkinlikler', desc: 'Festivaller, ödül törenleri ve film geceleri (Yaklaşanlar)' },
+    ],
+  },
+  {
+    key: 'yaklasanlar',
+    icon: 'schedule',
+    label: 'Yaklaşanlar',
+    subs: [
+      {
+        to: '/yaklasanlar',
+        label: 'Festival ve etkinlikler',
+        desc: "Uygulamadaki Yaklaşanlar bölümü: festivaller, ödül törenleri, film geceleri (vizyon ve platform takvimi TMDB'den otomatik)",
+      },
     ],
   },
   {

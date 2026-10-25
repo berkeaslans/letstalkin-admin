@@ -80,7 +80,7 @@ const PAGES: Record<string, ComponentType> = {
   '/yayin/hesaplar': PublishAccounts,
   '/katalog': Shows,
   '/katalog/vitrin': Showcase,
-  '/katalog/etkinlikler': Events,
+  '/yaklasanlar': Events,
   '/ekonomi': Revenue,
   '/ekonomi/coin': Coins,
   '/ekonomi/sticker': Stickers,
@@ -150,6 +150,8 @@ function App() {
           const Page = d.page;
           return <Route key={d.path} path={d.path} element={allowed ? <Page /> : <Navigate to="/" replace />} />;
         })}
+        {/* Eski adres (Katalog altındaydı). */}
+        <Route path="/katalog/etkinlikler" element={<Navigate to="/yaklasanlar" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
