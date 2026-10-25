@@ -94,6 +94,28 @@ export type ShowSort = NonNullable<Q<'/api/v1/admin/catalog/shows'>['sort']>;
 export type Featured = Res<'/api/v1/admin/catalog/featured', 'get'>;
 export type CinemaEvent = Res<'/api/v1/admin/events', 'get'>[number];
 export type CinemaEventBody = Body<'/api/v1/admin/events', 'post'>;
+export interface AdminPrediction {
+  id: string;
+  question: string;
+  options: string[];
+  counts: number[];
+  voteCount: number;
+  closesAt: string;
+  closed: boolean;
+  resolvedIndex: number | null;
+  resolvedAt: string | null;
+  points: number;
+  eventId: string | null;
+  showTmdbId: string | null;
+}
+export interface PredictionBody {
+  question: string;
+  options: string[];
+  closesAt: string;
+  points: number;
+  eventId?: string | null;
+  showTmdbId?: string | null;
+}
 export type ShowOnly = NonNullable<Q<'/api/v1/admin/catalog/shows'>['only']>;
 export type TitleEdit = Res<'/api/v1/admin/catalog/titles/{key}/edit', 'get'>;
 export type TitleData = TitleEdit['data'];
@@ -326,6 +348,11 @@ export const adminApi = {
   featured: () => api.get<Featured>('/admin/catalog/featured'),
   setFeatured: (items: Featured) => api.put<Featured>('/admin/catalog/featured', items),
   events: (past = false) => api.get<CinemaEvent[]>('/admin/events', { past: past || undefined }),
+  predictions: () => api.get<AdminPrediction[]>('/admin/predictions'),
+  createPrediction: (b: PredictionBody) => api.post<{ id: string }>('/admin/predictions', b),
+  savePrediction: (id: string, b: PredictionBody) => api.put<{ ok: boolean }>(`/admin/predictions/${id}`, b),
+  resolvePrediction: (id: string, index: number | null) => api.post<{ ok: boolean }>(`/admin/predictions/${id}/resolve`, { index }),
+  deletePrediction: (id: string) => request<{ ok: boolean }>(`/admin/predictions/${id}`, { method: 'DELETE' }),
   createEvent: (b: CinemaEventBody) => api.post<CinemaEvent>('/admin/events', b),
   saveEvent: (id: string, b: CinemaEventBody) => api.put<CinemaEvent>(`/admin/events/${id}`, b),
   deleteEvent: (id: string) => request<{ ok: boolean }>(`/admin/events/${id}`, { method: 'DELETE' }),

@@ -27,6 +27,7 @@ const Showcase = page(() => import('@/pages/Catalog'), 'Showcase');
 const ShowPage = page(() => import('@/pages/Catalog'), 'ShowPage');
 const Shows = page(() => import('@/pages/Catalog'), 'Shows');
 const Events = page(() => import('@/pages/Events'), 'Events');
+const Predictions = page(() => import('@/pages/Predictions'), 'Predictions');
 const NewTitle = page(() => import('@/pages/TitleEditor'), 'NewTitle');
 const EditTitle = page(() => import('@/pages/TitleEditor'), 'EditTitle');
 const Coins = page(() => import('@/pages/Economy'), 'Coins');
@@ -81,6 +82,7 @@ const PAGES: Record<string, ComponentType> = {
   '/katalog': Shows,
   '/katalog/vitrin': Showcase,
   '/yaklasanlar': Events,
+  '/yaklasanlar/tahminler': Predictions,
   '/ekonomi': Revenue,
   '/ekonomi/coin': Coins,
   '/ekonomi/sticker': Stickers,

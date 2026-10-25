@@ -1,6 +1,7 @@
 // Panelin kullandığı ikonlar. Font yalnız bu listenin alt kümesidir:
 // ikon ekleyince `npm run icons` çalıştır (Docker build bunu her seferinde yapar).
 export const ICON_NAMES = [
+  'how_to_vote',
   'add_circle',
   'admin_panel_settings',
   'arrow_back',

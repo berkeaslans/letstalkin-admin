@@ -112,6 +112,11 @@ export const NAV: NavGroup[] = [
         label: 'Festival ve etkinlikler',
         desc: "Uygulamadaki Yaklaşanlar bölümü: festivaller, ödül törenleri, film geceleri (vizyon ve platform takvimi TMDB'den otomatik)",
       },
+      {
+        to: '/yaklasanlar/tahminler',
+        label: 'Tahminler',
+        desc: 'Tahmin oyunu: soru ekle, sonuçlandır; doğru bilenler liderlik puanı alır',
+      },
     ],
   },
   {
