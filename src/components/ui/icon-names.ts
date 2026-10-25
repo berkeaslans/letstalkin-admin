@@ -48,5 +48,12 @@ export const ICON_NAMES = [
   'volume_off',
   'volume_up',
   'workspace_premium',
+  'add',
+  'delete',
+  'edit',
+  'image',
+  'link',
+  'undo',
+  'upload',
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];

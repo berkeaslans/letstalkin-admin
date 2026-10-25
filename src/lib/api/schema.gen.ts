@@ -6274,6 +6274,8 @@ export interface paths {
                                 y: number;
                                 scale: number;
                                 rot: number;
+                                /** @enum {string} */
+                                fit?: "cover" | "contain";
                             };
                             stickers?: ({
                                 /** @enum {string} */
@@ -6345,6 +6347,13 @@ export interface paths {
                                 scale: number;
                                 rot: number;
                             })[];
+                            drawing?: {
+                                strokes: {
+                                    c: string;
+                                    w: number;
+                                    p: number[];
+                                }[];
+                            };
                         };
                     };
                 };
@@ -6440,6 +6449,8 @@ export interface paths {
                                         y: number;
                                         scale: number;
                                         rot: number;
+                                        /** @enum {string} */
+                                        fit?: "cover" | "contain";
                                     };
                                     stickers?: ({
                                         /** @enum {string} */
@@ -6511,6 +6522,13 @@ export interface paths {
                                         scale: number;
                                         rot: number;
                                     })[];
+                                    drawing?: {
+                                        strokes: {
+                                            c: string;
+                                            w: number;
+                                            p: number[];
+                                        }[];
+                                    };
                                 } | null;
                                 /** Format: date-time */
                                 createdAt: string;
@@ -16124,6 +16142,7 @@ export interface paths {
                 query?: {
                     q?: string;
                     sort?: "discussion" | "followers" | "recent" | "upcoming";
+                    only?: "custom" | "edited";
                     page?: number;
                 };
                 header?: never;
@@ -16154,6 +16173,8 @@ export interface paths {
                                 posts: number;
                                 rooms: number;
                                 watchers: number;
+                                custom: boolean;
+                                edited: boolean;
                             }[];
                             total: number;
                         };
@@ -16208,6 +16229,8 @@ export interface paths {
                             posts: number;
                             rooms: number;
                             watchers: number;
+                            custom: boolean;
+                            edited: boolean;
                             reviews: {
                                 count: number;
                                 avg: number | null;
@@ -16428,6 +16451,570 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/genres": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    kind?: "tv" | "movie";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: number;
+                            name: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/titles/{key}/edit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            key: string;
+                            /** @enum {string} */
+                            kind: "tv" | "movie";
+                            custom: boolean;
+                            data: {
+                                text?: {
+                                    tr?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    en?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    es?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    pt?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    de?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    fr?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    it?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    ru?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    ar?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    hi?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    id?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    zh?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    ja?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    ko?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    pl?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                    el?: {
+                                        title?: string;
+                                        overview?: string;
+                                        tagline?: string;
+                                    };
+                                };
+                                originalTitle?: string;
+                                posterUrl?: string;
+                                backdropUrl?: string;
+                                releaseDate?: string;
+                                endYear?: string;
+                                /** @enum {string} */
+                                status?: "Returning Series" | "Ended" | "Canceled" | "In Production" | "Planned" | "Released";
+                                genreIds?: number[];
+                                runtime?: number;
+                                trailer?: string;
+                                networks?: string[];
+                                creators?: string[];
+                                cast?: {
+                                    name: string;
+                                    character?: string;
+                                    profileUrl?: string;
+                                }[];
+                                watch?: {
+                                    url: string;
+                                    label: string;
+                                };
+                                seasons?: {
+                                    number: number;
+                                    name?: string;
+                                    overview?: string;
+                                    posterUrl?: string;
+                                    episodes: {
+                                        number: number;
+                                        name?: string;
+                                        overview?: string;
+                                        airDate?: string;
+                                        runtime?: number;
+                                        stillUrl?: string;
+                                        videoUrl?: string;
+                                    }[];
+                                }[];
+                            };
+                            base: {
+                                title: string;
+                                overview: string;
+                                tagline: string | null;
+                                originalTitle: string | null;
+                                posterUrl: string | null;
+                                backdropUrl: string | null;
+                                year: string | null;
+                                endYear: string | null;
+                                status: string | null;
+                                genreIds: number[];
+                                runtime: number | null;
+                                trailer: string | null;
+                                networks: string[];
+                                creators: string[];
+                                cast: {
+                                    name: string;
+                                    character: string | null;
+                                }[];
+                                seasonsCount: number | null;
+                            } | null;
+                            /** Format: date-time */
+                            updatedAt: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        data: {
+                            text?: {
+                                tr?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                en?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                es?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                pt?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                de?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                fr?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                it?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ru?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ar?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                hi?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                id?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                zh?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ja?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ko?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                pl?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                el?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                            };
+                            originalTitle?: string;
+                            posterUrl?: string;
+                            backdropUrl?: string;
+                            releaseDate?: string;
+                            endYear?: string;
+                            /** @enum {string} */
+                            status?: "Returning Series" | "Ended" | "Canceled" | "In Production" | "Planned" | "Released";
+                            genreIds?: number[];
+                            runtime?: number;
+                            trailer?: string;
+                            networks?: string[];
+                            creators?: string[];
+                            cast?: {
+                                name: string;
+                                character?: string;
+                                profileUrl?: string;
+                            }[];
+                            watch?: {
+                                url: string;
+                                label: string;
+                            };
+                            seasons?: {
+                                number: number;
+                                name?: string;
+                                overview?: string;
+                                posterUrl?: string;
+                                episodes: {
+                                    number: number;
+                                    name?: string;
+                                    overview?: string;
+                                    airDate?: string;
+                                    runtime?: number;
+                                    stillUrl?: string;
+                                    videoUrl?: string;
+                                }[];
+                            }[];
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/titles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        kind: "tv" | "movie";
+                        data: {
+                            text?: {
+                                tr?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                en?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                es?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                pt?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                de?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                fr?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                it?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ru?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ar?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                hi?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                id?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                zh?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ja?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                ko?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                pl?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                                el?: {
+                                    title?: string;
+                                    overview?: string;
+                                    tagline?: string;
+                                };
+                            };
+                            originalTitle?: string;
+                            posterUrl?: string;
+                            backdropUrl?: string;
+                            releaseDate?: string;
+                            endYear?: string;
+                            /** @enum {string} */
+                            status?: "Returning Series" | "Ended" | "Canceled" | "In Production" | "Planned" | "Released";
+                            genreIds?: number[];
+                            runtime?: number;
+                            trailer?: string;
+                            networks?: string[];
+                            creators?: string[];
+                            cast?: {
+                                name: string;
+                                character?: string;
+                                profileUrl?: string;
+                            }[];
+                            watch?: {
+                                url: string;
+                                label: string;
+                            };
+                            seasons?: {
+                                number: number;
+                                name?: string;
+                                overview?: string;
+                                posterUrl?: string;
+                                episodes: {
+                                    number: number;
+                                    name?: string;
+                                    overview?: string;
+                                    airDate?: string;
+                                    runtime?: number;
+                                    stillUrl?: string;
+                                    videoUrl?: string;
+                                }[];
+                            }[];
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            key: string;
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -17842,6 +18429,39 @@ export interface paths {
                                 endMs: number;
                                 text: string;
                             }[];
+                            frame?: {
+                                /** @enum {string} */
+                                aspect: "original" | "9:16" | "4:5" | "1:1" | "16:9";
+                                x?: number;
+                                y?: number;
+                                zoom?: number;
+                                /** @enum {string} */
+                                fit?: "cover" | "contain";
+                            };
+                            overlayStyle?: {
+                                /** @enum {string} */
+                                size?: "s" | "m" | "l";
+                                /** @enum {string} */
+                                look?: "box" | "outline" | "shadow";
+                                /** @enum {string} */
+                                color?: "white" | "yellow";
+                                y?: number;
+                            };
+                            subtitleStyle?: {
+                                /** @enum {string} */
+                                size?: "s" | "m" | "l";
+                                /** @enum {string} */
+                                look?: "box" | "outline" | "shadow";
+                                /** @enum {string} */
+                                color?: "white" | "yellow";
+                                y?: number;
+                            };
+                            speed?: 0.5 | 1 | 1.5 | 2;
+                            adjust?: {
+                                brightness?: number;
+                                contrast?: number;
+                                saturation?: number;
+                            };
                         };
                     };
                 };
@@ -17919,6 +18539,39 @@ export interface paths {
                                 endMs: number;
                                 text: string;
                             }[];
+                            frame?: {
+                                /** @enum {string} */
+                                aspect: "original" | "9:16" | "4:5" | "1:1" | "16:9";
+                                x?: number;
+                                y?: number;
+                                zoom?: number;
+                                /** @enum {string} */
+                                fit?: "cover" | "contain";
+                            };
+                            overlayStyle?: {
+                                /** @enum {string} */
+                                size?: "s" | "m" | "l";
+                                /** @enum {string} */
+                                look?: "box" | "outline" | "shadow";
+                                /** @enum {string} */
+                                color?: "white" | "yellow";
+                                y?: number;
+                            };
+                            subtitleStyle?: {
+                                /** @enum {string} */
+                                size?: "s" | "m" | "l";
+                                /** @enum {string} */
+                                look?: "box" | "outline" | "shadow";
+                                /** @enum {string} */
+                                color?: "white" | "yellow";
+                                y?: number;
+                            };
+                            speed?: 0.5 | 1 | 1.5 | 2;
+                            adjust?: {
+                                brightness?: number;
+                                contrast?: number;
+                                saturation?: number;
+                            };
                         };
                     } | null);
                 };
@@ -18535,6 +19188,33 @@ export interface paths {
                                 posts: number;
                                 rooms: number;
                             };
+                            community?: {
+                                id: string;
+                                /** @enum {string} */
+                                type: "review" | "quote" | "post";
+                                text: string | null;
+                                quote: string | null;
+                                rating: number | null;
+                                season: number | null;
+                                episode: number | null;
+                                likeCount: number;
+                                commentCount: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    tick: string;
+                                };
+                                show: {
+                                    /** @enum {string} */
+                                    kind: "tv" | "movie";
+                                    id: string;
+                                    title: string;
+                                    posterUrl: string | null;
+                                };
+                            }[];
                         } & {
                             [key: string]: unknown;
                         };
@@ -18934,6 +19614,7 @@ export interface paths {
                                 runtime: number | null;
                                 stillUrl: string | null;
                                 score: number;
+                                watchUrl?: string | null;
                             }[];
                         } & {
                             [key: string]: unknown;
@@ -19001,24 +19682,28 @@ export interface paths {
                                         name: string;
                                         logoUrl: string | null;
                                         slug: string | null;
+                                        url?: string;
                                     }[];
                                     free: {
                                         id: number;
                                         name: string;
                                         logoUrl: string | null;
                                         slug: string | null;
+                                        url?: string;
                                     }[];
                                     rent: {
                                         id: number;
                                         name: string;
                                         logoUrl: string | null;
                                         slug: string | null;
+                                        url?: string;
                                     }[];
                                     buy: {
                                         id: number;
                                         name: string;
                                         logoUrl: string | null;
                                         slug: string | null;
+                                        url?: string;
                                     }[];
                                 };
                                 community: {
@@ -19066,6 +19751,7 @@ export interface paths {
                                 episode: number;
                                 name: string;
                             } | null;
+                            watchUrl?: string | null;
                             discussion: ({
                                 id: string;
                                 /** @enum {string} */
@@ -19229,24 +19915,28 @@ export interface paths {
                                     name: string;
                                     logoUrl: string | null;
                                     slug: string | null;
+                                    url?: string;
                                 }[];
                                 free: {
                                     id: number;
                                     name: string;
                                     logoUrl: string | null;
                                     slug: string | null;
+                                    url?: string;
                                 }[];
                                 rent: {
                                     id: number;
                                     name: string;
                                     logoUrl: string | null;
                                     slug: string | null;
+                                    url?: string;
                                 }[];
                                 buy: {
                                     id: number;
                                     name: string;
                                     logoUrl: string | null;
                                     slug: string | null;
+                                    url?: string;
                                 }[];
                             };
                             related: ({
@@ -19515,7 +20205,17 @@ export interface paths {
                                     name: string;
                                     logoUrl: string | null;
                                     slug: string | null;
+                                    url?: string;
                                 }[];
+                                friends?: {
+                                    users: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    total: number;
+                                    watching: boolean;
+                                } | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -19538,7 +20238,17 @@ export interface paths {
                                     name: string;
                                     logoUrl: string | null;
                                     slug: string | null;
+                                    url?: string;
                                 }[];
+                                friends?: {
+                                    users: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    total: number;
+                                    watching: boolean;
+                                } | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -19768,6 +20478,113 @@ export interface paths {
                             avatarPath?: string | null;
                             appPath: string;
                         };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/reviews/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            type: "review" | "quote" | "post";
+                            text: string | null;
+                            quote: string | null;
+                            rating: number | null;
+                            season: number | null;
+                            episode: number | null;
+                            episodeTag: string | null;
+                            likeCount: number;
+                            commentCount: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            show: {
+                                key: string;
+                                /** @enum {string} */
+                                kind: "tv" | "movie";
+                                id: string;
+                                title: string | null;
+                                posterPath: string | null;
+                            } | null;
+                            author: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                tick: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            type: string;
+                            /** Format: date-time */
+                            lastmod: string;
+                        }[];
                     };
                 };
             };

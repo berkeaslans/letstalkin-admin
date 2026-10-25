@@ -92,6 +92,10 @@ export type ShowRow = ShowPage['items'][number];
 export type ShowDetail = Res<'/api/v1/admin/catalog/shows/{tmdbId}', 'get'>;
 export type ShowSort = NonNullable<Q<'/api/v1/admin/catalog/shows'>['sort']>;
 export type Featured = Res<'/api/v1/admin/catalog/featured', 'get'>;
+export type ShowOnly = NonNullable<Q<'/api/v1/admin/catalog/shows'>['only']>;
+export type TitleEdit = Res<'/api/v1/admin/catalog/titles/{key}/edit', 'get'>;
+export type TitleData = TitleEdit['data'];
+export type TitleKind = TitleEdit['kind'];
 export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
 export type GoogleStatus = Res<'/api/v1/admin/google/status', 'get'>;
 export type GaReport = Res<'/api/v1/admin/google/analytics', 'get'>;
@@ -313,11 +317,17 @@ export const adminApi = {
   runJob: (key: string) => api.post<{ ok: boolean }>(`/admin/system/jobs/${key}`, {}),
 
   // Katalog
-  shows: (p: { q?: string; sort: ShowSort; page?: number }) => api.get<ShowPage>('/admin/catalog/shows', p),
+  shows: (p: { q?: string; sort: ShowSort; only?: ShowOnly; page?: number }) => api.get<ShowPage>('/admin/catalog/shows', p),
   show: (tmdbId: string) => api.get<ShowDetail>(`/admin/catalog/shows/${tmdbId}`),
   refreshShow: (tmdbId: string) => api.post<{ ok: boolean }>(`/admin/catalog/shows/${tmdbId}/refresh`, {}),
   featured: () => api.get<Featured>('/admin/catalog/featured'),
   setFeatured: (items: Featured) => api.put<Featured>('/admin/catalog/featured', items),
+  titleEdit: (key: string) => api.get<TitleEdit>(`/admin/catalog/titles/${key}/edit`),
+  saveTitle: (key: string, data: TitleData) => api.put<{ ok: boolean }>(`/admin/catalog/titles/${key}/edit`, { data }),
+  createTitle: (kind: TitleKind, data: TitleData) => api.post<{ key: string }>('/admin/catalog/titles', { kind, data }),
+  /** TMDB yapımında düzenlemeyi geri alır; elle eklenen yapımı siler. */
+  dropTitleEdit: (key: string) => request<{ ok: boolean }>(`/admin/catalog/titles/${key}/edit`, { method: 'DELETE' }),
+  genres: (kind: TitleKind) => api.get<Array<{ id: number; name: string }>>('/admin/catalog/genres', { kind }),
   lookupShow: (tmdbId: string) => api.get<{ tmdbId: string; title: string; posterPath: string | null }>(`/admin/catalog/lookup/${tmdbId}`),
 
   // Analiz

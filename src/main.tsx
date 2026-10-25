@@ -26,6 +26,8 @@ const Broadcast = page(() => import('@/pages/Broadcast'), 'Broadcast');
 const Showcase = page(() => import('@/pages/Catalog'), 'Showcase');
 const ShowPage = page(() => import('@/pages/Catalog'), 'ShowPage');
 const Shows = page(() => import('@/pages/Catalog'), 'Shows');
+const NewTitle = page(() => import('@/pages/TitleEditor'), 'NewTitle');
+const EditTitle = page(() => import('@/pages/TitleEditor'), 'EditTitle');
 const Coins = page(() => import('@/pages/Economy'), 'Coins');
 const Market = page(() => import('@/pages/Economy'), 'Market');
 const Products = page(() => import('@/pages/Economy'), 'Products');
@@ -98,7 +100,9 @@ const DETAILS: Array<{ path: string; parent: string; page: ComponentType }> = [
   { path: '/moderasyon/icerik/:id', parent: '/moderasyon/icerik', page: PostPage },
   { path: '/yayin/quizler/:id', parent: '/yayin/quizler', page: QuizPage },
   { path: '/ekonomi/sticker/:id', parent: '/ekonomi/sticker', page: StickerPage },
+  { path: '/katalog/yeni', parent: '/katalog', page: NewTitle },
   { path: '/katalog/:tmdbId', parent: '/katalog', page: ShowPage },
+  { path: '/katalog/:tmdbId/duzenle', parent: '/katalog', page: EditTitle },
 ];
 
 const queryClient = new QueryClient({

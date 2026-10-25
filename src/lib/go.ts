@@ -16,4 +16,5 @@ export const paths = {
   post: (id: string) => `/moderasyon/icerik/${id}`,
   sticker: (id: string) => `/ekonomi/sticker/${id}`,
   show: (tmdbId: string) => `/katalog/${tmdbId}`,
+  titleEdit: (key: string) => `/katalog/${key}/duzenle`,
 };

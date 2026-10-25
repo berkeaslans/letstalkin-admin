@@ -13224,6 +13224,13 @@
                             "type": "number",
                             "minimum": -360,
                             "maximum": 360
+                          },
+                          "fit": {
+                            "type": "string",
+                            "enum": [
+                              "cover",
+                              "contain"
+                            ]
                           }
                         },
                         "required": [
@@ -13616,6 +13623,49 @@
                           ]
                         },
                         "maxItems": 20
+                      },
+                      "drawing": {
+                        "type": "object",
+                        "properties": {
+                          "strokes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "c": {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-fA-F]{6}$"
+                                },
+                                "w": {
+                                  "type": "number",
+                                  "minimum": 1,
+                                  "maximum": 80
+                                },
+                                "p": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -200,
+                                    "maximum": 2000
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2400
+                                }
+                              },
+                              "required": [
+                                "c",
+                                "w",
+                                "p"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "maxItems": 120
+                          }
+                        },
+                        "required": [
+                          "strokes"
+                        ],
+                        "additionalProperties": false
                       }
                     },
                     "additionalProperties": false
@@ -13851,6 +13901,13 @@
                                       "type": "number",
                                       "minimum": -360,
                                       "maximum": 360
+                                    },
+                                    "fit": {
+                                      "type": "string",
+                                      "enum": [
+                                        "cover",
+                                        "contain"
+                                      ]
                                     }
                                   },
                                   "required": [
@@ -14243,6 +14300,49 @@
                                     ]
                                   },
                                   "maxItems": 20
+                                },
+                                "drawing": {
+                                  "type": "object",
+                                  "properties": {
+                                    "strokes": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "c": {
+                                            "type": "string",
+                                            "pattern": "^#[0-9a-fA-F]{6}$"
+                                          },
+                                          "w": {
+                                            "type": "number",
+                                            "minimum": 1,
+                                            "maximum": 80
+                                          },
+                                          "p": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "integer",
+                                              "minimum": -200,
+                                              "maximum": 2000
+                                            },
+                                            "minItems": 2,
+                                            "maxItems": 2400
+                                          }
+                                        },
+                                        "required": [
+                                          "c",
+                                          "w",
+                                          "p"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "maxItems": 120
+                                    }
+                                  },
+                                  "required": [
+                                    "strokes"
+                                  ],
+                                  "additionalProperties": false
                                 }
                               },
                               "additionalProperties": false,
@@ -33329,6 +33429,18 @@
           },
           {
             "schema": {
+              "type": "string",
+              "enum": [
+                "custom",
+                "edited"
+              ]
+            },
+            "in": "query",
+            "name": "only",
+            "required": false
+          },
+          {
+            "schema": {
               "type": "integer",
               "minimum": 0,
               "maximum": 200,
@@ -33392,6 +33504,12 @@
                           },
                           "watchers": {
                             "type": "number"
+                          },
+                          "custom": {
+                            "type": "boolean"
+                          },
+                          "edited": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -33406,7 +33524,9 @@
                           "updatedAt",
                           "posts",
                           "rooms",
-                          "watchers"
+                          "watchers",
+                          "custom",
+                          "edited"
                         ],
                         "additionalProperties": false
                       }
@@ -33436,7 +33556,7 @@
           {
             "schema": {
               "type": "string",
-              "pattern": "^\\d{1,10}$"
+              "pattern": "^(m:)?\\d{1,10}$"
             },
             "in": "path",
             "name": "tmdbId",
@@ -33491,6 +33611,12 @@
                     },
                     "watchers": {
                       "type": "number"
+                    },
+                    "custom": {
+                      "type": "boolean"
+                    },
+                    "edited": {
+                      "type": "boolean"
                     },
                     "reviews": {
                       "type": "object",
@@ -33736,6 +33862,8 @@
                     "posts",
                     "rooms",
                     "watchers",
+                    "custom",
+                    "edited",
                     "reviews",
                     "postTypes",
                     "watchStatus",
@@ -33763,7 +33891,7 @@
           {
             "schema": {
               "type": "string",
-              "pattern": "^\\d{1,10}$"
+              "pattern": "^(m:)?\\d{1,10}$"
             },
             "in": "path",
             "name": "tmdbId",
@@ -33986,6 +34114,1872 @@
                     "tmdbId",
                     "title",
                     "posterPath"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/genres": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tv",
+                "movie"
+              ],
+              "default": "tv"
+            },
+            "in": "query",
+            "name": "kind",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/titles/{key}/edit": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "tv",
+                        "movie"
+                      ]
+                    },
+                    "custom": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "object",
+                          "properties": {
+                            "tr": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "en": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "es": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "pt": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "de": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "fr": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "it": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "ru": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "ar": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "hi": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "id": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "zh": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "ja": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "ko": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "pl": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "el": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "overview": {
+                                  "type": "string",
+                                  "maxLength": 5000
+                                },
+                                "tagline": {
+                                  "type": "string",
+                                  "maxLength": 300
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "originalTitle": {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        "posterUrl": {
+                          "type": "string",
+                          "maxLength": 1000
+                        },
+                        "backdropUrl": {
+                          "type": "string",
+                          "maxLength": 1000
+                        },
+                        "releaseDate": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "endYear": {
+                          "type": "string",
+                          "pattern": "^\\d{4}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "Returning Series",
+                            "Ended",
+                            "Canceled",
+                            "In Production",
+                            "Planned",
+                            "Released"
+                          ]
+                        },
+                        "genreIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "exclusiveMinimum": true,
+                            "minimum": 0
+                          },
+                          "maxItems": 8
+                        },
+                        "runtime": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 1000
+                        },
+                        "trailer": {
+                          "type": "string",
+                          "maxLength": 300
+                        },
+                        "networks": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          "maxItems": 5
+                        },
+                        "creators": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          "maxItems": 10
+                        },
+                        "cast": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              },
+                              "character": {
+                                "type": "string",
+                                "maxLength": 120
+                              },
+                              "profileUrl": {
+                                "type": "string",
+                                "maxLength": 1000
+                              }
+                            },
+                            "required": [
+                              "name"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 40
+                        },
+                        "watch": {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string",
+                              "maxLength": 1000
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 40
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "label"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "seasons": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "number": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 200
+                              },
+                              "name": {
+                                "type": "string",
+                                "maxLength": 120
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 3000
+                              },
+                              "posterUrl": {
+                                "type": "string",
+                                "maxLength": 1000
+                              },
+                              "episodes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "number": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 9999
+                                    },
+                                    "name": {
+                                      "type": "string",
+                                      "maxLength": 200
+                                    },
+                                    "overview": {
+                                      "type": "string",
+                                      "maxLength": 3000
+                                    },
+                                    "airDate": {
+                                      "type": "string",
+                                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                    },
+                                    "runtime": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 1000
+                                    },
+                                    "stillUrl": {
+                                      "type": "string",
+                                      "maxLength": 1000
+                                    },
+                                    "videoUrl": {
+                                      "type": "string",
+                                      "maxLength": 1000
+                                    }
+                                  },
+                                  "required": [
+                                    "number"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "maxItems": 500
+                              }
+                            },
+                            "required": [
+                              "number",
+                              "episodes"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 100
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "base": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "overview": {
+                          "type": "string"
+                        },
+                        "tagline": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "originalTitle": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "posterUrl": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "backdropUrl": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "year": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "endYear": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "status": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "genreIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "runtime": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "trailer": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "networks": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "creators": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "cast": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "character": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "character"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "seasonsCount": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "overview",
+                        "tagline",
+                        "originalTitle",
+                        "posterUrl",
+                        "backdropUrl",
+                        "year",
+                        "endYear",
+                        "status",
+                        "genreIds",
+                        "runtime",
+                        "trailer",
+                        "networks",
+                        "creators",
+                        "cast",
+                        "seasonsCount"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "kind",
+                    "custom",
+                    "data",
+                    "base",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "object",
+                        "properties": {
+                          "tr": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "en": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "es": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "pt": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "de": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "fr": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "it": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ru": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ar": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "hi": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "id": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "zh": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ja": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ko": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "pl": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "el": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "originalTitle": {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "posterUrl": {
+                        "type": "string",
+                        "maxLength": 1000
+                      },
+                      "backdropUrl": {
+                        "type": "string",
+                        "maxLength": 1000
+                      },
+                      "releaseDate": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "endYear": {
+                        "type": "string",
+                        "pattern": "^\\d{4}$"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "Returning Series",
+                          "Ended",
+                          "Canceled",
+                          "In Production",
+                          "Planned",
+                          "Released"
+                        ]
+                      },
+                      "genreIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "exclusiveMinimum": true,
+                          "minimum": 0
+                        },
+                        "maxItems": 8
+                      },
+                      "runtime": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      },
+                      "trailer": {
+                        "type": "string",
+                        "maxLength": 300
+                      },
+                      "networks": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "maxItems": 5
+                      },
+                      "creators": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "maxItems": 10
+                      },
+                      "cast": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            },
+                            "character": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "profileUrl": {
+                              "type": "string",
+                              "maxLength": 1000
+                            }
+                          },
+                          "required": [
+                            "name"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 40
+                      },
+                      "watch": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "maxLength": 1000
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "label"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "seasons": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "number": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 200
+                            },
+                            "name": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "overview": {
+                              "type": "string",
+                              "maxLength": 3000
+                            },
+                            "posterUrl": {
+                              "type": "string",
+                              "maxLength": 1000
+                            },
+                            "episodes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "number": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9999
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "maxLength": 200
+                                  },
+                                  "overview": {
+                                    "type": "string",
+                                    "maxLength": 3000
+                                  },
+                                  "airDate": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "runtime": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1000
+                                  },
+                                  "stillUrl": {
+                                    "type": "string",
+                                    "maxLength": 1000
+                                  },
+                                  "videoUrl": {
+                                    "type": "string",
+                                    "maxLength": 1000
+                                  }
+                                },
+                                "required": [
+                                  "number"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 500
+                            }
+                          },
+                          "required": [
+                            "number",
+                            "episodes"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 100
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "data"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/titles": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "tv",
+                      "movie"
+                    ]
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "object",
+                        "properties": {
+                          "tr": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "en": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "es": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "pt": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "de": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "fr": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "it": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ru": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ar": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "hi": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "id": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "zh": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ja": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "ko": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "pl": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "el": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "overview": {
+                                "type": "string",
+                                "maxLength": 5000
+                              },
+                              "tagline": {
+                                "type": "string",
+                                "maxLength": 300
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "originalTitle": {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "posterUrl": {
+                        "type": "string",
+                        "maxLength": 1000
+                      },
+                      "backdropUrl": {
+                        "type": "string",
+                        "maxLength": 1000
+                      },
+                      "releaseDate": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "endYear": {
+                        "type": "string",
+                        "pattern": "^\\d{4}$"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "Returning Series",
+                          "Ended",
+                          "Canceled",
+                          "In Production",
+                          "Planned",
+                          "Released"
+                        ]
+                      },
+                      "genreIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "exclusiveMinimum": true,
+                          "minimum": 0
+                        },
+                        "maxItems": 8
+                      },
+                      "runtime": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      },
+                      "trailer": {
+                        "type": "string",
+                        "maxLength": 300
+                      },
+                      "networks": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "maxItems": 5
+                      },
+                      "creators": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "maxItems": 10
+                      },
+                      "cast": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            },
+                            "character": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "profileUrl": {
+                              "type": "string",
+                              "maxLength": 1000
+                            }
+                          },
+                          "required": [
+                            "name"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 40
+                      },
+                      "watch": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "maxLength": 1000
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "label"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "seasons": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "number": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 200
+                            },
+                            "name": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "overview": {
+                              "type": "string",
+                              "maxLength": 3000
+                            },
+                            "posterUrl": {
+                              "type": "string",
+                              "maxLength": 1000
+                            },
+                            "episodes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "number": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 9999
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "maxLength": 200
+                                  },
+                                  "overview": {
+                                    "type": "string",
+                                    "maxLength": 3000
+                                  },
+                                  "airDate": {
+                                    "type": "string",
+                                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                  },
+                                  "runtime": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 1000
+                                  },
+                                  "stillUrl": {
+                                    "type": "string",
+                                    "maxLength": 1000
+                                  },
+                                  "videoUrl": {
+                                    "type": "string",
+                                    "maxLength": 1000
+                                  }
+                                },
+                                "required": [
+                                  "number"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 500
+                            }
+                          },
+                          "required": [
+                            "number",
+                            "episodes"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 100
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "kind",
+                  "data"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key"
                   ],
                   "additionalProperties": false
                 }
@@ -37060,6 +39054,164 @@
                           "additionalProperties": false
                         },
                         "maxItems": 200
+                      },
+                      "frame": {
+                        "type": "object",
+                        "properties": {
+                          "aspect": {
+                            "type": "string",
+                            "enum": [
+                              "original",
+                              "9:16",
+                              "4:5",
+                              "1:1",
+                              "16:9"
+                            ]
+                          },
+                          "x": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "zoom": {
+                            "type": "number",
+                            "minimum": 1,
+                            "maximum": 4
+                          },
+                          "fit": {
+                            "type": "string",
+                            "enum": [
+                              "cover",
+                              "contain"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "aspect"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "overlayStyle": {
+                        "type": "object",
+                        "properties": {
+                          "size": {
+                            "type": "string",
+                            "enum": [
+                              "s",
+                              "m",
+                              "l"
+                            ]
+                          },
+                          "look": {
+                            "type": "string",
+                            "enum": [
+                              "box",
+                              "outline",
+                              "shadow"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "enum": [
+                              "white",
+                              "yellow"
+                            ]
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "subtitleStyle": {
+                        "type": "object",
+                        "properties": {
+                          "size": {
+                            "type": "string",
+                            "enum": [
+                              "s",
+                              "m",
+                              "l"
+                            ]
+                          },
+                          "look": {
+                            "type": "string",
+                            "enum": [
+                              "box",
+                              "outline",
+                              "shadow"
+                            ]
+                          },
+                          "color": {
+                            "type": "string",
+                            "enum": [
+                              "white",
+                              "yellow"
+                            ]
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "speed": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "enum": [
+                              0.5
+                            ]
+                          },
+                          {
+                            "type": "number",
+                            "enum": [
+                              1
+                            ]
+                          },
+                          {
+                            "type": "number",
+                            "enum": [
+                              1.5
+                            ]
+                          },
+                          {
+                            "type": "number",
+                            "enum": [
+                              2
+                            ]
+                          }
+                        ]
+                      },
+                      "adjust": {
+                        "type": "object",
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": -0.5,
+                            "maximum": 0.5
+                          },
+                          "contrast": {
+                            "type": "number",
+                            "minimum": 0.5,
+                            "maximum": 1.5
+                          },
+                          "saturation": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 2
+                          }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "additionalProperties": false
@@ -37255,6 +39407,164 @@
                               "additionalProperties": false
                             },
                             "maxItems": 200
+                          },
+                          "frame": {
+                            "type": "object",
+                            "properties": {
+                              "aspect": {
+                                "type": "string",
+                                "enum": [
+                                  "original",
+                                  "9:16",
+                                  "4:5",
+                                  "1:1",
+                                  "16:9"
+                                ]
+                              },
+                              "x": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "zoom": {
+                                "type": "number",
+                                "minimum": 1,
+                                "maximum": 4
+                              },
+                              "fit": {
+                                "type": "string",
+                                "enum": [
+                                  "cover",
+                                  "contain"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "aspect"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "overlayStyle": {
+                            "type": "object",
+                            "properties": {
+                              "size": {
+                                "type": "string",
+                                "enum": [
+                                  "s",
+                                  "m",
+                                  "l"
+                                ]
+                              },
+                              "look": {
+                                "type": "string",
+                                "enum": [
+                                  "box",
+                                  "outline",
+                                  "shadow"
+                                ]
+                              },
+                              "color": {
+                                "type": "string",
+                                "enum": [
+                                  "white",
+                                  "yellow"
+                                ]
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "subtitleStyle": {
+                            "type": "object",
+                            "properties": {
+                              "size": {
+                                "type": "string",
+                                "enum": [
+                                  "s",
+                                  "m",
+                                  "l"
+                                ]
+                              },
+                              "look": {
+                                "type": "string",
+                                "enum": [
+                                  "box",
+                                  "outline",
+                                  "shadow"
+                                ]
+                              },
+                              "color": {
+                                "type": "string",
+                                "enum": [
+                                  "white",
+                                  "yellow"
+                                ]
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "speed": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "enum": [
+                                  0.5
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "enum": [
+                                  1
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "enum": [
+                                  1.5
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "enum": [
+                                  2
+                                ]
+                              }
+                            ]
+                          },
+                          "adjust": {
+                            "type": "object",
+                            "properties": {
+                              "brightness": {
+                                "type": "number",
+                                "minimum": -0.5,
+                                "maximum": 0.5
+                              },
+                              "contrast": {
+                                "type": "number",
+                                "minimum": 0.5,
+                                "maximum": 1.5
+                              },
+                              "saturation": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 2
+                              }
+                            },
+                            "additionalProperties": false
                           }
                         },
                         "additionalProperties": false
@@ -38458,6 +40768,125 @@
                         "rooms"
                       ],
                       "additionalProperties": false
+                    },
+                    "community": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "review",
+                              "quote",
+                              "post"
+                            ]
+                          },
+                          "text": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "quote": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "rating": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "season": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "episode": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "likeCount": {
+                            "type": "number"
+                          },
+                          "commentCount": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "avatarPath": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "tick": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "show": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "tv",
+                                  "movie"
+                                ]
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "posterUrl": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id",
+                              "title",
+                              "posterUrl"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "text",
+                          "quote",
+                          "rating",
+                          "season",
+                          "episode",
+                          "likeCount",
+                          "commentCount",
+                          "createdAt",
+                          "author",
+                          "show"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -39459,6 +41888,10 @@
                           },
                           "score": {
                             "type": "number"
+                          },
+                          "watchUrl": {
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -39651,6 +42084,9 @@
                                   "slug": {
                                     "type": "string",
                                     "nullable": true
+                                  },
+                                  "url": {
+                                    "type": "string"
                                   }
                                 },
                                 "required": [
@@ -39680,6 +42116,9 @@
                                   "slug": {
                                     "type": "string",
                                     "nullable": true
+                                  },
+                                  "url": {
+                                    "type": "string"
                                   }
                                 },
                                 "required": [
@@ -39709,6 +42148,9 @@
                                   "slug": {
                                     "type": "string",
                                     "nullable": true
+                                  },
+                                  "url": {
+                                    "type": "string"
                                   }
                                 },
                                 "required": [
@@ -39738,6 +42180,9 @@
                                   "slug": {
                                     "type": "string",
                                     "nullable": true
+                                  },
+                                  "url": {
+                                    "type": "string"
                                   }
                                 },
                                 "required": [
@@ -39951,6 +42396,10 @@
                         "name"
                       ],
                       "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "watchUrl": {
+                      "type": "string",
                       "nullable": true
                     },
                     "discussion": {
@@ -40574,6 +43023,9 @@
                               "slug": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "url": {
+                                "type": "string"
                               }
                             },
                             "required": [
@@ -40603,6 +43055,9 @@
                               "slug": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "url": {
+                                "type": "string"
                               }
                             },
                             "required": [
@@ -40632,6 +43087,9 @@
                               "slug": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "url": {
+                                "type": "string"
                               }
                             },
                             "required": [
@@ -40661,6 +43119,9 @@
                               "slug": {
                                 "type": "string",
                                 "nullable": true
+                              },
+                              "url": {
+                                "type": "string"
                               }
                             },
                             "required": [
@@ -41525,6 +43986,9 @@
                                 "slug": {
                                   "type": "string",
                                   "nullable": true
+                                },
+                                "url": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -41535,6 +43999,49 @@
                               ],
                               "additionalProperties": false
                             }
+                          },
+                          "friends": {
+                            "type": "object",
+                            "properties": {
+                              "users": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "displayName": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "avatarPath": {
+                                      "type": "string",
+                                      "nullable": true
+                                    }
+                                  },
+                                  "required": [
+                                    "username",
+                                    "displayName",
+                                    "avatarPath"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "total": {
+                                "type": "number"
+                              },
+                              "watching": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "users",
+                              "total",
+                              "watching"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -41624,6 +44131,9 @@
                                 "slug": {
                                   "type": "string",
                                   "nullable": true
+                                },
+                                "url": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -41634,6 +44144,49 @@
                               ],
                               "additionalProperties": false
                             }
+                          },
+                          "friends": {
+                            "type": "object",
+                            "properties": {
+                              "users": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "displayName": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "avatarPath": {
+                                      "type": "string",
+                                      "nullable": true
+                                    }
+                                  },
+                                  "required": [
+                                    "username",
+                                    "displayName",
+                                    "avatarPath"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "total": {
+                                "type": "number"
+                              },
+                              "watching": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "users",
+                              "total",
+                              "watching"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -41992,6 +44545,205 @@
                     "appPath"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/reviews/{id}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "review",
+                        "quote",
+                        "post"
+                      ]
+                    },
+                    "text": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "quote": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "rating": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "season": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "episode": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "episodeTag": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "likeCount": {
+                      "type": "number"
+                    },
+                    "commentCount": {
+                      "type": "number"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "show": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "tv",
+                            "movie"
+                          ]
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "posterPath": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "kind",
+                        "id",
+                        "title",
+                        "posterPath"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    },
+                    "author": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "avatarPath": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "tick": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "text",
+                    "quote",
+                    "rating",
+                    "season",
+                    "episode",
+                    "episodeTag",
+                    "likeCount",
+                    "commentCount",
+                    "createdAt",
+                    "updatedAt",
+                    "show",
+                    "author"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/reviews": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "lastmod": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "lastmod"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               }
             }

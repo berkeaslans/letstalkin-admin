@@ -9,7 +9,7 @@ import { HBars } from '@/components/ui/Chart';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Pills } from '@/components/ui/Tabs';
-import { adminApi, type Featured, type ShowRow, type ShowSort } from '@/lib/api/admin';
+import { adminApi, type Featured, type ShowOnly, type ShowRow, type ShowSort } from '@/lib/api/admin';
 import { ApiError, errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { compact, fmt, timeAgo } from '@/lib/format';
@@ -44,7 +44,9 @@ function Poster({ path, className }: { path: string | null; className?: string }
 }
 
 export function Shows() {
+  const isAdmin = useIsAdmin();
   const [sort, setSort] = useState<ShowSort>('discussion');
+  const [only, setOnly] = useState<ShowOnly | 'all'>('all');
   const [q, setQ] = useState('');
   const [term, setTerm] = useState('');
   const [page, setPage] = useState(0);
@@ -56,8 +58,8 @@ export function Shows() {
     return () => clearTimeout(t);
   }, [q]);
   const r = useQuery({
-    queryKey: ['admin', 'shows', sort, term, page],
-    queryFn: () => adminApi.shows({ sort, q: term || undefined, page }),
+    queryKey: ['admin', 'shows', sort, only, term, page],
+    queryFn: () => adminApi.shows({ sort, only: only === 'all' ? undefined : only, q: term || undefined, page }),
     placeholderData: (p) => p,
   });
   const rows = r.data?.items ?? [];
@@ -84,13 +86,42 @@ export function Shows() {
           onChange={(e) => setQ(e.target.value)}
           placeholder="Yapım adı ya da TMDB ID"
         />
+        {isAdmin && (
+          <Button size="sm" variant="primary" icon="add" onClick={() => go('/katalog/yeni')}>
+            Yeni yapım
+          </Button>
+        )}
+      </div>
+      <div className="px-[18px] pb-3">
+        <Pills
+          items={[
+            { key: 'all', label: 'Hepsi' },
+            { key: 'custom', label: 'Elle eklenen' },
+            { key: 'edited', label: 'Düzenlenen' },
+          ]}
+          value={only}
+          onChange={(o) => {
+            setOnly(o);
+            setPage(0);
+          }}
+        />
       </div>
       {r.isLoading ? (
         <Rows />
       ) : r.isError ? (
         <ErrorState error={r.error} retry={() => r.refetch()} />
       ) : !rows.length ? (
-        <EmptyState icon="theaters" title="Yapım yok" body="Kullanıcılar bir dizi hakkında paylaştıkça, oda açtıkça burada belirir." />
+        <EmptyState
+          icon="theaters"
+          title="Yapım yok"
+          body={
+            only === 'custom'
+              ? 'TMDB\'de olmayan bir yapımı (ör. bir YouTube dizisi) "Yeni yapım" ile ekleyebilirsin.'
+              : only === 'edited'
+                ? 'Henüz düzenlenen bir TMDB yapımı yok. Yapım karnesindeki "Düzenle" ile başlarsın.'
+                : 'Kullanıcılar bir dizi hakkında paylaştıkça, oda açtıkça burada belirir.'
+          }
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[13.5px]">
@@ -116,8 +147,11 @@ export function Shows() {
                       <Poster path={s.posterPath} className="h-12 w-8 rounded-[6px]" />
                       <span className="min-w-0">
                         <span className="block truncate font-semibold">{s.name}</span>
-                        <span className="text-[11.5px] text-faint">TMDB {s.tmdbId}</span>
+                        <span className="text-[11.5px] text-faint">
+                          {s.custom ? 'Elle eklendi' : `${s.tmdbId.startsWith('m:') ? 'Film · ' : ''}TMDB ${s.tmdbId.replace(/^m:/, '')}`}
+                        </span>
                       </span>
+                      {s.custom ? <Tag tone="yellow">Elle eklenen</Tag> : s.edited && <Tag>Düzenlendi</Tag>}
                       {s.isFinale && <Tag tone="live">Final</Tag>}
                     </span>
                   </td>
@@ -188,7 +222,8 @@ export function ShowPage() {
             <div className="min-w-0 flex-1">
               <h2 className="text-[24px] font-bold tracking-[-0.5px]">{s.name}</h2>
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                <Tag>TMDB {s.tmdbId}</Tag>
+                {s.custom ? <Tag tone="yellow">Elle eklenen</Tag> : <Tag>TMDB {s.tmdbId.replace(/^m:/, '')}</Tag>}
+                {!s.custom && s.edited && <Tag>Düzenlendi</Tag>}
                 {s.featured && <Tag tone="yellow">Vitrinde</Tag>}
                 {s.isFinale && <Tag tone="live">Final</Tag>}
                 {s.nextAirDate && (
@@ -198,10 +233,15 @@ export function ShowPage() {
               </div>
             </div>
             {isAdmin && (
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" icon="refresh" busy={refresh.isPending} onClick={() => refresh.mutate()}>
-                  TMDB'den tazele
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" icon="edit" onClick={() => go(paths.titleEdit(s.tmdbId))}>
+                  Düzenle
                 </Button>
+                {!s.custom && (
+                  <Button size="sm" variant="outline" icon="refresh" busy={refresh.isPending} onClick={() => refresh.mutate()}>
+                    TMDB'den tazele
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant={s.featured ? 'secondary' : 'primary'}
