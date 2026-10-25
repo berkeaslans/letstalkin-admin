@@ -26,6 +26,7 @@ const Broadcast = page(() => import('@/pages/Broadcast'), 'Broadcast');
 const Showcase = page(() => import('@/pages/Catalog'), 'Showcase');
 const ShowPage = page(() => import('@/pages/Catalog'), 'ShowPage');
 const Shows = page(() => import('@/pages/Catalog'), 'Shows');
+const Events = page(() => import('@/pages/Events'), 'Events');
 const NewTitle = page(() => import('@/pages/TitleEditor'), 'NewTitle');
 const EditTitle = page(() => import('@/pages/TitleEditor'), 'EditTitle');
 const Coins = page(() => import('@/pages/Economy'), 'Coins');
@@ -79,6 +80,7 @@ const PAGES: Record<string, ComponentType> = {
   '/yayin/hesaplar': PublishAccounts,
   '/katalog': Shows,
   '/katalog/vitrin': Showcase,
+  '/katalog/etkinlikler': Events,
   '/ekonomi': Revenue,
   '/ekonomi/coin': Coins,
   '/ekonomi/sticker': Stickers,
