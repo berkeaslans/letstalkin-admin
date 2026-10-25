@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/Switch';
 import { Pills, Segment } from '@/components/ui/Tabs';
 import { adminApi, type CinemaEvent, type CinemaEventBody } from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
+import { cn } from '@/lib/cn';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
@@ -112,6 +113,9 @@ export function Events() {
   const [past, setPast] = useState<'next' | 'past'>('next');
   const q = useQuery({ queryKey: ['admin', 'events', past], queryFn: () => adminApi.events(past === 'past') });
   const [editing, setEditing] = useState<{ id: string | null; draft: Draft } | null>(null);
+  // Tür ve ülke süzgeci (liste istemcide süzülür; sayılar süzgeç düğmelerinde).
+  const [kind, setKind] = useState<'all' | Draft['kind']>('all');
+  const [country, setCountry] = useState('');
   const done = (msg: string) => {
     toast(msg, 'success', 'Yaklaşanlar bölümünde hemen görünür');
     playSound('ok');
@@ -135,7 +139,11 @@ export function Events() {
     onError: (err) => toast(errorMessage(err), 'error'),
   });
 
-  const rows = q.data ?? [];
+  const all = q.data ?? [];
+  const byCountry = country ? all.filter((e) => (country === '-' ? !e.country : e.country === country)) : all;
+  const rows = kind === 'all' ? byCountry : byCountry.filter((e) => e.kind === kind);
+  const count = (k: string) => byCountry.filter((e) => k === 'all' || e.kind === k).length;
+  const countries = [...new Set(all.map((e) => e.country).filter((c): c is string => !!c))].sort();
   return (
     <>
       <Card
@@ -157,6 +165,32 @@ export function Events() {
           />
         }
       >
+        <div className="flex flex-wrap items-center gap-2 px-[18px] pb-3">
+          <Pills
+            items={[
+              { key: 'all', label: 'Tümü', count: count('all') },
+              { key: 'festival', label: 'Festival', count: count('festival') },
+              { key: 'award', label: 'Ödül töreni', count: count('award') },
+              { key: 'community', label: 'Film gecesi', count: count('community') },
+            ]}
+            value={kind}
+            onChange={setKind}
+          />
+          <select
+            className={cn(field, 'ml-auto w-auto min-w-[170px]')}
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            aria-label="Ülke"
+          >
+            <option value="">Tüm ülkeler</option>
+            {countries.map((c) => (
+              <option key={c} value={c}>
+                {COUNTRIES[c] ?? c}
+              </option>
+            ))}
+            <option value="-">Çevrimiçi / ülkesiz</option>
+          </select>
+        </div>
         <p className="px-[18px] pb-3 text-[12.5px] text-faint">
           Vizyon ve platform takvimi TMDB'den kendiliğinden gelir. Festival, ödül töreni ve film gecelerini buradan ekle; tarih resmî olarak
           açıklanmadan ekleme.
@@ -169,7 +203,13 @@ export function Events() {
           <EmptyState
             icon="theaters"
             title="Etkinlik yok"
-            body={past === 'past' ? 'Geçmiş etkinlik yok.' : 'Yaklaşan bir festival ya da tören ekle.'}
+            body={
+              all.length
+                ? 'Bu süzgece uyan etkinlik yok.'
+                : past === 'past'
+                  ? 'Geçmiş etkinlik yok.'
+                  : 'Yaklaşan bir festival ya da tören ekle.'
+            }
           />
         ) : (
           rows.map((e) => (
