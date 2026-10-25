@@ -249,3 +249,11 @@
 @utility feed-in {
   animation: feed-in 0.6s var(--ease-out-cubic);
 }
+
+/* Açılır listenin seçenekleri: Windows'ta tarayıcı listeyi açık temada (beyaz zemin) çiziyor,
+   yazı panelin beyaz rengini alıp görünmez kalıyordu. Renkler açıkça. */
+select option,
+select optgroup {
+  background-color: var(--color-elev2);
+  color: var(--color-text);
+}

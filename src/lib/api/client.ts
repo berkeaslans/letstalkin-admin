@@ -1,13 +1,21 @@
 // HTTP istemcisi — Bearer access (bellekte) + tek uçuşlu refresh rotasyonu.
 //
-// Refresh token her kullanımda yenilenir; aynı token iki kez kullanılırsa backend
-// güvenlik gereği bütün oturum ailesini düşürür. Bu yüzden yenileme hem sekme içinde
-// tek uçuşludur hem de sekmeler arasında Web Locks ile sıralıdır: kilidi alan sekme,
-// önceki sekmenin yazdığı YENİ token'ı localStorage'dan okuyarak yeniler.
+// Refresh token JavaScript'e HİÇ görünmez: backend onu yalnız /api/v1/auth yoluna giden
+// HttpOnly + Secure + SameSite=Strict çerezde tutar (X-Refresh-Cookie: 1). Eskiden 30 gün
+// localStorage'daydı; panelde tek bir XSS ya da kötü niyetli paket yönetici oturumunu
+// çalabilirdi. localStorage'da yalnız "oturum var" işareti (sır değil) durur.
+//
+// Refresh her kullanımda yenilenir; aynı token iki kez kullanılırsa backend bütün oturum
+// ailesini düşürür. Bu yüzden yenileme sekme içinde tek uçuşlu, sekmeler arasında Web Locks
+// ile sıralıdır (çerez ortak: kilidi alan sekme bir öncekinin yazdığı yeni çerezle yeniler).
 
 const API_ROOT = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 export const API_BASE = `${API_ROOT}/api/v1`;
-const REFRESH_KEY = 'lt_admin_refresh';
+const SESSION_KEY = 'lt_admin_session';
+/** Eski sürümün localStorage'daki refresh token'ı: ilk açılışta bir kez çereze taşınıp silinir. */
+const LEGACY_KEY = 'lt_admin_refresh';
+/** Kimlik uçlarına giden her istekte: refresh çerezde dönsün/okunsun. */
+const COOKIE_MODE = { 'x-refresh-cookie': '1' } as const;
 
 let access: string | null = null;
 let onSignedOut: (() => void) | null = null;
@@ -23,32 +31,34 @@ export class ApiError extends Error {
   }
 }
 
-function readRefresh(): string | null {
+function store(key: string, v: string | null) {
   try {
-    return localStorage.getItem(REFRESH_KEY);
-  } catch {
-    return null;
-  }
-}
-function writeRefresh(v: string | null) {
-  try {
-    if (v) localStorage.setItem(REFRESH_KEY, v);
-    else localStorage.removeItem(REFRESH_KEY);
+    if (v) localStorage.setItem(key, v);
+    else localStorage.removeItem(key);
   } catch {
     /* gizli pencere: oturum yalnız bu sekmede yaşar */
   }
 }
+function read(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
 
 export const tokens = {
-  set(pair: { access: string; refresh: string }) {
+  /** Giriş/yenileme yanıtı: access bellekte; refresh zaten çerezde (gövdede boş gelir). */
+  set(pair: { access: string }) {
     access = pair.access;
-    writeRefresh(pair.refresh);
+    store(SESSION_KEY, '1');
   },
   clear() {
     access = null;
-    writeRefresh(null);
+    store(SESSION_KEY, null);
+    store(LEGACY_KEY, null);
   },
-  hasRefresh: () => !!readRefresh(),
+  hasRefresh: () => !!read(SESSION_KEY) || !!read(LEGACY_KEY),
   /** Gerçek zamanlı bağlantının el sıkışması için güncel access token. */
   access: () => access,
   /** Oturum düşünce (refresh reddedildi) kabuk girişe döner. */
@@ -60,21 +70,21 @@ export const tokens = {
 let refreshing: Promise<boolean> | null = null;
 
 async function doRefresh(): Promise<boolean> {
-  const refresh = readRefresh();
-  if (!refresh) return false;
+  if (!tokens.hasRefresh()) return false;
+  // Eski sürümden kalan token (bir kez) gövdede gider; yanıt onu çereze yazar, sonra silinir.
+  const legacy = read(LEGACY_KEY);
   try {
     const res = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ refresh }),
+      credentials: 'include',
+      headers: { 'content-type': 'application/json', ...COOKIE_MODE },
+      body: JSON.stringify(legacy ? { refresh: legacy } : {}),
     });
     if (!res.ok) {
-      // Başka sekme bu arada yenilediyse elimizdeki eski token reddedilir; yenisini dene.
-      const latest = readRefresh();
-      if (latest && latest !== refresh) return doRefresh();
       tokens.clear();
       return false;
     }
+    store(LEGACY_KEY, null);
     tokens.set(await res.json());
     return true;
   } catch {
@@ -117,10 +127,14 @@ export async function request<T>(
 ): Promise<T> {
   // FormData (dosya yükleme) olduğu gibi gider; tarayıcı multipart sınırını kendi yazar.
   const form = opts.body instanceof FormData;
+  const auth = path.startsWith('/auth/');
   const send = () =>
     fetch(buildUrl(path, opts.query), {
       method: opts.method ?? 'GET',
+      // Kimlik uçları refresh çerezini taşır (çerez yalnız /api/v1/auth yoluna gider).
+      ...(auth ? { credentials: 'include' as const } : {}),
       headers: {
+        ...(auth ? COOKIE_MODE : {}),
         ...(opts.body !== undefined && !form ? { 'content-type': 'application/json' } : {}),
         ...(access && !opts.anonymous ? { authorization: `Bearer ${access}` } : {}),
       },

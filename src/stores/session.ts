@@ -33,6 +33,8 @@ export const useSession = create<SessionState>((set) => ({
     set({ me, status: isStaff(me) ? 'ready' : 'forbidden' });
   },
   logout() {
+    // Çerezdeki refresh sunucuda iptal edilir ve silinir (yerelde de işaret temizlenir).
+    void authApi.logout().catch(() => {});
     tokens.clear();
     set({ me: null, status: 'signedOut' });
   },

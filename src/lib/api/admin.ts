@@ -128,6 +128,7 @@ export interface ProfilePatch {
 export const authApi = {
   login: (emailOrUsername: string, password: string) =>
     request<{ access: string; refresh: string }>('/auth/login', { method: 'POST', body: { emailOrUsername, password }, anonymous: true }),
+  logout: () => request<{ ok: boolean }>('/auth/logout', { method: 'POST', body: {}, anonymous: true }),
   me: () => api.get<Me>('/users/me'),
 };
 
