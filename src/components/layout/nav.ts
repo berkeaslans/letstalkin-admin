@@ -117,6 +117,16 @@ export const NAV: NavGroup[] = [
         label: 'Tahminler',
         desc: 'Tahmin oyunu: soru ekle, sonuçlandır; doğru bilenler liderlik puanı alır',
       },
+      {
+        to: '/yaklasanlar/teoriler',
+        label: 'Teoriler',
+        desc: 'Hayran teorileri: doğru çıktı / çürüdü işaretle; doğru çıkanın sahibi puan alır',
+      },
+      {
+        to: '/yaklasanlar/ozetler',
+        label: 'Sezon özetleri',
+        desc: 'Hayranların yazdığı sezon özetleri: uygunsuz ya da spoiler taşanı sil',
+      },
     ],
   },
   {

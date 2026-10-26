@@ -2,6 +2,7 @@
 // ikon ekleyince `npm run icons` çalıştır (Docker build bunu her seferinde yapar).
 export const ICON_NAMES = [
   'lightbulb',
+  'summarize',
   'how_to_vote',
   'add_circle',
   'admin_panel_settings',

@@ -29,6 +29,7 @@ const Shows = page(() => import('@/pages/Catalog'), 'Shows');
 const Events = page(() => import('@/pages/Events'), 'Events');
 const Predictions = page(() => import('@/pages/Predictions'), 'Predictions');
 const Theories = page(() => import('@/pages/Theories'), 'Theories');
+const Recaps = page(() => import('@/pages/Recaps'), 'Recaps');
 const NewTitle = page(() => import('@/pages/TitleEditor'), 'NewTitle');
 const EditTitle = page(() => import('@/pages/TitleEditor'), 'EditTitle');
 const Coins = page(() => import('@/pages/Economy'), 'Coins');
@@ -85,6 +86,7 @@ const PAGES: Record<string, ComponentType> = {
   '/yaklasanlar': Events,
   '/yaklasanlar/tahminler': Predictions,
   '/yaklasanlar/teoriler': Theories,
+  '/yaklasanlar/ozetler': Recaps,
   '/ekonomi': Revenue,
   '/ekonomi/coin': Coins,
   '/ekonomi/sticker': Stickers,

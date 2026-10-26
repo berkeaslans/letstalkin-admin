@@ -119,6 +119,16 @@ export interface AdminTheory {
   createdAt: string;
   resolvedAt: string | null;
 }
+export interface AdminRecap {
+  id: string;
+  showTmdbId: string;
+  showTitle: string | null;
+  season: number;
+  text: string;
+  voteCount: number;
+  author: { id: string; username: string } | null;
+  createdAt: string;
+}
 export interface PredictionBody {
   question: string;
   options: string[];
@@ -363,6 +373,8 @@ export const adminApi = {
   theories: (status?: string) => api.get<AdminTheory[]>('/admin/theories', { status }),
   theoryStatus: (id: string, status: AdminTheory['status']) => api.post<{ ok: boolean }>(`/admin/theories/${id}/status`, { status }),
   deleteTheory: (id: string) => request<{ ok: boolean }>(`/admin/theories/${id}`, { method: 'DELETE' }),
+  recaps: () => api.get<AdminRecap[]>('/admin/recaps'),
+  deleteRecap: (id: string) => request<{ ok: boolean }>(`/admin/recaps/${id}`, { method: 'DELETE' }),
   createPrediction: (b: PredictionBody) => api.post<{ id: string }>('/admin/predictions', b),
   savePrediction: (id: string, b: PredictionBody) => api.put<{ ok: boolean }>(`/admin/predictions/${id}`, b),
   resolvePrediction: (id: string, index: number | null) => api.post<{ ok: boolean }>(`/admin/predictions/${id}/resolve`, { index }),

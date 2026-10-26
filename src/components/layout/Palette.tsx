@@ -57,6 +57,7 @@ function commands(isAdmin: boolean): Row[] {
     ['Yaklaşanlar · etkinlikler', '/yaklasanlar', 'schedule'],
     ['Yaklaşanlar · tahminler', '/yaklasanlar/tahminler', 'how_to_vote'],
     ['Yaklaşanlar · teoriler', '/yaklasanlar/teoriler', 'lightbulb'],
+    ['Yaklaşanlar · sezon özetleri', '/yaklasanlar/ozetler', 'summarize'],
     ['Kullanım analizi', '/analiz', 'monitoring'],
     ['Kitle', '/analiz/kitle', 'group'],
     ['TV ekranı', '/tv', 'tv'],
