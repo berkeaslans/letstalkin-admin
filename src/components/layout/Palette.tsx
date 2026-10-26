@@ -56,6 +56,7 @@ function commands(isAdmin: boolean): Row[] {
     ['Vitrin', '/katalog/vitrin', 'theaters'],
     ['Yaklaşanlar · etkinlikler', '/yaklasanlar', 'schedule'],
     ['Yaklaşanlar · tahminler', '/yaklasanlar/tahminler', 'how_to_vote'],
+    ['Yaklaşanlar · teoriler', '/yaklasanlar/teoriler', 'lightbulb'],
     ['Kullanım analizi', '/analiz', 'monitoring'],
     ['Kitle', '/analiz/kitle', 'group'],
     ['TV ekranı', '/tv', 'tv'],

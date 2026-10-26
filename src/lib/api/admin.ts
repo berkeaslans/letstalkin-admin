@@ -108,6 +108,17 @@ export interface AdminPrediction {
   eventId: string | null;
   showTmdbId: string | null;
 }
+export interface AdminTheory {
+  id: string;
+  showTmdbId: string;
+  showTitle: string | null;
+  text: string;
+  status: 'open' | 'confirmed' | 'debunked';
+  voteCount: number;
+  author: { id: string; username: string } | null;
+  createdAt: string;
+  resolvedAt: string | null;
+}
 export interface PredictionBody {
   question: string;
   options: string[];
@@ -349,6 +360,9 @@ export const adminApi = {
   setFeatured: (items: Featured) => api.put<Featured>('/admin/catalog/featured', items),
   events: (past = false) => api.get<CinemaEvent[]>('/admin/events', { past: past || undefined }),
   predictions: () => api.get<AdminPrediction[]>('/admin/predictions'),
+  theories: (status?: string) => api.get<AdminTheory[]>('/admin/theories', { status }),
+  theoryStatus: (id: string, status: AdminTheory['status']) => api.post<{ ok: boolean }>(`/admin/theories/${id}/status`, { status }),
+  deleteTheory: (id: string) => request<{ ok: boolean }>(`/admin/theories/${id}`, { method: 'DELETE' }),
   createPrediction: (b: PredictionBody) => api.post<{ id: string }>('/admin/predictions', b),
   savePrediction: (id: string, b: PredictionBody) => api.put<{ ok: boolean }>(`/admin/predictions/${id}`, b),
   resolvePrediction: (id: string, index: number | null) => api.post<{ ok: boolean }>(`/admin/predictions/${id}/resolve`, { index }),
