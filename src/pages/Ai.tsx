@@ -57,10 +57,10 @@ export function Ai() {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Stat
-          label="Anahtar"
+          label="Sağlayıcı"
           icon="key"
-          value={d.hasKey ? 'Kayıtlı' : 'Yok'}
-          sub={d.keySource === 'panel' ? 'Panelden' : d.keySource === 'env' ? 'Ortam değişkeninden' : 'Özellikler kapalı'}
+          value={d.provider === 'gemini' ? 'Gemini' : 'Claude'}
+          sub={(d.provider === 'gemini' ? d.hasGeminiKey : d.hasKey) ? 'Anahtar kayıtlı' : 'Anahtar yok · özellikler kapalı'}
         />
         <Stat
           label="Bugünkü harcama"
@@ -109,8 +109,26 @@ export function Ai() {
           </Field>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field
+              label="Gemini API anahtarı"
+              hint={<>aistudio.google.com → Get API key. Kayıtlı anahtar gösterilmez. {d.hasGeminiKey && <Tag tone="up">Kayıtlı</Tag>}</>}
+            >
+              <input
+                type="password"
+                autoComplete="off"
+                value={gkey}
+                onChange={(e) => setGkey(e.target.value)}
+                placeholder={d.hasGeminiKey ? '••••••••  (değiştirmek için yeni anahtar)' : 'AIza…'}
+                className={kinput}
+              />
+            </Field>
+            <Field label="Gemini modeli" hint="Örn. gemini-2.5-flash (ucuz, hızlı) ya da gemini-2.5-pro (daha güçlü).">
+              <input value={gmodel} onChange={(e) => setGmodel(e.target.value.trim())} className={kinput} />
+            </Field>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field
               label="Günlük harcama sınırı (USD)"
-              hint="Aşılınca yapay zekâ özellikleri ertesi güne kadar &quot;kapasite doldu&quot; der. Anthropic konsolunda da aylık sınır koymanı öneririz."
+              hint="Aşılınca yapay zekâ özellikleri ertesi güne kadar &quot;kapasite doldu&quot; der. Anthropic / Google konsolunda da aylık sınır koymanı öneririz."
             >
               <input inputMode="decimal" value={budget} onChange={(e) => setBudget(e.target.value)} className={kinput} />
             </Field>
