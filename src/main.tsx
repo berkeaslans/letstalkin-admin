@@ -41,6 +41,8 @@ const Stickers = page(() => import('@/pages/Economy'), 'Stickers');
 const FeedbackInbox = page(() => import('@/pages/Feedback'), 'FeedbackInbox');
 const Flags = page(() => import('@/pages/Flags'), 'Flags');
 const Ai = page(() => import('@/pages/Ai'), 'Ai');
+const Daily = page(() => import('@/pages/Daily'), 'Daily');
+const Community = page(() => import('@/pages/Community'), 'Community');
 const LiveFeed = page(() => import('@/pages/Live'), 'LiveFeed');
 const LiveNow = page(() => import('@/pages/Live'), 'LiveNow');
 const Content = page(() => import('@/pages/Moderation'), 'Content');
@@ -84,6 +86,8 @@ const PAGES: Record<string, ComponentType> = {
   '/yayin/hesaplar': PublishAccounts,
   '/katalog': Shows,
   '/katalog/vitrin': Showcase,
+  '/katalog/dizidle': Daily,
+  '/moderasyon/topluluk': Community,
   '/yaklasanlar': Events,
   '/yaklasanlar/tahminler': Predictions,
   '/yaklasanlar/teoriler': Theories,

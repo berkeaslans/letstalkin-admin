@@ -129,6 +129,27 @@ export interface AdminRecap {
   author: { id: string; username: string } | null;
   createdAt: string;
 }
+export interface DailyRow {
+  day: string;
+  number: number;
+  key: string | null;
+  title: string | null;
+  posterUrl: string | null;
+  manual: boolean;
+  plays: number;
+  wins: number;
+}
+export type CommunityKind = 'lists' | 'tierlists' | 'clubs';
+export interface CommunityItem {
+  id: string;
+  title: string;
+  detail: string | null;
+  showTitle: string | null;
+  owner: string | null;
+  count: number;
+  isPublic: boolean;
+  createdAt: string;
+}
 export interface AiSettings {
   hasKey: boolean;
   keySource: 'panel' | 'env' | null;
@@ -402,6 +423,11 @@ export const adminApi = {
   googleStatus: () => api.get<GoogleStatus>('/admin/google/status'),
   googleKeys: () => api.get<GoogleKeysResponse>('/admin/google/keys'),
   aiSettings: () => api.get<AiSettings>('/admin/ai/settings'),
+  daily: () => api.get<{ today: string; days: DailyRow[] }>('/admin/daily'),
+  setDaily: (day: string, showTmdbId: string) => api.put<{ ok: boolean }>(`/admin/daily/${day}`, { showTmdbId }),
+  autoDaily: (day: string) => request<{ ok: boolean }>(`/admin/daily/${day}`, { method: 'DELETE' }),
+  community: (kind: CommunityKind, q?: string) => api.get<CommunityItem[]>(`/admin/community/${kind}`, { q }),
+  deleteCommunity: (kind: CommunityKind, id: string) => request<{ ok: boolean }>(`/admin/community/${kind}/${id}`, { method: 'DELETE' }),
   saveAiSettings: (body: { anthropicApiKey?: string; dailyBudgetUsd?: number; userDailyLimit?: number }) =>
     api.put<AiSettings>('/admin/ai/settings', body),
   saveGoogleKeys: (body: GoogleKeysPatch) => api.put<GoogleKeysResponse>('/admin/google/keys', body),

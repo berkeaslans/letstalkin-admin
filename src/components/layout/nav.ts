@@ -47,6 +47,7 @@ export const NAV: NavGroup[] = [
       { to: '/moderasyon', label: 'Şikayetler', desc: 'Topluluk bildirimleri', count: 'openReports' },
       { to: '/moderasyon/icerik', label: 'İçerik', desc: 'Gönderi ve yorum arama, kaldırma, geri alma' },
       { to: '/moderasyon/odalar', label: 'Odalar', desc: 'Sohbet odaları, üyeler, mesajlar' },
+      { to: '/moderasyon/topluluk', label: 'Topluluk içerikleri', desc: 'Listeler, karakter sıralamaları, izleme kulüpleri' },
       { to: '/moderasyon/eslesme', label: 'Eşleşme', desc: 'Şikayetli ve yaşı tutarsız profiller' },
       { to: '/moderasyon/kurallar', label: 'Kurallar', desc: 'Kara liste ve otomatik gizleme eşiği' },
       { to: '/moderasyon/ozet', label: 'Özet', desc: 'Şikayet ve karar istatistikleri' },
@@ -100,6 +101,7 @@ export const NAV: NavGroup[] = [
     subs: [
       { to: '/katalog', label: 'Yapımlar', desc: 'Uygulamada konuşulan diziler ve filmler' },
       { to: '/katalog/vitrin', label: 'Vitrin', desc: 'Ana sayfada öne çıkan yapımlar ve sırası' },
+      { to: '/katalog/dizidle', label: 'Günlük oyun', desc: 'Dizidle: bugünün ve sonraki günlerin dizisi, oynayan/bilen sayıları' },
     ],
   },
   {

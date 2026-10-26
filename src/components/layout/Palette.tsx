@@ -54,6 +54,8 @@ function commands(isAdmin: boolean): Row[] {
     ['Ekip', '/kullanicilar/ekip', 'admin_panel_settings'],
     ['Yapımlar', '/katalog', 'theaters'],
     ['Vitrin', '/katalog/vitrin', 'theaters'],
+    ['Katalog · günlük oyun (Dizidle)', '/katalog/dizidle', 'quiz'],
+    ['Moderasyon · topluluk içerikleri', '/moderasyon/topluluk', 'groups'],
     ['Yaklaşanlar · etkinlikler', '/yaklasanlar', 'schedule'],
     ['Yaklaşanlar · tahminler', '/yaklasanlar/tahminler', 'how_to_vote'],
     ['Yaklaşanlar · teoriler', '/yaklasanlar/teoriler', 'lightbulb'],
