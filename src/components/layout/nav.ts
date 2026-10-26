@@ -158,6 +158,7 @@ export const NAV: NavGroup[] = [
     subs: [
       { to: '/sistem', label: 'Ayarlar', desc: 'Kayıt, bakım modu, asgari sürüm, ödüller, eşikler', admin: true },
       { to: '/sistem/bayraklar', label: 'Özellik bayrakları', desc: 'Yeniden başlatmadan aç / kapat', admin: true },
+      { to: '/sistem/yapay-zeka', label: 'Yapay zekâ', desc: 'Claude anahtarı, günlük harcama sınırı, kullanıcı hakkı', admin: true },
       { to: '/sistem/durum', label: 'Durum', desc: 'Servisler, kuyruklar, bakım işleri', admin: true },
       { to: '/sistem/denetim', label: 'Denetim kaydı', desc: 'Kim, ne zaman, ne yaptı', admin: true },
     ],

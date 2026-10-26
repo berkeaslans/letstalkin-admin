@@ -75,6 +75,7 @@ function commands(isAdmin: boolean): Row[] {
     ['Google · Analytics, Search Console, AdSense', '/analiz/google', 'monitoring'],
     ['Sistem ayarları', '/sistem', 'settings'],
     ['Özellik bayrakları', '/sistem/bayraklar', 'settings'],
+    ['Sistem · yapay zekâ', '/sistem/yapay-zeka', 'auto_awesome'],
     ['Servis durumu', '/sistem/durum', 'monitoring'],
     ['Denetim kaydı', '/sistem/denetim', 'history'],
   ];

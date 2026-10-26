@@ -40,6 +40,7 @@ const StickerPage = page(() => import('@/pages/Economy'), 'StickerPage');
 const Stickers = page(() => import('@/pages/Economy'), 'Stickers');
 const FeedbackInbox = page(() => import('@/pages/Feedback'), 'FeedbackInbox');
 const Flags = page(() => import('@/pages/Flags'), 'Flags');
+const Ai = page(() => import('@/pages/Ai'), 'Ai');
 const LiveFeed = page(() => import('@/pages/Live'), 'LiveFeed');
 const LiveNow = page(() => import('@/pages/Live'), 'LiveNow');
 const Content = page(() => import('@/pages/Moderation'), 'Content');
@@ -97,6 +98,7 @@ const PAGES: Record<string, ComponentType> = {
   '/analiz/google': GooglePage,
   '/sistem': Settings,
   '/sistem/bayraklar': Flags,
+  '/sistem/yapay-zeka': Ai,
   '/sistem/durum': Status,
   '/sistem/denetim': Audit,
 };

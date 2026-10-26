@@ -129,6 +129,13 @@ export interface AdminRecap {
   author: { id: string; username: string } | null;
   createdAt: string;
 }
+export interface AiSettings {
+  hasKey: boolean;
+  keySource: 'panel' | 'env' | null;
+  dailyBudgetUsd: number;
+  userDailyLimit: number;
+  spentTodayUsd: number;
+}
 export interface PredictionBody {
   question: string;
   options: string[];
@@ -394,6 +401,9 @@ export const adminApi = {
   analytics: (days: number) => api.get<Analytics>('/admin/analytics/overview', { days }),
   googleStatus: () => api.get<GoogleStatus>('/admin/google/status'),
   googleKeys: () => api.get<GoogleKeysResponse>('/admin/google/keys'),
+  aiSettings: () => api.get<AiSettings>('/admin/ai/settings'),
+  saveAiSettings: (body: { anthropicApiKey?: string; dailyBudgetUsd?: number; userDailyLimit?: number }) =>
+    api.put<AiSettings>('/admin/ai/settings', body),
   saveGoogleKeys: (body: GoogleKeysPatch) => api.put<GoogleKeysResponse>('/admin/google/keys', body),
   googleAnalytics: (days: number) => api.get<GaReport>('/admin/google/analytics', { days }),
   googleSearch: (days: number) => api.get<ScReport>('/admin/google/search', { days }),
