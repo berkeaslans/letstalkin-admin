@@ -1,5 +1,5 @@
-// Sistem · Yapay zekâ: Claude anahtarı, günlük harcama sınırı ve kullanıcı başı günlük hak.
-// Anahtar yalnız sunucuda kalır; panel geri okumaz, yalnız "kayıtlı" olduğunu gösterir.
+// Sistem · Yapay zekâ: sağlayıcı (Claude ya da Gemini), anahtarlar, günlük harcama sınırı ve
+// kullanıcı başı günlük hak. Anahtarlar yalnız sunucuda kalır; panel geri okumaz, yalnız "kayıtlı" olduğunu gösterir.
 // Özellikleri tek tek açıp kapatmak için Sistem → Özellik bayrakları.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useEffect, useState } from 'react';
@@ -26,11 +26,16 @@ export function Ai() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ['admin', 'ai'], queryFn: adminApi.aiSettings });
   const [key, setKey] = useState('');
+  const [gkey, setGkey] = useState('');
+  const [gmodel, setGmodel] = useState('');
+  const [provider, setProvider] = useState<'claude' | 'gemini'>('claude');
   const [budget, setBudget] = useState('');
   const [limit, setLimit] = useState('');
   useEffect(() => {
     if (q.data) {
       setBudget(String(q.data.dailyBudgetUsd));
+      setProvider(q.data.provider);
+      setGmodel(q.data.geminiModel);
       setLimit(String(q.data.userDailyLimit));
     }
   }, [q.data]);
@@ -39,6 +44,7 @@ export function Ai() {
     onSuccess: (d) => {
       qc.setQueryData(['admin', 'ai'], d);
       setKey('');
+      setGkey('');
       toast('Kaydedildi', 'success');
     },
     onError: (e) => toast(errorMessage(e), 'error'),
@@ -67,7 +73,24 @@ export function Ai() {
       <Card title="Ayarlar">
         <div className="flex flex-col gap-4 px-[18px] pb-[18px]">
           <Field
-            label="Anthropic API anahtarı"
+            label="Kullanılacak yapay zekâ"
+            hint="Dizi arkadaşı, spoiler tespiti, özet, arama, asistan ve Ne izlesem gerekçeleri seçilen sağlayıcıyla çalışır."
+          >
+            <div className="flex gap-2">
+              {(['claude', 'gemini'] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setProvider(p)}
+                  className={`h-10 flex-1 rounded-option text-[13.5px] font-semibold ${provider === p ? 'bg-text text-black' : 'bg-elev2 text-sub shadow-[inset_0_0_0_0.5px_var(--color-line2)]'}`}
+                >
+                  {p === 'claude' ? 'Claude (Anthropic)' : 'Gemini (Google)'}
+                </button>
+              ))}
+            </div>
+          </Field>
+          <Field
+            label="Anthropic (Claude) API anahtarı"
             hint={
               <>
                 console.anthropic.com → API Keys. "sk-ant-" ile başlar. Kayıtlı anahtar gösterilmez; değiştirmek için yenisini yaz.{' '}
@@ -101,6 +124,9 @@ export function Ai() {
               busy={save.isPending}
               onClick={() =>
                 save.mutate({
+                  provider,
+                  ...(gmodel ? { geminiModel: gmodel } : {}),
+                  ...(gkey.trim() ? { geminiApiKey: gkey.trim() } : {}),
                   ...(key.trim() ? { anthropicApiKey: key.trim() } : {}),
                   dailyBudgetUsd: Number(budget),
                   userDailyLimit: Math.round(Number(limit)),
@@ -111,7 +137,12 @@ export function Ai() {
             </Button>
             {d.keySource === 'panel' && (
               <Button variant="ghost" busy={save.isPending} onClick={() => save.mutate({ anthropicApiKey: '' })}>
-                Anahtarı sil
+                Claude anahtarını sil
+              </Button>
+            )}
+            {d.hasGeminiKey && (
+              <Button variant="ghost" busy={save.isPending} onClick={() => save.mutate({ geminiApiKey: '', provider: 'claude' })}>
+                Gemini anahtarını sil
               </Button>
             )}
           </div>

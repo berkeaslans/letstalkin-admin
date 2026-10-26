@@ -151,6 +151,9 @@ export interface CommunityItem {
   createdAt: string;
 }
 export interface AiSettings {
+  provider: 'claude' | 'gemini';
+  geminiModel: string;
+  hasGeminiKey: boolean;
   hasKey: boolean;
   keySource: 'panel' | 'env' | null;
   dailyBudgetUsd: number;
@@ -428,8 +431,14 @@ export const adminApi = {
   autoDaily: (day: string) => request<{ ok: boolean }>(`/admin/daily/${day}`, { method: 'DELETE' }),
   community: (kind: CommunityKind, q?: string) => api.get<CommunityItem[]>(`/admin/community/${kind}`, { q }),
   deleteCommunity: (kind: CommunityKind, id: string) => request<{ ok: boolean }>(`/admin/community/${kind}/${id}`, { method: 'DELETE' }),
-  saveAiSettings: (body: { anthropicApiKey?: string; dailyBudgetUsd?: number; userDailyLimit?: number }) =>
-    api.put<AiSettings>('/admin/ai/settings', body),
+  saveAiSettings: (body: {
+    provider?: 'claude' | 'gemini';
+    geminiApiKey?: string;
+    geminiModel?: string;
+    anthropicApiKey?: string;
+    dailyBudgetUsd?: number;
+    userDailyLimit?: number;
+  }) => api.put<AiSettings>('/admin/ai/settings', body),
   saveGoogleKeys: (body: GoogleKeysPatch) => api.put<GoogleKeysResponse>('/admin/google/keys', body),
   googleAnalytics: (days: number) => api.get<GaReport>('/admin/google/analytics', { days }),
   googleSearch: (days: number) => api.get<ScReport>('/admin/google/search', { days }),
