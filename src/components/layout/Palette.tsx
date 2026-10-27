@@ -62,6 +62,7 @@ function commands(isAdmin: boolean): Row[] {
     ['Yaklaşanlar · sezon özetleri', '/yaklasanlar/ozetler', 'summarize'],
     ['Kullanım analizi', '/analiz', 'monitoring'],
     ['Kitle', '/analiz/kitle', 'group'],
+    ['Kayıt kaynakları', '/analiz/kaynaklar', 'trending_up'],
     ['TV ekranı', '/tv', 'tv'],
   ];
   const adminNav: Array<[string, string, IconName]> = [

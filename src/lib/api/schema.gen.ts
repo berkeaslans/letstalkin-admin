@@ -173,6 +173,10 @@ export interface paths {
                                 verification: boolean;
                                 trustedAnalytics: boolean;
                                 aiAssistant: boolean;
+                                aiCompanion: boolean;
+                                aiSpoilerGuard: boolean;
+                                aiSummary: boolean;
+                                aiSearch: boolean;
                                 voiceMessages: boolean;
                                 dmStickers: boolean;
                                 inAppCheckout: boolean;
@@ -430,6 +434,8 @@ export interface paths {
                         accountType?: "person" | "fan";
                         /** @enum {string} */
                         preferredLang?: "tr" | "en" | "es" | "pt" | "de" | "fr" | "it" | "ru" | "ar" | "hi" | "id" | "zh" | "ja" | "ko" | "pl" | "el";
+                        /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform */
+                        attribution?: unknown;
                     };
                 };
             };
@@ -540,7 +546,7 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        refresh: string;
+                        refresh?: string;
                     };
                 };
             };
@@ -584,7 +590,7 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        refresh: string;
+                        refresh?: string;
                     };
                 };
             };
@@ -628,6 +634,8 @@ export interface paths {
                 content: {
                     "application/json": {
                         idToken: string;
+                        /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform */
+                        attribution?: unknown;
                     };
                 };
             };
@@ -685,6 +693,8 @@ export interface paths {
                         idToken: string;
                         nonce?: string;
                         name?: string;
+                        /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform */
+                        attribution?: unknown;
                     };
                 };
             };
@@ -1127,6 +1137,7 @@ export interface paths {
                                     tick: "none" | "yellow" | "blue";
                                     isTrusted: boolean;
                                     followerCount: number;
+                                    followsYou?: boolean;
                                 } & {
                                     [key: string]: unknown;
                                 })[];
@@ -1437,7 +1448,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -1448,10 +1459,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -1503,6 +1536,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -1528,8 +1574,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -1595,7 +1688,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -1606,10 +1699,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -1661,6 +1776,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -1686,8 +1814,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -1716,7 +1891,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -1727,10 +1902,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -1782,6 +1979,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -1807,8 +2017,502 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
+                                context?: {
+                                    /** @enum {string} */
+                                    kind: "reshare" | "like";
+                                    users: {
+                                        username: string;
+                                        displayName: string | null;
+                                    }[];
+                                    count: number;
+                                };
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            nextCursor: string | null;
+                        } & {
+                            [key: string]: unknown;
+                        });
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            /** @enum {string} */
+                            type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            text: string | null;
+                            language?: string;
+                            mediaPaths: unknown;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            episodeTag: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            minute: number | null;
+                            rating: number | null;
+                            quote: string | null;
+                            isSpoiler: boolean;
+                            spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
+                            likeCount: number;
+                            commentCount: number;
+                            shareCount: number;
+                            saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                            video: {
+                                url: string | null;
+                                thumbUrl: string | null;
+                                durationSec: number | null;
+                                width: number | null;
+                                height: number | null;
+                            } | null;
+                            liked: boolean;
+                            saved: boolean;
+                            reshared: boolean;
+                            poll: {
+                                options: {
+                                    index: number;
+                                    label: string;
+                                    voteCount: number;
+                                }[];
+                                myVote: number | null;
+                                /** Format: date-time */
+                                endsAt: string | null;
+                                ended: boolean;
+                                closed: boolean;
+                            } | null;
+                            quoted?: {
+                                id: string;
+                                unavailable: boolean;
+                                /** @enum {string} */
+                                type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author?: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text?: string | null;
+                                quote?: string | null;
+                                rating?: number | null;
+                                mediaPaths?: unknown;
+                                thumbUrl?: string | null;
+                                showTmdbId?: string | null;
+                                showTitle?: string | null;
+                                isSpoiler?: boolean;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                } | null;
+                            } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
+                            context?: {
+                                /** @enum {string} */
+                                kind: "reshare" | "like";
+                                users: {
+                                    username: string;
+                                    displayName: string | null;
+                                }[];
+                                count: number;
+                            };
+                        } & {
+                            [key: string]: unknown;
+                        })[] | ({
+                            items: ({
+                                id: string;
+                                /** @enum {string} */
+                                type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text: string | null;
+                                language?: string;
+                                mediaPaths: unknown;
+                                showTmdbId: string | null;
+                                showTitle: string | null;
+                                episodeTag: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                minute: number | null;
+                                rating: number | null;
+                                quote: string | null;
+                                isSpoiler: boolean;
+                                spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
+                                likeCount: number;
+                                commentCount: number;
+                                shareCount: number;
+                                saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                editedAt: string | null;
+                                video: {
+                                    url: string | null;
+                                    thumbUrl: string | null;
+                                    durationSec: number | null;
+                                    width: number | null;
+                                    height: number | null;
+                                } | null;
+                                liked: boolean;
+                                saved: boolean;
+                                reshared: boolean;
+                                poll: {
+                                    options: {
+                                        index: number;
+                                        label: string;
+                                        voteCount: number;
+                                    }[];
+                                    myVote: number | null;
+                                    /** Format: date-time */
+                                    endsAt: string | null;
+                                    ended: boolean;
+                                    closed: boolean;
+                                } | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    quoted?: {
+                                        id: string;
+                                        unavailable: boolean;
+                                        /** @enum {string} */
+                                        type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                        author?: ({
+                                            id: string;
+                                            username: string;
+                                            displayName: string | null;
+                                            avatarPath: string | null;
+                                            /** @enum {string} */
+                                            tick: "none" | "yellow" | "blue";
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
+                                        text?: string | null;
+                                        quote?: string | null;
+                                        rating?: number | null;
+                                        mediaPaths?: unknown;
+                                        thumbUrl?: string | null;
+                                        showTmdbId?: string | null;
+                                        showTitle?: string | null;
+                                        isSpoiler?: boolean;
+                                        /** Format: date-time */
+                                        createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
+                                    } | null;
+                                } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -1878,7 +2582,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -1889,10 +2593,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -1944,6 +2670,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -1969,8 +2708,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -1999,7 +2785,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -2010,10 +2796,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -2065,6 +2873,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -2090,8 +2911,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -3276,7 +4144,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -3287,10 +4155,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -3342,6 +4232,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -3367,8 +4270,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -3397,7 +4347,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -3408,10 +4358,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -3463,6 +4435,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -3488,8 +4473,504 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
+                                context?: {
+                                    /** @enum {string} */
+                                    kind: "reshare" | "like";
+                                    users: {
+                                        username: string;
+                                        displayName: string | null;
+                                    }[];
+                                    count: number;
+                                };
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            nextCursor: string | null;
+                        } & {
+                            [key: string]: unknown;
+                        });
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{username}/tagged": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            /** @enum {string} */
+                            type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            text: string | null;
+                            language?: string;
+                            mediaPaths: unknown;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            episodeTag: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            minute: number | null;
+                            rating: number | null;
+                            quote: string | null;
+                            isSpoiler: boolean;
+                            spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
+                            likeCount: number;
+                            commentCount: number;
+                            shareCount: number;
+                            saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                            video: {
+                                url: string | null;
+                                thumbUrl: string | null;
+                                durationSec: number | null;
+                                width: number | null;
+                                height: number | null;
+                            } | null;
+                            liked: boolean;
+                            saved: boolean;
+                            reshared: boolean;
+                            poll: {
+                                options: {
+                                    index: number;
+                                    label: string;
+                                    voteCount: number;
+                                }[];
+                                myVote: number | null;
+                                /** Format: date-time */
+                                endsAt: string | null;
+                                ended: boolean;
+                                closed: boolean;
+                            } | null;
+                            quoted?: {
+                                id: string;
+                                unavailable: boolean;
+                                /** @enum {string} */
+                                type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author?: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text?: string | null;
+                                quote?: string | null;
+                                rating?: number | null;
+                                mediaPaths?: unknown;
+                                thumbUrl?: string | null;
+                                showTmdbId?: string | null;
+                                showTitle?: string | null;
+                                isSpoiler?: boolean;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                } | null;
+                            } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
+                            context?: {
+                                /** @enum {string} */
+                                kind: "reshare" | "like";
+                                users: {
+                                    username: string;
+                                    displayName: string | null;
+                                }[];
+                                count: number;
+                            };
+                        } & {
+                            [key: string]: unknown;
+                        })[] | ({
+                            items: ({
+                                id: string;
+                                /** @enum {string} */
+                                type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text: string | null;
+                                language?: string;
+                                mediaPaths: unknown;
+                                showTmdbId: string | null;
+                                showTitle: string | null;
+                                episodeTag: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                minute: number | null;
+                                rating: number | null;
+                                quote: string | null;
+                                isSpoiler: boolean;
+                                spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
+                                likeCount: number;
+                                commentCount: number;
+                                shareCount: number;
+                                saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                editedAt: string | null;
+                                video: {
+                                    url: string | null;
+                                    thumbUrl: string | null;
+                                    durationSec: number | null;
+                                    width: number | null;
+                                    height: number | null;
+                                } | null;
+                                liked: boolean;
+                                saved: boolean;
+                                reshared: boolean;
+                                poll: {
+                                    options: {
+                                        index: number;
+                                        label: string;
+                                        voteCount: number;
+                                    }[];
+                                    myVote: number | null;
+                                    /** Format: date-time */
+                                    endsAt: string | null;
+                                    ended: boolean;
+                                    closed: boolean;
+                                } | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    quoted?: {
+                                        id: string;
+                                        unavailable: boolean;
+                                        /** @enum {string} */
+                                        type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                        author?: ({
+                                            id: string;
+                                            username: string;
+                                            displayName: string | null;
+                                            avatarPath: string | null;
+                                            /** @enum {string} */
+                                            tick: "none" | "yellow" | "blue";
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
+                                        text?: string | null;
+                                        quote?: string | null;
+                                        rating?: number | null;
+                                        mediaPaths?: unknown;
+                                        thumbUrl?: string | null;
+                                        showTmdbId?: string | null;
+                                        showTitle?: string | null;
+                                        isSpoiler?: boolean;
+                                        /** Format: date-time */
+                                        createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
+                                    } | null;
+                                } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -3561,7 +5042,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -3572,10 +5053,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -3627,6 +5130,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -3652,8 +5168,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -3682,7 +5245,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -3693,10 +5256,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -3748,6 +5333,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -3773,8 +5371,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -3843,6 +5488,107 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{username}/showcase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            visible: boolean;
+                            episodes: number;
+                            hours: number;
+                            shows: number;
+                            movies: number;
+                            estimated: boolean;
+                            nowWatching: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                percent: number | null;
+                            } | null;
+                            yearEpisodes: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{username}/talked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                posts: number;
+                                /** @enum {string|null} */
+                                status: "watched" | "watching" | "planned" | "dropped" | null;
+                                season: number | null;
+                                percent: number | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{username}/reshares": {
         parameters: {
             query?: never;
@@ -3886,7 +5632,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -3897,10 +5643,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -3952,6 +5720,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -3977,8 +5758,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -4007,7 +5835,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -4018,10 +5846,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -4073,6 +5923,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -4098,8 +5961,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -4317,6 +6227,7 @@ export interface paths {
                                 likes: boolean;
                                 favorites: boolean;
                                 watched: boolean;
+                                tabs?: string[];
                             };
                             pages: ({
                                 /** @enum {string} */
@@ -4812,6 +6723,80 @@ export interface paths {
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shows/{key}/rating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            mine: number | null;
+                            average: number | null;
+                            count: number;
+                            distribution: number[];
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        value: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            mine: number | null;
+                            average: number | null;
+                            count: number;
+                            distribution: number[];
+                        };
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
@@ -5380,7 +7365,7 @@ export interface paths {
                     cursor?: string;
                     limit?: number;
                     language?: string;
-                    allLanguages?: boolean | ("true" | "false" | "1" | "0");
+                    allLanguages?: boolean | ("0" | "1" | "true" | "false");
                 };
                 header?: never;
                 path?: never;
@@ -5411,7 +7396,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -5422,10 +7407,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -5477,6 +7484,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -5502,8 +7522,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -5532,6 +7599,296 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/posts/feed/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: ({
+                                id: string;
+                                /** @enum {string} */
+                                type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text: string | null;
+                                language?: string;
+                                mediaPaths: unknown;
+                                showTmdbId: string | null;
+                                showTitle: string | null;
+                                episodeTag: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                minute: number | null;
+                                rating: number | null;
+                                quote: string | null;
+                                isSpoiler: boolean;
+                                spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
+                                likeCount: number;
+                                commentCount: number;
+                                shareCount: number;
+                                saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                editedAt: string | null;
+                                video: {
+                                    url: string | null;
+                                    thumbUrl: string | null;
+                                    durationSec: number | null;
+                                    width: number | null;
+                                    height: number | null;
+                                } | null;
+                                liked: boolean;
+                                saved: boolean;
+                                reshared: boolean;
+                                poll: {
+                                    options: {
+                                        index: number;
+                                        label: string;
+                                        voteCount: number;
+                                    }[];
+                                    myVote: number | null;
+                                    /** Format: date-time */
+                                    endsAt: string | null;
+                                    ended: boolean;
+                                    closed: boolean;
+                                } | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    quoted?: {
+                                        id: string;
+                                        unavailable: boolean;
+                                        /** @enum {string} */
+                                        type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                        author?: ({
+                                            id: string;
+                                            username: string;
+                                            displayName: string | null;
+                                            avatarPath: string | null;
+                                            /** @enum {string} */
+                                            tick: "none" | "yellow" | "blue";
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
+                                        text?: string | null;
+                                        quote?: string | null;
+                                        rating?: number | null;
+                                        mediaPaths?: unknown;
+                                        thumbUrl?: string | null;
+                                        showTmdbId?: string | null;
+                                        showTitle?: string | null;
+                                        isSpoiler?: boolean;
+                                        /** Format: date-time */
+                                        createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
+                                    } | null;
+                                } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
+                                context?: {
+                                    /** @enum {string} */
+                                    kind: "reshare" | "like";
+                                    users: {
+                                        username: string;
+                                        displayName: string | null;
+                                    }[];
+                                    count: number;
+                                };
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            nextCursor: string | null;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/feed/today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                showTmdbId: string;
+                                name: string;
+                                posterPath: string | null;
+                                /** @enum {string} */
+                                when: "today" | "tomorrow";
+                                isFinale: boolean;
+                                discussionCount: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/posts/feed/new": {
         parameters: {
             query?: never;
@@ -5542,9 +7899,9 @@ export interface paths {
         get: {
             parameters: {
                 query: {
-                    since: string;
+                    since: unknown;
                     language?: string;
-                    allLanguages?: boolean | ("true" | "false" | "1" | "0");
+                    allLanguages?: boolean | ("0" | "1" | "true" | "false");
                 };
                 header?: never;
                 path?: never;
@@ -5620,7 +7977,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -5631,10 +7988,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -5686,6 +8065,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -5711,8 +8103,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -5784,7 +8223,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -5795,10 +8234,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -5850,6 +8311,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -5875,8 +8349,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -5919,7 +8440,7 @@ export interface paths {
                     limit?: number;
                     season?: number;
                     episode?: number;
-                    type?: (unknown | string) & (unknown | ("post" | "review" | "poll" | "quote" | "clip")[]);
+                    type?: string;
                     sort?: "new" | "top";
                 };
                 header?: never;
@@ -5953,7 +8474,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -5964,10 +8485,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -6019,6 +8562,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -6044,8 +8600,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -6226,6 +8829,21 @@ export interface paths {
                         videoAssetId?: string;
                         /** Format: uuid */
                         quotedPostId?: string;
+                        embedUrl?: string;
+                        tags?: {
+                            /** Format: uuid */
+                            userId: string;
+                            mediaIndex?: number;
+                            x?: number | null;
+                            y?: number | null;
+                        }[];
+                        spoilerRegions?: {
+                            mediaIndex: number;
+                            x: number;
+                            y: number;
+                            w: number;
+                            h: number;
+                        }[];
                     };
                 };
             };
@@ -6252,7 +8870,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -6263,10 +8881,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -6318,6 +8958,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -6343,8 +8996,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -6361,6 +9061,47 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{id}/why": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            reasons: {
+                                [key: string]: unknown;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6407,7 +9148,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -6418,10 +9159,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -6473,6 +9236,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -6498,8 +9274,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -6563,6 +9386,13 @@ export interface paths {
                         rating?: number;
                         isSpoiler?: boolean;
                         spoilerNote?: string | null;
+                        spoilerRegions?: {
+                            mediaIndex: number;
+                            x: number;
+                            y: number;
+                            w: number;
+                            h: number;
+                        }[] | null;
                     };
                 };
             };
@@ -6589,7 +9419,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -6600,10 +9430,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -6655,6 +9507,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -6680,8 +9545,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -6691,6 +9603,626 @@ export interface paths {
                                 }[];
                                 count: number;
                             };
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/posts/{id}/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        pinned?: boolean;
+                        archived?: boolean;
+                        hideLikeCount?: boolean;
+                        commentsOff?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            text: string | null;
+                            language?: string;
+                            mediaPaths: unknown;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            episodeTag: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            minute: number | null;
+                            rating: number | null;
+                            quote: string | null;
+                            isSpoiler: boolean;
+                            spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
+                            likeCount: number;
+                            commentCount: number;
+                            shareCount: number;
+                            saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                            video: {
+                                url: string | null;
+                                thumbUrl: string | null;
+                                durationSec: number | null;
+                                width: number | null;
+                                height: number | null;
+                            } | null;
+                            liked: boolean;
+                            saved: boolean;
+                            reshared: boolean;
+                            poll: {
+                                options: {
+                                    index: number;
+                                    label: string;
+                                    voteCount: number;
+                                }[];
+                                myVote: number | null;
+                                /** Format: date-time */
+                                endsAt: string | null;
+                                ended: boolean;
+                                closed: boolean;
+                            } | null;
+                            quoted?: {
+                                id: string;
+                                unavailable: boolean;
+                                /** @enum {string} */
+                                type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author?: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text?: string | null;
+                                quote?: string | null;
+                                rating?: number | null;
+                                mediaPaths?: unknown;
+                                thumbUrl?: string | null;
+                                showTmdbId?: string | null;
+                                showTitle?: string | null;
+                                isSpoiler?: boolean;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                } | null;
+                            } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
+                            context?: {
+                                /** @enum {string} */
+                                kind: "reshare" | "like";
+                                users: {
+                                    username: string;
+                                    displayName: string | null;
+                                }[];
+                                count: number;
+                            };
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/posts/tag-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            username: string;
+                            displayName: string | null;
+                            avatarPath: string | null;
+                            /** @enum {string} */
+                            tick: "none" | "yellow" | "blue";
+                            canTag: boolean;
+                            reason: string | null;
+                        } & {
+                            [key: string]: unknown;
+                        })[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        tags: {
+                            /** Format: uuid */
+                            userId: string;
+                            mediaIndex?: number;
+                            x?: number | null;
+                            y?: number | null;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            type: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            text: string | null;
+                            language?: string;
+                            mediaPaths: unknown;
+                            showTmdbId: string | null;
+                            showTitle: string | null;
+                            episodeTag: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            minute: number | null;
+                            rating: number | null;
+                            quote: string | null;
+                            isSpoiler: boolean;
+                            spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
+                            likeCount: number;
+                            commentCount: number;
+                            shareCount: number;
+                            saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                            video: {
+                                url: string | null;
+                                thumbUrl: string | null;
+                                durationSec: number | null;
+                                width: number | null;
+                                height: number | null;
+                            } | null;
+                            liked: boolean;
+                            saved: boolean;
+                            reshared: boolean;
+                            poll: {
+                                options: {
+                                    index: number;
+                                    label: string;
+                                    voteCount: number;
+                                }[];
+                                myVote: number | null;
+                                /** Format: date-time */
+                                endsAt: string | null;
+                                ended: boolean;
+                                closed: boolean;
+                            } | null;
+                            quoted?: {
+                                id: string;
+                                unavailable: boolean;
+                                /** @enum {string} */
+                                type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                author?: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                text?: string | null;
+                                quote?: string | null;
+                                rating?: number | null;
+                                mediaPaths?: unknown;
+                                thumbUrl?: string | null;
+                                showTmdbId?: string | null;
+                                showTitle?: string | null;
+                                isSpoiler?: boolean;
+                                /** Format: date-time */
+                                createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                quoted?: {
+                                    id: string;
+                                    unavailable: boolean;
+                                    /** @enum {string} */
+                                    type?: "post" | "review" | "poll" | "quote" | "story" | "clip";
+                                    author?: ({
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    text?: string | null;
+                                    quote?: string | null;
+                                    rating?: number | null;
+                                    mediaPaths?: unknown;
+                                    thumbUrl?: string | null;
+                                    showTmdbId?: string | null;
+                                    showTitle?: string | null;
+                                    isSpoiler?: boolean;
+                                    /** Format: date-time */
+                                    createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                } | null;
+                            } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
+                            context?: {
+                                /** @enum {string} */
+                                kind: "reshare" | "like";
+                                users: {
+                                    username: string;
+                                    displayName: string | null;
+                                }[];
+                                count: number;
+                            };
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{id}/tags/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        hidden: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                            hidden: boolean;
                         } & {
                             [key: string]: unknown;
                         };
@@ -6871,6 +10403,49 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{id}/play": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                            counted: boolean;
+                            playCount: number;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -7061,7 +10636,7 @@ export interface paths {
                             }) | null;
                             text: string | null;
                             language?: string;
-                            mediaPaths?: unknown;
+                            mediaPaths: unknown;
                             showTmdbId: string | null;
                             showTitle: string | null;
                             episodeTag: string | null;
@@ -7072,10 +10647,32 @@ export interface paths {
                             quote: string | null;
                             isSpoiler: boolean;
                             spoilerNote: string | null;
+                            talk?: {
+                                people: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                                top: {
+                                    username: string;
+                                    text: string | null;
+                                    spoiler: boolean;
+                                } | null;
+                            } | null;
+                            spoilerRegions?: {
+                                mediaIndex: number;
+                                x: number;
+                                y: number;
+                                w: number;
+                                h: number;
+                            }[] | null;
                             likeCount: number;
                             commentCount: number;
                             shareCount: number;
                             saveCount: number;
+                            viewCount?: number;
+                            playCount?: number;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -7127,6 +10724,19 @@ export interface paths {
                                 isSpoiler?: boolean;
                                 /** Format: date-time */
                                 createdAt?: string;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
                                 quoted?: {
                                     id: string;
                                     unavailable: boolean;
@@ -7152,8 +10762,55 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                 } | null;
                             } | null;
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            tags?: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                mediaIndex: number;
+                                x: number | null;
+                                y: number | null;
+                            }[];
+                            pinned?: boolean;
+                            archived?: boolean;
+                            hideLikeCount?: boolean;
+                            commentsOff?: boolean;
+                            likesHidden?: boolean;
+                            myTagHidden?: boolean | null;
                             context?: {
                                 /** @enum {string} */
                                 kind: "reshare" | "like";
@@ -7325,6 +10982,7 @@ export interface paths {
                     cursor?: string;
                     limit?: number;
                     sort?: "new" | "old" | "liked";
+                    filter?: "nospoiler" | "following";
                 };
                 header?: never;
                 path: {
@@ -7348,9 +11006,13 @@ export interface paths {
                                 isSpoiler: boolean;
                                 parentId: string | null;
                                 likeCount: number;
+                                replyCount?: number;
+                                viewCount?: number;
                                 liked: boolean;
                                 /** Format: date-time */
                                 createdAt: string;
+                                /** Format: date-time */
+                                editedAt?: string | null;
                                 author: ({
                                     id: string;
                                     username: string;
@@ -7463,7 +11125,39 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        patch?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    commentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            text: string;
+                            /** Format: date-time */
+                            editedAt: string | null;
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/v1/posts/comments/{commentId}/like": {
@@ -7595,7 +11289,6 @@ export interface paths {
                             } | {
                                 /** @enum {string} */
                                 kind: "music";
-                                /** Format: uri */
                                 url: string;
                                 title?: string;
                                 x: number;
@@ -7770,7 +11463,6 @@ export interface paths {
                                     } | {
                                         /** @enum {string} */
                                         kind: "music";
-                                        /** Format: uri */
                                         url: string;
                                         title?: string;
                                         x: number;
@@ -7855,7 +11547,7 @@ export interface paths {
                                     }) | null;
                                     text: string | null;
                                     language?: string;
-                                    mediaPaths?: unknown;
+                                    mediaPaths: unknown;
                                     showTmdbId: string | null;
                                     showTitle: string | null;
                                     episodeTag: string | null;
@@ -7866,10 +11558,32 @@ export interface paths {
                                     quote: string | null;
                                     isSpoiler: boolean;
                                     spoilerNote: string | null;
+                                    talk?: {
+                                        people: number;
+                                        faces: {
+                                            username: string;
+                                            displayName: string | null;
+                                            avatarPath: string | null;
+                                        }[];
+                                        top: {
+                                            username: string;
+                                            text: string | null;
+                                            spoiler: boolean;
+                                        } | null;
+                                    } | null;
+                                    spoilerRegions?: {
+                                        mediaIndex: number;
+                                        x: number;
+                                        y: number;
+                                        w: number;
+                                        h: number;
+                                    }[] | null;
                                     likeCount: number;
                                     commentCount: number;
                                     shareCount: number;
                                     saveCount: number;
+                                    viewCount?: number;
+                                    playCount?: number;
                                     /** Format: date-time */
                                     createdAt: string;
                                     /** Format: date-time */
@@ -7921,6 +11635,19 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                         quoted?: {
                                             id: string;
                                             unavailable: boolean;
@@ -7946,8 +11673,55 @@ export interface paths {
                                             isSpoiler?: boolean;
                                             /** Format: date-time */
                                             createdAt?: string;
+                                            embed?: ({
+                                                /** @enum {string} */
+                                                provider: "youtube" | "x" | "instagram";
+                                                /** @enum {string} */
+                                                kind: "video" | "short" | "post" | "reel";
+                                                id: string;
+                                                url: string;
+                                                start?: number;
+                                                title?: string;
+                                                author?: string;
+                                            } & {
+                                                [key: string]: unknown;
+                                            }) | null;
                                         } | null;
                                     } | null;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
+                                    tags?: {
+                                        user: {
+                                            id: string;
+                                            username: string;
+                                            displayName: string | null;
+                                            avatarPath: string | null;
+                                            /** @enum {string} */
+                                            tick: "none" | "yellow" | "blue";
+                                        } & {
+                                            [key: string]: unknown;
+                                        };
+                                        mediaIndex: number;
+                                        x: number | null;
+                                        y: number | null;
+                                    }[];
+                                    pinned?: boolean;
+                                    archived?: boolean;
+                                    hideLikeCount?: boolean;
+                                    commentsOff?: boolean;
+                                    likesHidden?: boolean;
+                                    myTagHidden?: boolean | null;
                                     context?: {
                                         /** @enum {string} */
                                         kind: "reshare" | "like";
@@ -8419,9 +12193,9 @@ export interface paths {
                     cursor?: string;
                     limit?: number;
                     language?: string;
-                    allLanguages?: boolean | ("true" | "false" | "1" | "0");
+                    allLanguages?: boolean | ("0" | "1" | "true" | "false");
                     /** @description ESKİDİ — yerine GET /rooms/mine */
-                    mine?: boolean | ("true" | "false" | "1" | "0");
+                    mine?: boolean | ("0" | "1" | "true" | "false");
                     sort?: "active" | "new";
                 };
                 header?: never;
@@ -8525,7 +12299,7 @@ export interface paths {
                             messageCount: number;
                             spoilerRule: string | null;
                             summaryEnabled: boolean;
-                            summary?: unknown;
+                            summary: unknown;
                             warned15: boolean;
                             /** Format: date-time */
                             closesAt: string | null;
@@ -8676,9 +12450,9 @@ export interface paths {
                     cursor?: string;
                     limit?: number;
                     language?: string;
-                    allLanguages?: boolean | ("true" | "false" | "1" | "0");
+                    allLanguages?: boolean | ("0" | "1" | "true" | "false");
                     /** @description ESKİDİ — yerine GET /rooms/mine */
-                    mine?: boolean | ("true" | "false" | "1" | "0");
+                    mine?: boolean | ("0" | "1" | "true" | "false");
                     sort?: "active" | "new";
                 };
                 header?: never;
@@ -8781,7 +12555,7 @@ export interface paths {
                             messageCount: number;
                             spoilerRule: string | null;
                             summaryEnabled: boolean;
-                            summary?: unknown;
+                            summary: unknown;
                             warned15: boolean;
                             /** Format: date-time */
                             closesAt: string | null;
@@ -8885,7 +12659,7 @@ export interface paths {
                             messageCount: number;
                             spoilerRule: string | null;
                             summaryEnabled: boolean;
-                            summary?: unknown;
+                            summary: unknown;
                             warned15: boolean;
                             /** Format: date-time */
                             closesAt: string | null;
@@ -9678,7 +13452,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             name: string;
-                            summary?: unknown;
+                            summary: unknown;
                             messageCount: number;
                             memberCount?: number;
                             /** Format: date-time */
@@ -9733,6 +13507,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dm/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            mine: {
+                                text: string;
+                                /** Format: date-time */
+                                expiresAt: string;
+                            } | null;
+                            items: {
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                text: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            mine: {
+                                text: string;
+                                /** Format: date-time */
+                                expiresAt: string;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dm/threads": {
         parameters: {
             query?: never;
@@ -9777,7 +13638,7 @@ export interface paths {
                                     threadId: string;
                                     senderId: string;
                                     /** @enum {string} */
-                                    kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost";
+                                    kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost" | "system";
                                     text: string | null;
                                     mediaPath: string | null;
                                     stickerId: string | null;
@@ -9786,10 +13647,13 @@ export interface paths {
                                     sharedTitle: string | null;
                                     sharedSubtitle: string | null;
                                     sharedRoute: string | null;
-                                    replyTo?: unknown;
+                                    replyTo: unknown;
                                     reaction: string | null;
                                     /** Format: date-time */
                                     readAt: string | null;
+                                    ephemeral?: boolean;
+                                    /** Format: date-time */
+                                    editedAt?: string | null;
                                     /** Format: date-time */
                                     createdAt: string;
                                 } & {
@@ -9797,6 +13661,21 @@ export interface paths {
                                 }) | null;
                                 unread: number;
                                 online: boolean;
+                                muted?: boolean;
+                                isGroup?: boolean;
+                                title?: string | null;
+                                members?: ({
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } & {
+                                    [key: string]: unknown;
+                                })[];
+                                memberCount?: number;
+                                lastSender?: string | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -9885,7 +13764,7 @@ export interface paths {
                                 threadId: string;
                                 senderId: string;
                                 /** @enum {string} */
-                                kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost";
+                                kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost" | "system";
                                 text: string | null;
                                 mediaPath: string | null;
                                 stickerId: string | null;
@@ -9894,10 +13773,13 @@ export interface paths {
                                 sharedTitle: string | null;
                                 sharedSubtitle: string | null;
                                 sharedRoute: string | null;
-                                replyTo?: unknown;
+                                replyTo: unknown;
                                 reaction: string | null;
                                 /** Format: date-time */
                                 readAt: string | null;
+                                ephemeral?: boolean;
+                                /** Format: date-time */
+                                editedAt?: string | null;
                                 /** Format: date-time */
                                 createdAt: string;
                             } & {
@@ -9957,7 +13839,7 @@ export interface paths {
                             threadId: string;
                             senderId: string;
                             /** @enum {string} */
-                            kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost";
+                            kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost" | "system";
                             text: string | null;
                             mediaPath: string | null;
                             stickerId: string | null;
@@ -9966,10 +13848,13 @@ export interface paths {
                             sharedTitle: string | null;
                             sharedSubtitle: string | null;
                             sharedRoute: string | null;
-                            replyTo?: unknown;
+                            replyTo: unknown;
                             reaction: string | null;
                             /** Format: date-time */
                             readAt: string | null;
+                            ephemeral?: boolean;
+                            /** Format: date-time */
+                            editedAt?: string | null;
                             /** Format: date-time */
                             createdAt: string;
                         } & {
@@ -10067,6 +13952,53 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dm/threads/{id}/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                text: string | null;
+                                senderId: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dm/threads/{id}/prefs": {
         parameters: {
             query?: never;
@@ -10094,6 +14026,12 @@ export interface paths {
                         "application/json": {
                             muted: boolean;
                             theme: string | null;
+                            spoilerGuard: boolean;
+                            readReceipts: boolean;
+                            nicknames: {
+                                [key: string]: string;
+                            };
+                            disappearing: boolean;
                         } & {
                             [key: string]: unknown;
                         };
@@ -10120,6 +14058,13 @@ export interface paths {
                     "application/json": {
                         muted?: boolean;
                         theme?: string | null;
+                        spoilerGuard?: boolean;
+                        readReceipts?: boolean;
+                        disappearing?: boolean;
+                        nickname?: {
+                            userId: string;
+                            name: string | null;
+                        };
                     };
                 };
             };
@@ -10133,6 +14078,12 @@ export interface paths {
                         "application/json": {
                             muted: boolean;
                             theme: string | null;
+                            spoilerGuard: boolean;
+                            readReceipts: boolean;
+                            nicknames: {
+                                [key: string]: string;
+                            };
+                            disappearing: boolean;
                         } & {
                             [key: string]: unknown;
                         };
@@ -10170,7 +14121,7 @@ export interface paths {
                             items: ({
                                 id: string;
                                 /** @enum {string} */
-                                kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost";
+                                kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost" | "system";
                                 text: string | null;
                                 mediaPath: string | null;
                                 sharedTitle: string | null;
@@ -10278,7 +14229,7 @@ export interface paths {
                             threadId: string;
                             senderId: string;
                             /** @enum {string} */
-                            kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost";
+                            kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost" | "system";
                             text: string | null;
                             mediaPath: string | null;
                             stickerId: string | null;
@@ -10287,10 +14238,13 @@ export interface paths {
                             sharedTitle: string | null;
                             sharedSubtitle: string | null;
                             sharedRoute: string | null;
-                            replyTo?: unknown;
+                            replyTo: unknown;
                             reaction: string | null;
                             /** Format: date-time */
                             readAt: string | null;
+                            ephemeral?: boolean;
+                            /** Format: date-time */
+                            editedAt?: string | null;
                             /** Format: date-time */
                             createdAt: string;
                         } & {
@@ -10301,6 +14255,278 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dm/threads/{id}/details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            isGroup: boolean;
+                            /** Format: date-time */
+                            since: string;
+                            messageCount: number;
+                            mediaCount: number;
+                            muted: boolean;
+                            theme: string | null;
+                            spoilerGuard: boolean;
+                            readReceipts: boolean;
+                            nicknames: {
+                                [key: string]: string;
+                            };
+                            disappearing: boolean;
+                            compat: number | null;
+                            title: string | null;
+                            myRole: string | null;
+                            members: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                role: string;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            other: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                bio: string | null;
+                                followsYou: boolean;
+                                following: boolean;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            common: {
+                                key: string;
+                                name: string;
+                                posterPath: string | null;
+                                bothWatching: boolean;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dm/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        usernames: string[];
+                        title?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userAId: string;
+                            userBId: string;
+                            isMatch: boolean;
+                            /** Format: date-time */
+                            lastMessageAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dm/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/dm/groups/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        usernames: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            added: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dm/groups/{id}/members/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -10344,7 +14570,59 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        patch?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            threadId: string;
+                            senderId: string;
+                            /** @enum {string} */
+                            kind: "text" | "sticker" | "emoji" | "voice" | "image" | "sharedPost" | "system";
+                            text: string | null;
+                            mediaPath: string | null;
+                            stickerId: string | null;
+                            voiceUrl: string | null;
+                            durationSec: number | null;
+                            sharedTitle: string | null;
+                            sharedSubtitle: string | null;
+                            sharedRoute: string | null;
+                            replyTo: unknown;
+                            reaction: string | null;
+                            /** Format: date-time */
+                            readAt: string | null;
+                            ephemeral?: boolean;
+                            /** Format: date-time */
+                            editedAt?: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/v1/store/products": {
@@ -10374,8 +14652,8 @@ export interface paths {
                             name: string;
                             showTitle: string | null;
                             price: number;
-                            imagePaths?: unknown;
-                            sizes?: unknown;
+                            imagePaths: unknown;
+                            sizes: unknown;
                             shopierUrl: string | null;
                             /** Format: date-time */
                             createdAt: string;
@@ -10423,8 +14701,8 @@ export interface paths {
                             name: string;
                             showTitle: string | null;
                             price: number;
-                            imagePaths?: unknown;
-                            sizes?: unknown;
+                            imagePaths: unknown;
+                            sizes: unknown;
                             shopierUrl: string | null;
                             /** Format: date-time */
                             createdAt: string;
@@ -10481,7 +14759,7 @@ export interface paths {
                                 welcome: number;
                                 dailyPost: number;
                                 quizJoin: number;
-                                quizRank: number[];
+                                readonly quizRank: number[];
                             } & {
                                 [key: string]: unknown;
                             };
@@ -11223,7 +15501,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    show?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -11242,6 +15522,9 @@ export interface paths {
                             showTmdbId: string | null;
                             title: string;
                             difficulty: string;
+                            /** @enum {string} */
+                            mode: "live" | "solo";
+                            contentKey?: string | null;
                             secondsPerQuestion: number;
                             rewardStickerId: string | null;
                             /** @enum {string} */
@@ -11279,6 +15562,8 @@ export interface paths {
                         /** Format: date-time */
                         startsAt?: string;
                         rewardStickerId?: string;
+                        /** @enum {string} */
+                        mode?: "live" | "solo";
                         questions: {
                             text: string;
                             options: string[];
@@ -11300,6 +15585,9 @@ export interface paths {
                             showTmdbId: string | null;
                             title: string;
                             difficulty: string;
+                            /** @enum {string} */
+                            mode: "live" | "solo";
+                            contentKey?: string | null;
                             secondsPerQuestion: number;
                             rewardStickerId: string | null;
                             /** @enum {string} */
@@ -11354,6 +15642,9 @@ export interface paths {
                             showTmdbId: string | null;
                             title: string;
                             difficulty: string;
+                            /** @enum {string} */
+                            mode: "live" | "solo";
+                            contentKey?: string | null;
                             secondsPerQuestion: number;
                             rewardStickerId: string | null;
                             /** @enum {string} */
@@ -11366,6 +15657,30 @@ export interface paths {
                             /** Format: date-time */
                             createdAt: string;
                             isCreator: boolean;
+                            myRank?: number | null;
+                            myCorrect?: number | null;
+                            inProgress?: boolean;
+                            playerCount?: number;
+                            players?: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            }[];
+                            lobbyMin?: number;
+                            creator?: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            myAnswers?: {
+                                [key: string]: number;
+                            } | null;
                             joined: boolean;
                             myScore: number | null;
                             questionCount: number;
@@ -11373,7 +15688,7 @@ export interface paths {
                             questions: ({
                                 order: number;
                                 text: string;
-                                options?: unknown;
+                                options: unknown;
                                 correctIndex?: number;
                             } & {
                                 [key: string]: unknown;
@@ -11512,8 +15827,66 @@ export interface paths {
                             correct: boolean;
                             gained: number;
                             correctIndex: number;
+                            score?: number;
                         } & {
                             [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/quiz/{id}/solo/next": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            done: false;
+                            question: {
+                                order: number;
+                                text: string;
+                                options: unknown;
+                            };
+                            total: number;
+                            seconds: number;
+                            elapsedMs: number;
+                            score: number;
+                        } | {
+                            /** @enum {boolean} */
+                            done: true;
+                            score: number;
+                            streakMax: number;
+                            correct: number;
+                            rank: number | null;
+                            players: number;
                         };
                     };
                 };
@@ -11732,6 +16105,67 @@ export interface paths {
                                 name: string;
                                 count: number;
                             }[];
+                            tv: {
+                                titles: number;
+                                minutes: number;
+                            };
+                            movie: {
+                                titles: number;
+                                minutes: number;
+                            };
+                            countries: {
+                                code: string;
+                                count: number;
+                            }[];
+                            decades: {
+                                decade: number;
+                                count: number;
+                            }[];
+                            topShows: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                minutes: number;
+                                episodes: number;
+                            }[];
+                            watchingNow: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                progress: number | null;
+                            }[];
+                            activity: {
+                                days: {
+                                    d: string;
+                                    n: number;
+                                }[];
+                                streak: number;
+                                bestStreak: number;
+                                activeDays: number;
+                                total: number;
+                            };
+                            months: {
+                                m: string;
+                                n: number;
+                            }[];
+                            weekdays: number[];
+                            ratings: {
+                                count: number;
+                                average: number | null;
+                                distribution: number[];
+                                top: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    value: number;
+                                }[];
+                            };
+                            completion: number | null;
+                            rewatches: number;
+                            /** Format: date-time */
+                            memberSince: string | null;
                         };
                     };
                 };
@@ -11941,6 +16375,8 @@ export interface paths {
                             marketingConsent: boolean;
                             /** @enum {string} */
                             spoilerMode: "off" | "tagged" | "smart";
+                            /** @enum {string} */
+                            tagPolicy?: "everyone" | "following" | "none";
                             localeEn: boolean;
                             region: string | null;
                             privateAccount: boolean;
@@ -11950,6 +16386,10 @@ export interface paths {
                             profileShowLikes: boolean;
                             profileShowFavorites: boolean;
                             profileShowWatched: boolean;
+                            profileTabs?: string[] | null;
+                            seenTips: {
+                                [key: string]: boolean;
+                            };
                             /** Format: date-time */
                             updatedAt: string;
                         } & {
@@ -11995,6 +16435,12 @@ export interface paths {
                         profileShowLikes?: boolean;
                         profileShowFavorites?: boolean;
                         profileShowWatched?: boolean;
+                        profileTabs?: ("talked" | "reshares" | "tagged" | "likes" | "favorites" | "watched" | "saved")[];
+                        /** @enum {string} */
+                        tagPolicy?: "everyone" | "following" | "none";
+                        seenTips?: {
+                            [key: string]: true;
+                        };
                     };
                 };
             };
@@ -12019,6 +16465,8 @@ export interface paths {
                             marketingConsent: boolean;
                             /** @enum {string} */
                             spoilerMode: "off" | "tagged" | "smart";
+                            /** @enum {string} */
+                            tagPolicy?: "everyone" | "following" | "none";
                             localeEn: boolean;
                             region: string | null;
                             privateAccount: boolean;
@@ -12028,6 +16476,10 @@ export interface paths {
                             profileShowLikes: boolean;
                             profileShowFavorites: boolean;
                             profileShowWatched: boolean;
+                            profileTabs?: string[] | null;
+                            seenTips: {
+                                [key: string]: boolean;
+                            };
                             /** Format: date-time */
                             updatedAt: string;
                         } & {
@@ -12106,7 +16558,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": unknown | {
+                    "application/json": {
                         password?: string;
                     };
                 };
@@ -12417,7 +16869,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -12428,10 +16880,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -12483,6 +16957,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -12508,8 +16995,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -12702,7 +17236,7 @@ export interface paths {
                                 }) | null;
                                 text: string | null;
                                 language?: string;
-                                mediaPaths?: unknown;
+                                mediaPaths: unknown;
                                 showTmdbId: string | null;
                                 showTitle: string | null;
                                 episodeTag: string | null;
@@ -12713,10 +17247,32 @@ export interface paths {
                                 quote: string | null;
                                 isSpoiler: boolean;
                                 spoilerNote: string | null;
+                                talk?: {
+                                    people: number;
+                                    faces: {
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                    }[];
+                                    top: {
+                                        username: string;
+                                        text: string | null;
+                                        spoiler: boolean;
+                                    } | null;
+                                } | null;
+                                spoilerRegions?: {
+                                    mediaIndex: number;
+                                    x: number;
+                                    y: number;
+                                    w: number;
+                                    h: number;
+                                }[] | null;
                                 likeCount: number;
                                 commentCount: number;
                                 shareCount: number;
                                 saveCount: number;
+                                viewCount?: number;
+                                playCount?: number;
                                 /** Format: date-time */
                                 createdAt: string;
                                 /** Format: date-time */
@@ -12768,6 +17324,19 @@ export interface paths {
                                     isSpoiler?: boolean;
                                     /** Format: date-time */
                                     createdAt?: string;
+                                    embed?: ({
+                                        /** @enum {string} */
+                                        provider: "youtube" | "x" | "instagram";
+                                        /** @enum {string} */
+                                        kind: "video" | "short" | "post" | "reel";
+                                        id: string;
+                                        url: string;
+                                        start?: number;
+                                        title?: string;
+                                        author?: string;
+                                    } & {
+                                        [key: string]: unknown;
+                                    }) | null;
                                     quoted?: {
                                         id: string;
                                         unavailable: boolean;
@@ -12793,8 +17362,55 @@ export interface paths {
                                         isSpoiler?: boolean;
                                         /** Format: date-time */
                                         createdAt?: string;
+                                        embed?: ({
+                                            /** @enum {string} */
+                                            provider: "youtube" | "x" | "instagram";
+                                            /** @enum {string} */
+                                            kind: "video" | "short" | "post" | "reel";
+                                            id: string;
+                                            url: string;
+                                            start?: number;
+                                            title?: string;
+                                            author?: string;
+                                        } & {
+                                            [key: string]: unknown;
+                                        }) | null;
                                     } | null;
                                 } | null;
+                                embed?: ({
+                                    /** @enum {string} */
+                                    provider: "youtube" | "x" | "instagram";
+                                    /** @enum {string} */
+                                    kind: "video" | "short" | "post" | "reel";
+                                    id: string;
+                                    url: string;
+                                    start?: number;
+                                    title?: string;
+                                    author?: string;
+                                } & {
+                                    [key: string]: unknown;
+                                }) | null;
+                                tags?: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    mediaIndex: number;
+                                    x: number | null;
+                                    y: number | null;
+                                }[];
+                                pinned?: boolean;
+                                archived?: boolean;
+                                hideLikeCount?: boolean;
+                                commentsOff?: boolean;
+                                likesHidden?: boolean;
+                                myTagHidden?: boolean | null;
                                 context?: {
                                     /** @enum {string} */
                                     kind: "reshare" | "like";
@@ -13033,7 +17649,7 @@ export interface paths {
                                 } | null;
                                 targetId: string;
                                 targetUsername: string | null;
-                                detail?: unknown;
+                                detail: unknown;
                                 note: string | null;
                                 /** Format: date-time */
                                 createdAt: string;
@@ -13285,7 +17901,7 @@ export interface paths {
                                 } | null;
                                 targetId: string;
                                 targetUsername: string | null;
-                                detail?: unknown;
+                                detail: unknown;
                                 note: string | null;
                                 /** Format: date-time */
                                 createdAt: string;
@@ -17146,7 +21762,7 @@ export interface paths {
                         imagePaths?: string[];
                         /** @default [] */
                         sizes?: string[];
-                        /** Format: uri */
+                        /** Format: starts_with */
                         shopierUrl?: string | null;
                     };
                 };
@@ -17225,11 +21841,9 @@ export interface paths {
                         showTitle?: string | null;
                         /** @description TL (kuruşsuz) */
                         price?: number;
-                        /** @default [] */
                         imagePaths?: string[];
-                        /** @default [] */
                         sizes?: string[];
-                        /** Format: uri */
+                        /** Format: starts_with */
                         shopierUrl?: string | null;
                     };
                 };
@@ -17517,7 +22131,7 @@ export interface paths {
                             reason: string;
                             attempts: number;
                             at: number | null;
-                            data?: unknown;
+                            data: unknown;
                         }[];
                     };
                 };
@@ -18567,10 +23181,8 @@ export interface paths {
                         kind: "festival" | "award" | "community";
                         title: string;
                         description?: string | null;
-                        /** Format: date-time */
-                        startsAt: string;
-                        /** Format: date-time */
-                        endsAt?: string | null;
+                        startsAt: unknown;
+                        endsAt?: unknown;
                         country?: string | null;
                         city?: string | null;
                         venue?: string | null;
@@ -18646,10 +23258,8 @@ export interface paths {
                         kind: "festival" | "award" | "community";
                         title: string;
                         description?: string | null;
-                        /** Format: date-time */
-                        startsAt: string;
-                        /** Format: date-time */
-                        endsAt?: string | null;
+                        startsAt: unknown;
+                        endsAt?: unknown;
                         country?: string | null;
                         city?: string | null;
                         venue?: string | null;
@@ -18717,6 +23327,751 @@ export interface paths {
                             ok: boolean;
                         } & {
                             [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/predictions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            question: string;
+                            options: string[];
+                            voteCount: number;
+                            /** Format: date-time */
+                            closesAt: string;
+                            closed: boolean;
+                            resolvedIndex: number | null;
+                            points: number;
+                            eventId: string | null;
+                            showTmdbId: string | null;
+                            counts: number[];
+                            /** Format: date-time */
+                            resolvedAt: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        question: string;
+                        options: string[];
+                        closesAt: unknown;
+                        /** @default 50 */
+                        points?: number;
+                        /** Format: uuid */
+                        eventId?: string | null;
+                        showTmdbId?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/predictions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        question: string;
+                        options: string[];
+                        closesAt: unknown;
+                        /** @default 50 */
+                        points?: number;
+                        /** Format: uuid */
+                        eventId?: string | null;
+                        showTmdbId?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/predictions/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        index: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/theories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "open" | "confirmed" | "debunked";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            text: string;
+                            /** @enum {string} */
+                            status: "open" | "confirmed" | "debunked";
+                            voteCount: number;
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            resolvedAt: string | null;
+                            showTitle: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/theories/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "open" | "confirmed" | "debunked";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/theories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/recaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            season: number;
+                            text: string;
+                            voteCount: number;
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            showTitle: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/recaps/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/ai/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            provider: "claude" | "gemini";
+                            geminiModel: string;
+                            hasGeminiKey: boolean;
+                            hasKey: boolean;
+                            /** @enum {string|null} */
+                            keySource: "panel" | "env" | null;
+                            dailyBudgetUsd: number;
+                            userDailyLimit: number;
+                            spentTodayUsd: number;
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        provider?: "claude" | "gemini";
+                        geminiApiKey?: string;
+                        geminiModel?: string;
+                        anthropicApiKey?: string;
+                        dailyBudgetUsd?: number;
+                        userDailyLimit?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            provider: "claude" | "gemini";
+                            geminiModel: string;
+                            hasGeminiKey: boolean;
+                            hasKey: boolean;
+                            /** @enum {string|null} */
+                            keySource: "panel" | "env" | null;
+                            dailyBudgetUsd: number;
+                            userDailyLimit: number;
+                            spentTodayUsd: number;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/daily": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            today: string;
+                            days: {
+                                day: string;
+                                number: number;
+                                key: string | null;
+                                title: string | null;
+                                posterUrl: string | null;
+                                manual: boolean;
+                                plays: number;
+                                wins: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/daily/{day}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    day: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    day: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/community/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                };
+                header?: never;
+                path: {
+                    kind: "lists" | "tierlists" | "clubs";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            detail: string | null;
+                            showTitle: string | null;
+                            owner: string | null;
+                            count: number;
+                            isPublic: boolean;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/community/{kind}/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    kind: "lists" | "tierlists" | "clubs";
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
                         };
                     };
                 };
@@ -19201,6 +24556,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/analytics/signups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            days: number;
+                            total: number;
+                            prevTotal: number;
+                            tracked: number;
+                            channels: {
+                                key: string;
+                                n: number;
+                                activated: number;
+                            }[];
+                            referrers: {
+                                key: string;
+                                n: number;
+                            }[];
+                            landingKinds: {
+                                key: string;
+                                n: number;
+                            }[];
+                            landings: {
+                                key: string;
+                                n: number;
+                            }[];
+                            campaigns: {
+                                source: string | null;
+                                medium: string | null;
+                                campaign: string | null;
+                                n: number;
+                            }[];
+                            platforms: {
+                                key: string;
+                                n: number;
+                            }[];
+                            methods: {
+                                key: string;
+                                n: number;
+                            }[];
+                            inApp: {
+                                key: string;
+                                n: number;
+                            }[];
+                            daily: {
+                                day: string;
+                                total: number;
+                                channels: {
+                                    [key: string]: number;
+                                };
+                            }[];
+                            recent: {
+                                userId: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                channel: string | null;
+                                referrer: string | null;
+                                landingPath: string | null;
+                                landingKind: string | null;
+                                utmSource: string | null;
+                                utmCampaign: string | null;
+                                platform: string | null;
+                                inApp: string | null;
+                                method: string | null;
+                                minutesToSignup: number | null;
+                                activated: boolean;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/search": {
         parameters: {
             query?: never;
@@ -19278,7 +24736,7 @@ export interface paths {
                             /** @enum {string} */
                             page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
                             name: string;
-                            query?: unknown;
+                            query: unknown;
                             shared: boolean;
                             mine: boolean;
                             owner: {
@@ -19326,7 +24784,7 @@ export interface paths {
                             /** @enum {string} */
                             page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
                             name: string;
-                            query?: unknown;
+                            query: unknown;
                             shared: boolean;
                             mine: boolean;
                             owner: {
@@ -19378,7 +24836,7 @@ export interface paths {
                             /** @enum {string} */
                             page: "users" | "reports" | "content" | "audit" | "rooms" | "ledger" | "quizzes" | "feedback";
                             name: string;
-                            query?: unknown;
+                            query: unknown;
                             shared: boolean;
                             mine: boolean;
                             owner: {
@@ -19564,7 +25022,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": (({
+                        "application/json": {
                             id: string;
                             reporterId: string;
                             /** @enum {string} */
@@ -19576,9 +25034,6 @@ export interface paths {
                             status: "new" | "reviewed" | "actioned";
                             /** Format: date-time */
                             createdAt: string;
-                        } & {
-                            [key: string]: unknown;
-                        }) & {
                             reporter: {
                                 id: string;
                                 username: string;
@@ -19610,7 +25065,7 @@ export interface paths {
                                 joinedAt: string;
                                 hasViolation: boolean;
                             } | null;
-                        })[];
+                        }[];
                     };
                 };
             };
@@ -20058,7 +25513,7 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    key: "stickerMarket" | "match" | "live" | "verification" | "trustedAnalytics" | "aiAssistant" | "voiceMessages" | "dmStickers" | "inAppCheckout";
+                    key: "stickerMarket" | "match" | "live" | "verification" | "trustedAnalytics" | "aiAssistant" | "aiCompanion" | "aiSpoilerGuard" | "aiSummary" | "aiSearch" | "voiceMessages" | "dmStickers" | "inAppCheckout";
                 };
                 cookie?: never;
             };
@@ -20232,7 +25687,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": unknown | ({
+                    "application/json": {
                         edit?: {
                             trimStartMs?: number;
                             trimEndMs?: number;
@@ -20279,7 +25734,7 @@ export interface paths {
                                 saturation?: number;
                             };
                         };
-                    } | null);
+                    } | null;
                 };
             };
             responses: {
@@ -20371,7 +25826,7 @@ export interface paths {
                     trimStartMs?: number;
                     trimEndMs?: number;
                     coverAtMs?: number;
-                    muted?: boolean | ("true" | "false" | "1" | "0");
+                    muted?: boolean | ("0" | "1" | "true" | "false");
                     filter?: number;
                     overlayText?: string;
                 };
@@ -20884,8 +26339,9 @@ export interface paths {
                                 id: number;
                                 slug: string;
                                 name: string;
-                                logo: string;
+                                logo: string | null;
                                 logoUrl: string | null;
+                                featured?: boolean;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -20962,8 +26418,9 @@ export interface paths {
                             id: number;
                             slug: string;
                             name: string;
-                            logo: string;
+                            logo: string | null;
                             logoUrl: string | null;
+                            featured?: boolean;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -21411,6 +26868,11 @@ export interface paths {
                                         slug: string | null;
                                         url?: string;
                                     }[];
+                                    tv?: {
+                                        name: string;
+                                        logoUrl: string | null;
+                                        url: string | null;
+                                    }[];
                                 };
                                 community: {
                                     discussionCount: number;
@@ -21643,6 +27105,11 @@ export interface paths {
                                     logoUrl: string | null;
                                     slug: string | null;
                                     url?: string;
+                                }[];
+                                tv?: {
+                                    name: string;
+                                    logoUrl: string | null;
+                                    url: string | null;
                                 }[];
                             };
                             related: ({
@@ -22003,6 +27470,97 @@ export interface paths {
                             showTmdbId?: string | null;
                             avatarPath?: string | null;
                             appPath: string;
+                            post?: {
+                                type: string;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                };
+                                text: string | null;
+                                spoiler: boolean;
+                                media: string | null;
+                                video: boolean;
+                                likeCount: number;
+                                commentCount: number;
+                                reshareCount: number;
+                                hideLikes: boolean;
+                                showTitle: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                rating: number | null;
+                                note: string | null;
+                                poll: {
+                                    options: {
+                                        label: string;
+                                        pct: number;
+                                    }[];
+                                    total: number;
+                                    more: number;
+                                } | null;
+                            };
+                            user?: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                bio: string | null;
+                                postCount: number;
+                                followerCount: number;
+                                followingCount: number;
+                                watching: {
+                                    title: string;
+                                    posterUrl: string | null;
+                                    season: number | null;
+                                    episode: number | null;
+                                } | null;
+                            };
+                            room?: {
+                                name: string;
+                                description: string | null;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
+                                live: boolean;
+                                ended: boolean;
+                                private: boolean;
+                                memberCount: number;
+                                messageCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                owner: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
+                            quiz?: {
+                                title: string;
+                                questionCount: number;
+                                difficulty: string;
+                                /** @enum {string} */
+                                mode: "live" | "solo";
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                /** Format: date-time */
+                                startsAt: string | null;
+                                playCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                creator: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
                         };
                     };
                 };
@@ -22048,6 +27606,97 @@ export interface paths {
                             showTmdbId?: string | null;
                             avatarPath?: string | null;
                             appPath: string;
+                            post?: {
+                                type: string;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                };
+                                text: string | null;
+                                spoiler: boolean;
+                                media: string | null;
+                                video: boolean;
+                                likeCount: number;
+                                commentCount: number;
+                                reshareCount: number;
+                                hideLikes: boolean;
+                                showTitle: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                rating: number | null;
+                                note: string | null;
+                                poll: {
+                                    options: {
+                                        label: string;
+                                        pct: number;
+                                    }[];
+                                    total: number;
+                                    more: number;
+                                } | null;
+                            };
+                            user?: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                bio: string | null;
+                                postCount: number;
+                                followerCount: number;
+                                followingCount: number;
+                                watching: {
+                                    title: string;
+                                    posterUrl: string | null;
+                                    season: number | null;
+                                    episode: number | null;
+                                } | null;
+                            };
+                            room?: {
+                                name: string;
+                                description: string | null;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
+                                live: boolean;
+                                ended: boolean;
+                                private: boolean;
+                                memberCount: number;
+                                messageCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                owner: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
+                            quiz?: {
+                                title: string;
+                                questionCount: number;
+                                difficulty: string;
+                                /** @enum {string} */
+                                mode: "live" | "solo";
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                /** Format: date-time */
+                                startsAt: string | null;
+                                playCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                creator: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
                         };
                     };
                 };
@@ -22093,6 +27742,97 @@ export interface paths {
                             showTmdbId?: string | null;
                             avatarPath?: string | null;
                             appPath: string;
+                            post?: {
+                                type: string;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                };
+                                text: string | null;
+                                spoiler: boolean;
+                                media: string | null;
+                                video: boolean;
+                                likeCount: number;
+                                commentCount: number;
+                                reshareCount: number;
+                                hideLikes: boolean;
+                                showTitle: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                rating: number | null;
+                                note: string | null;
+                                poll: {
+                                    options: {
+                                        label: string;
+                                        pct: number;
+                                    }[];
+                                    total: number;
+                                    more: number;
+                                } | null;
+                            };
+                            user?: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                bio: string | null;
+                                postCount: number;
+                                followerCount: number;
+                                followingCount: number;
+                                watching: {
+                                    title: string;
+                                    posterUrl: string | null;
+                                    season: number | null;
+                                    episode: number | null;
+                                } | null;
+                            };
+                            room?: {
+                                name: string;
+                                description: string | null;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
+                                live: boolean;
+                                ended: boolean;
+                                private: boolean;
+                                memberCount: number;
+                                messageCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                owner: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
+                            quiz?: {
+                                title: string;
+                                questionCount: number;
+                                difficulty: string;
+                                /** @enum {string} */
+                                mode: "live" | "solo";
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                /** Format: date-time */
+                                startsAt: string | null;
+                                playCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                creator: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
                         };
                     };
                 };
@@ -22138,6 +27878,97 @@ export interface paths {
                             showTmdbId?: string | null;
                             avatarPath?: string | null;
                             appPath: string;
+                            post?: {
+                                type: string;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                };
+                                text: string | null;
+                                spoiler: boolean;
+                                media: string | null;
+                                video: boolean;
+                                likeCount: number;
+                                commentCount: number;
+                                reshareCount: number;
+                                hideLikes: boolean;
+                                showTitle: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                rating: number | null;
+                                note: string | null;
+                                poll: {
+                                    options: {
+                                        label: string;
+                                        pct: number;
+                                    }[];
+                                    total: number;
+                                    more: number;
+                                } | null;
+                            };
+                            user?: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                bio: string | null;
+                                postCount: number;
+                                followerCount: number;
+                                followingCount: number;
+                                watching: {
+                                    title: string;
+                                    posterUrl: string | null;
+                                    season: number | null;
+                                    episode: number | null;
+                                } | null;
+                            };
+                            room?: {
+                                name: string;
+                                description: string | null;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
+                                live: boolean;
+                                ended: boolean;
+                                private: boolean;
+                                memberCount: number;
+                                messageCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                owner: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
+                            quiz?: {
+                                title: string;
+                                questionCount: number;
+                                difficulty: string;
+                                /** @enum {string} */
+                                mode: "live" | "solo";
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                /** Format: date-time */
+                                startsAt: string | null;
+                                playCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                creator: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
                         };
                     };
                 };
@@ -22183,6 +28014,374 @@ export interface paths {
                             showTmdbId?: string | null;
                             avatarPath?: string | null;
                             appPath: string;
+                            post?: {
+                                type: string;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                };
+                                text: string | null;
+                                spoiler: boolean;
+                                media: string | null;
+                                video: boolean;
+                                likeCount: number;
+                                commentCount: number;
+                                reshareCount: number;
+                                hideLikes: boolean;
+                                showTitle: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                rating: number | null;
+                                note: string | null;
+                                poll: {
+                                    options: {
+                                        label: string;
+                                        pct: number;
+                                    }[];
+                                    total: number;
+                                    more: number;
+                                } | null;
+                            };
+                            user?: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                bio: string | null;
+                                postCount: number;
+                                followerCount: number;
+                                followingCount: number;
+                                watching: {
+                                    title: string;
+                                    posterUrl: string | null;
+                                    season: number | null;
+                                    episode: number | null;
+                                } | null;
+                            };
+                            room?: {
+                                name: string;
+                                description: string | null;
+                                /** @enum {string} */
+                                kind: "permanent" | "temporary" | "official_finale";
+                                live: boolean;
+                                ended: boolean;
+                                private: boolean;
+                                memberCount: number;
+                                messageCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                owner: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
+                            quiz?: {
+                                title: string;
+                                questionCount: number;
+                                difficulty: string;
+                                /** @enum {string} */
+                                mode: "live" | "solo";
+                                /** @enum {string} */
+                                status: "scheduled" | "live" | "finished";
+                                /** Format: date-time */
+                                startsAt: string | null;
+                                playCount: number;
+                                showTitle: string | null;
+                                posterUrl: string | null;
+                                creator: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                } | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/share/story/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            type: "review" | "quote" | "post";
+                            text: string;
+                            note: string | null;
+                            rating: number | null;
+                            season: number | null;
+                            episode: number | null;
+                            author: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            };
+                            show: {
+                                title: string;
+                                posterUrl: string | null;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/stats/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            user: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                followerCount: number;
+                            };
+                            stats: {
+                                watched: number;
+                                watching: number;
+                                planned: number;
+                                dropped: number;
+                                episodes: number;
+                                minutes: number;
+                                estimated: boolean;
+                                genres: {
+                                    name: string;
+                                    count: number;
+                                }[];
+                                tv: {
+                                    titles: number;
+                                    minutes: number;
+                                };
+                                movie: {
+                                    titles: number;
+                                    minutes: number;
+                                };
+                                countries: {
+                                    code: string;
+                                    count: number;
+                                }[];
+                                decades: {
+                                    decade: number;
+                                    count: number;
+                                }[];
+                                topShows: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    minutes: number;
+                                    episodes: number;
+                                }[];
+                                watchingNow: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    season: number | null;
+                                    episode: number | null;
+                                    progress: number | null;
+                                }[];
+                                activity: {
+                                    days: {
+                                        d: string;
+                                        n: number;
+                                    }[];
+                                    streak: number;
+                                    bestStreak: number;
+                                    activeDays: number;
+                                    total: number;
+                                };
+                                months: {
+                                    m: string;
+                                    n: number;
+                                }[];
+                                weekdays: number[];
+                                ratings: {
+                                    count: number;
+                                    average: number | null;
+                                    distribution: number[];
+                                    top: {
+                                        key: string;
+                                        title: string | null;
+                                        posterUrl: string | null;
+                                        value: number;
+                                    }[];
+                                };
+                                completion: number | null;
+                                rewatches: number;
+                                /** Format: date-time */
+                                memberSince: string | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/guest/post/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            type: "review" | "quote" | "post" | "poll";
+                            text: string | null;
+                            quote: string | null;
+                            rating: number | null;
+                            season: number | null;
+                            episode: number | null;
+                            episodeTag: string | null;
+                            likeCount: number;
+                            commentCount: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            show: {
+                                key: string;
+                                /** @enum {string} */
+                                kind: "tv" | "movie";
+                                id: string;
+                                title: string | null;
+                                posterPath: string | null;
+                            } | null;
+                            author: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                tick: string;
+                            };
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            mediaPaths?: string[];
+                            images?: string[];
+                            tags?: string[];
+                            pollOptions?: {
+                                label: string;
+                                voteCount: number;
+                            }[];
+                            summary?: {
+                                summary: string;
+                                points: string[];
+                                mood: string;
+                                commentCount: number;
+                            } | null;
+                            comments: {
+                                id: string;
+                                text: string;
+                                likeCount: number;
+                                username: string;
+                                avatarPath: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                            talkers: number;
                         };
                     };
                 };
@@ -22223,7 +28422,7 @@ export interface paths {
                         "application/json": {
                             id: string;
                             /** @enum {string} */
-                            type: "review" | "quote" | "post";
+                            type: "review" | "quote" | "post" | "poll";
                             text: string | null;
                             quote: string | null;
                             rating: number | null;
@@ -22250,6 +28449,233 @@ export interface paths {
                                 avatarPath: string | null;
                                 tick: string;
                             };
+                            embed?: ({
+                                /** @enum {string} */
+                                provider: "youtube" | "x" | "instagram";
+                                /** @enum {string} */
+                                kind: "video" | "short" | "post" | "reel";
+                                id: string;
+                                url: string;
+                                start?: number;
+                                title?: string;
+                                author?: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            mediaPaths?: string[];
+                            images?: string[];
+                            tags?: string[];
+                            pollOptions?: {
+                                label: string;
+                                voteCount: number;
+                            }[];
+                            comments?: {
+                                id: string;
+                                text: string;
+                                likeCount: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                parentId: string | null;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                };
+                            }[];
+                            summary?: {
+                                summary: string;
+                                points: string[];
+                                mood: string;
+                                commentCount: number;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/profiles/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            username: string;
+                            displayName: string | null;
+                            avatarPath: string | null;
+                            bio: string | null;
+                            tick: string;
+                            followerCount: number;
+                            followingCount: number;
+                            /** Format: date-time */
+                            joinedAt: string;
+                            postCount: number;
+                            posts: {
+                                id: string;
+                                /** @enum {string} */
+                                type: "review" | "quote" | "post" | "poll";
+                                text: string | null;
+                                quote: string | null;
+                                rating: number | null;
+                                season: number | null;
+                                episode: number | null;
+                                likeCount: number;
+                                commentCount: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                show: {
+                                    /** @enum {string} */
+                                    kind: "tv" | "movie";
+                                    id: string;
+                                    title: string | null;
+                                } | null;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                };
+                            }[];
+                            hasMore: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path: {
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            tag: string;
+                            posts: {
+                                id: string;
+                                /** @enum {string} */
+                                type: "review" | "quote" | "post" | "poll";
+                                text: string | null;
+                                quote: string | null;
+                                rating: number | null;
+                                season: number | null;
+                                episode: number | null;
+                                likeCount: number;
+                                commentCount: number;
+                                /** Format: date-time */
+                                createdAt: string;
+                                show: {
+                                    /** @enum {string} */
+                                    kind: "tv" | "movie";
+                                    id: string;
+                                    title: string | null;
+                                } | null;
+                                author: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                };
+                            }[];
+                            hasMore: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/community/sitemap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            users: {
+                                username: string;
+                                /** Format: date-time */
+                                lastmod: string;
+                            }[];
+                            tags: {
+                                tag: string;
+                                count: number;
+                            }[];
                         };
                     };
                 };
@@ -22291,6 +28717,127 @@ export interface paths {
                             /** Format: date-time */
                             lastmod: string;
                         }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/quizzes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            showName: string;
+                            title: string;
+                            difficulty: string;
+                            questionCount: number;
+                            playerCount: number;
+                            posterPath: string | null;
+                            backdropPath: string | null;
+                            /** Format: date-time */
+                            lastmod: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/quizzes/show/{tmdbId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tmdbId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            showName: string;
+                            title: string;
+                            about: string | null;
+                            difficulty: string;
+                            secondsPerQuestion: number;
+                            questionCount: number;
+                            playerCount: number;
+                            posterPath: string | null;
+                            backdropPath: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            creator: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                tick: string;
+                            } | null;
+                            sample: {
+                                text: string;
+                                options: string[];
+                            }[];
+                            top: {
+                                rank: number;
+                                score: number;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            }[];
+                            others: {
+                                showTmdbId: string;
+                                showName: string;
+                                playerCount: number;
+                                posterPath: string | null;
+                            }[];
+                        };
                     };
                 };
             };
@@ -22581,6 +29128,7 @@ export interface paths {
                                 season: number | null;
                                 episode: number | null;
                                 popularity: number;
+                                tr?: boolean;
                             }[];
                             platforms: {
                                 key: string;
@@ -22600,8 +29148,110 @@ export interface paths {
                                 season: number | null;
                                 episode: number | null;
                                 popularity: number;
+                                tr?: boolean;
                             }[];
                             generatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/upcoming/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    region?: string;
+                    lang?: "tr" | "en" | "es" | "pt" | "de" | "fr" | "it" | "ru" | "ar" | "hi" | "id" | "zh" | "ja" | "ko" | "pl" | "el";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            region: string;
+                            items: {
+                                key: string;
+                                /** @enum {string} */
+                                kind: "tv" | "movie";
+                                /** @enum {string} */
+                                type: "theatrical" | "digital" | "premiere" | "season" | "episode";
+                                date: string;
+                                title: string;
+                                posterUrl: string | null;
+                                backdropUrl: string | null;
+                                overview: string;
+                                platform: {
+                                    name: string;
+                                    logoUrl: string | null;
+                                } | null;
+                                season: number | null;
+                                episode: number | null;
+                                popularity: number;
+                                tr?: boolean;
+                                /** @enum {string|null} */
+                                status: "planned" | "watching" | "watched" | "dropped" | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/upcoming/waiting": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    key: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            count: number;
                         };
                     };
                 };
@@ -22837,6 +29487,3878 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/lists/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    contains?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            isPublic: boolean;
+                            itemCount: number;
+                            followerCount: number;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            following: boolean;
+                            posters: (string | null)[];
+                            contains?: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        })[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/popular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            isPublic: boolean;
+                            itemCount: number;
+                            followerCount: number;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            following: boolean;
+                            posters: (string | null)[];
+                            contains?: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        })[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/user/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": ({
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            isPublic: boolean;
+                            itemCount: number;
+                            followerCount: number;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            following: boolean;
+                            posters: (string | null)[];
+                            contains?: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        })[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title: string;
+                        description?: string | null;
+                        isPublic?: boolean;
+                        mediaKey?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            isPublic: boolean;
+                            itemCount: number;
+                            followerCount: number;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            following: boolean;
+                            posters: (string | null)[];
+                            contains?: boolean;
+                            mine: boolean;
+                            items: {
+                                id: string;
+                                mediaKey: string;
+                                note: string | null;
+                                title: string | null;
+                                posterUrl: string | null;
+                            }[];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title?: string;
+                        description?: string | null;
+                        isPublic?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/lists/{id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        mediaKey: string;
+                        note?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query: {
+                    mediaKey: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/{id}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        itemIds: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/{id}/follow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/episode-ratings/{showId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            seasons: {
+                                season: number;
+                                episodes: number;
+                            }[];
+                            cells: {
+                                season: number;
+                                episode: number;
+                                avg: number;
+                                count: number;
+                            }[];
+                            mine: {
+                                season: number;
+                                episode: number;
+                                rating: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        season: number;
+                        episode: number;
+                        rating: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query: {
+                    season: number;
+                    episode: number;
+                };
+                header?: never;
+                path: {
+                    showId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/episode-ratings/{showId}/chart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            seasons: {
+                                season: number;
+                                name: string;
+                                year: string | null;
+                                tmdb: number | null;
+                                community: number | null;
+                                episodes: {
+                                    e: number;
+                                    name: string;
+                                    airDate: string | null;
+                                    tmdb: number | null;
+                                    votes: number;
+                                    community: number | null;
+                                    communityCount: number;
+                                }[];
+                            }[];
+                            overall: number | null;
+                            best: {
+                                season: number;
+                                e: number;
+                                name: string;
+                                score: number;
+                            } | null;
+                            worst: {
+                                season: number;
+                                e: number;
+                                name: string;
+                                score: number;
+                            } | null;
+                            communityVotes: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rail/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            room: {
+                                id: string;
+                                name: string;
+                                live: boolean;
+                                memberCount: number;
+                                faces: {
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                }[];
+                            } | null;
+                            talked: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                discussions: number;
+                            }[];
+                            taste: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                id: string;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                percent: number;
+                                followsYou: boolean;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{username}/compat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            percent: number | null;
+                            commonCount: number;
+                            common: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rooms/{id}/party": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            state: {
+                                /** @enum {string} */
+                                mode: "youtube" | "platform";
+                                videoId: string | null;
+                                title: string | null;
+                                playing: boolean;
+                                position: number;
+                                at: number;
+                                startsAt: number | null;
+                                startedAt: number;
+                                hostId: string;
+                                season?: number | null;
+                                episode?: number | null;
+                                durationSec?: number | null;
+                            } | null;
+                            serverNow: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        mode: "youtube" | "platform";
+                        url?: string;
+                        title?: string;
+                        season?: number;
+                        episode?: number;
+                        durationMin?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            state: {
+                                /** @enum {string} */
+                                mode: "youtube" | "platform";
+                                videoId: string | null;
+                                title: string | null;
+                                playing: boolean;
+                                position: number;
+                                at: number;
+                                startsAt: number | null;
+                                startedAt: number;
+                                hostId: string;
+                                season?: number | null;
+                                episode?: number | null;
+                                durationSec?: number | null;
+                            } | null;
+                            serverNow: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            state: {
+                                /** @enum {string} */
+                                mode: "youtube" | "platform";
+                                videoId: string | null;
+                                title: string | null;
+                                playing: boolean;
+                                position: number;
+                                at: number;
+                                startsAt: number | null;
+                                startedAt: number;
+                                hostId: string;
+                                season?: number | null;
+                                episode?: number | null;
+                                durationSec?: number | null;
+                            } | null;
+                            serverNow: number;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rooms/{id}/party/control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        action: "play" | "pause" | "seek" | "countdown";
+                        position?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            state: {
+                                /** @enum {string} */
+                                mode: "youtube" | "platform";
+                                videoId: string | null;
+                                title: string | null;
+                                playing: boolean;
+                                position: number;
+                                at: number;
+                                startsAt: number | null;
+                                startedAt: number;
+                                hostId: string;
+                                season?: number | null;
+                                episode?: number | null;
+                                durationSec?: number | null;
+                            } | null;
+                            serverNow: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/predictions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    eventId?: string;
+                    showTmdbId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            question: string;
+                            options: string[];
+                            counts: number[] | null;
+                            voteCount: number;
+                            myVote: number | null;
+                            /** Format: date-time */
+                            closesAt: string;
+                            closed: boolean;
+                            resolvedIndex: number | null;
+                            points: number;
+                            eventId: string | null;
+                            showTmdbId: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/predictions/{id}/vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        optionIndex: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            question: string;
+                            options: string[];
+                            counts: number[] | null;
+                            voteCount: number;
+                            myVote: number | null;
+                            /** Format: date-time */
+                            closesAt: string;
+                            closed: boolean;
+                            resolvedIndex: number | null;
+                            points: number;
+                            eventId: string | null;
+                            showTmdbId: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wrapped/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    year?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            year: number;
+                            minutes: number;
+                            episodes: number;
+                            estimated: boolean;
+                            titles: number;
+                            topGenres: string[];
+                            topShows: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                minutes: number;
+                            }[];
+                            posts: number;
+                            reviews: number;
+                            likesReceived: number;
+                            commentsReceived: number;
+                            bestPost: {
+                                id: string;
+                                text: string | null;
+                                likeCount: number;
+                            } | null;
+                            topEpisode: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                season: number;
+                                episode: number;
+                                rating: number;
+                            } | null;
+                            predictionsRight: number;
+                            lists: number;
+                            topPercent: number | null;
+                            talkedShows: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                count: number;
+                            }[];
+                            persona: {
+                                key: string;
+                                stat: number;
+                            };
+                            games: {
+                                dizidleWins: number;
+                                dizidleBest: number;
+                                quizzes: number;
+                                quizBest: number;
+                                pickMatches: number;
+                            };
+                            twin: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                percent: number;
+                                commonCount: number;
+                                common: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                }[];
+                            } | null;
+                            comments: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/characters/{showKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            actor: string;
+                            imageUrl: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/show/{showKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            showTitle: string | null;
+                            title: string | null;
+                            top: {
+                                id: string;
+                                name: string;
+                                actor: string;
+                                imageUrl: string | null;
+                            }[];
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/consensus/{showKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    compare?: string;
+                };
+                header?: never;
+                path: {
+                    showKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            lists: number;
+                            tiers: {
+                                S: string[];
+                                A: string[];
+                                B: string[];
+                                C: string[];
+                                D: string[];
+                            };
+                            stats: {
+                                id: string;
+                                avg: number;
+                                count: number;
+                                /** @enum {string} */
+                                tier: "S" | "A" | "B" | "C" | "D";
+                            }[];
+                            agreement: number | null;
+                            hotTake: {
+                                id: string;
+                                /** @enum {string} */
+                                mine: "S" | "A" | "B" | "C" | "D";
+                                /** @enum {string} */
+                                crowd: "S" | "A" | "B" | "C" | "D";
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/user/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            showTitle: string | null;
+                            title: string | null;
+                            top: {
+                                id: string;
+                                name: string;
+                                actor: string;
+                                imageUrl: string | null;
+                            }[];
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/public/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            showTitle: string | null;
+                            owner: string;
+                            rows: {
+                                label: string;
+                                images: (string | null)[];
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            showTitle: string | null;
+                            title: string | null;
+                            tiers: {
+                                S: string[];
+                                A: string[];
+                                B: string[];
+                                C: string[];
+                                D: string[];
+                            };
+                            characters: {
+                                id: string;
+                                name: string;
+                                actor: string;
+                                imageUrl: string | null;
+                            }[];
+                            owner: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            mine: boolean;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                        title?: string | null;
+                        tiers: {
+                            S: string[];
+                            A: string[];
+                            B: string[];
+                            C: string[];
+                            D: string[];
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tierlists/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                        title?: string | null;
+                        tiers: {
+                            S: string[];
+                            A: string[];
+                            B: string[];
+                            C: string[];
+                            D: string[];
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pulse/{showId}/{season}/{episode}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                    season: number;
+                    episode: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            runtime: number;
+                            name: string | null;
+                            total: number;
+                            people: number;
+                            buckets: {
+                                minute: number;
+                                total: number;
+                                counts: {
+                                    [key: string]: number;
+                                };
+                            }[];
+                            peaks: {
+                                emoji: string;
+                                minute: number;
+                                count: number;
+                            }[];
+                            mine: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                    season: number;
+                    episode: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        minute: number;
+                        /** @enum {string} */
+                        emoji: "😱" | "🔥" | "😭" | "🤯" | "😂" | "❤️";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clubs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    showTmdbId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            showTmdbId: string;
+                            showTitle: string | null;
+                            posterUrl: string | null;
+                            startSeason: number;
+                            episodes: number;
+                            /** Format: date-time */
+                            startsAt: string;
+                            memberCount: number;
+                            roomId: string | null;
+                            joined: boolean;
+                            mine: boolean;
+                            next: {
+                                n: number;
+                                /** Format: date-time */
+                                at: string;
+                            } | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                        title: string;
+                        description?: string | null;
+                        /** @default 1 */
+                        startSeason?: number;
+                        startsAt: unknown;
+                        episodes?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clubs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            showTmdbId: string;
+                            showTitle: string | null;
+                            posterUrl: string | null;
+                            startSeason: number;
+                            episodes: number;
+                            /** Format: date-time */
+                            startsAt: string;
+                            memberCount: number;
+                            roomId: string | null;
+                            joined: boolean;
+                            mine: boolean;
+                            next: {
+                                n: number;
+                                /** Format: date-time */
+                                at: string;
+                            } | null;
+                            schedule: {
+                                n: number;
+                                /** Format: date-time */
+                                at: string;
+                            }[];
+                            members: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clubs/{id}/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/badges/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            badges: {
+                                key: string;
+                                value: number;
+                                level: number;
+                                next: number | null;
+                            }[];
+                            goal: {
+                                year: number;
+                                target: number;
+                                done: number;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/badges/goal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        target: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/friends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            title: string | null;
+                            posterUrl: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            /** Format: date-time */
+                            watchedAt: string;
+                            rewatch: boolean;
+                            user: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/friends/ratings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            kind: "title" | "episode";
+                            user: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            };
+                            showTmdbId: string;
+                            title: string | null;
+                            posterUrl: string | null;
+                            season: number | null;
+                            episode: number | null;
+                            value: number;
+                            /** Format: date-time */
+                            at: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                showTmdbId: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                season: number | null;
+                                episode: number | null;
+                                /** Format: date-time */
+                                watchedAt: string;
+                                rewatch: boolean;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                        season?: number | null;
+                        episode?: number | null;
+                        watchedAt?: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/theories/show/{showKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    sort?: "top" | "new";
+                };
+                header?: never;
+                path: {
+                    showKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            text: string;
+                            /** @enum {string} */
+                            status: "open" | "confirmed" | "debunked";
+                            voteCount: number;
+                            voted: boolean;
+                            mine: boolean;
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            resolvedAt: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/theories/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                        text: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            text: string;
+                            /** @enum {string} */
+                            status: "open" | "confirmed" | "debunked";
+                            voteCount: number;
+                            voted: boolean;
+                            mine: boolean;
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            resolvedAt: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/theories/{id}/vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            voted: boolean;
+                            voteCount: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/theories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/daily/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            day: string;
+                            number: number;
+                            max: number;
+                            guesses: {
+                                key: string;
+                                title: string | null;
+                                correct: boolean;
+                                cells: {
+                                    /** @enum {string} */
+                                    k: "year" | "genre" | "network" | "country" | "seasons";
+                                    v: string | null;
+                                    /** @enum {string} */
+                                    s: "hit" | "near" | "miss";
+                                    /** @enum {string} */
+                                    dir?: "up" | "down";
+                                }[];
+                            }[];
+                            finished: boolean;
+                            won: boolean;
+                            clues: {
+                                year: string | null;
+                                seasons: number | null;
+                                genres: string[] | null;
+                                network?: string | null;
+                                character?: string | null;
+                                overview?: string | null;
+                                creator?: string | null;
+                            };
+                            blur: number;
+                            posterUrl: string | null;
+                            answer: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                            } | null;
+                            streak: number;
+                            played: number;
+                            wins: number;
+                            best: number;
+                            dist: number[];
+                            nextInMs: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/daily/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    q: string;
+                    lang?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            posterUrl: string | null;
+                            year: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/daily/guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        guesses: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            day: string;
+                            number: number;
+                            max: number;
+                            guesses: {
+                                key: string;
+                                title: string | null;
+                                correct: boolean;
+                                cells: {
+                                    /** @enum {string} */
+                                    k: "year" | "genre" | "network" | "country" | "seasons";
+                                    v: string | null;
+                                    /** @enum {string} */
+                                    s: "hit" | "near" | "miss";
+                                    /** @enum {string} */
+                                    dir?: "up" | "down";
+                                }[];
+                            }[];
+                            finished: boolean;
+                            won: boolean;
+                            clues: {
+                                year: string | null;
+                                seasons: number | null;
+                                genres: string[] | null;
+                                network?: string | null;
+                                character?: string | null;
+                                overview?: string | null;
+                                creator?: string | null;
+                            };
+                            blur: number;
+                            posterUrl: string | null;
+                            answer: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                            } | null;
+                            streak: number;
+                            played: number;
+                            wins: number;
+                            best: number;
+                            dist: number[];
+                            nextInMs: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/daily/guess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        key: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            day: string;
+                            number: number;
+                            max: number;
+                            guesses: {
+                                key: string;
+                                title: string | null;
+                                correct: boolean;
+                                cells: {
+                                    /** @enum {string} */
+                                    k: "year" | "genre" | "network" | "country" | "seasons";
+                                    v: string | null;
+                                    /** @enum {string} */
+                                    s: "hit" | "near" | "miss";
+                                    /** @enum {string} */
+                                    dir?: "up" | "down";
+                                }[];
+                            }[];
+                            finished: boolean;
+                            won: boolean;
+                            clues: {
+                                year: string | null;
+                                seasons: number | null;
+                                genres: string[] | null;
+                                network?: string | null;
+                                character?: string | null;
+                                overview?: string | null;
+                                creator?: string | null;
+                            };
+                            blur: number;
+                            posterUrl: string | null;
+                            answer: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                            } | null;
+                            streak: number;
+                            played: number;
+                            wins: number;
+                            best: number;
+                            dist: number[];
+                            nextInMs: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pick/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @default any
+                         * @enum {string}
+                         */
+                        kind?: "tv" | "movie" | "any";
+                        /**
+                         * @default all
+                         * @enum {string}
+                         */
+                        rule?: "all" | "majority";
+                        /** @default [] */
+                        providers?: number[];
+                        /** @default [] */
+                        invite?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            code: string;
+                            kind: string;
+                            rule: string;
+                            providers: number[];
+                            createdBy: string;
+                            deck: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            }[];
+                            members: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                swiped: number;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            swiped: string[];
+                            matches: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            }[];
+                            ranking: {
+                                card: {
+                                    key: string;
+                                    title: string;
+                                    posterUrl: string | null;
+                                    year: string | null;
+                                    overview: string | null;
+                                    /** @enum {string} */
+                                    source?: "list" | "trend";
+                                    listedBy?: number;
+                                };
+                                likes: number;
+                                mine: boolean;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pick/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            code: string;
+                            kind: string;
+                            rule: string;
+                            providers: number[];
+                            createdBy: string;
+                            deck: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            }[];
+                            members: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                swiped: number;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            swiped: string[];
+                            matches: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            }[];
+                            ranking: {
+                                card: {
+                                    key: string;
+                                    title: string;
+                                    posterUrl: string | null;
+                                    year: string | null;
+                                    overview: string | null;
+                                    /** @enum {string} */
+                                    source?: "list" | "trend";
+                                    listedBy?: number;
+                                };
+                                likes: number;
+                                mine: boolean;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pick/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            code: string;
+                            kind: string;
+                            rule: string;
+                            providers: number[];
+                            createdBy: string;
+                            deck: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            }[];
+                            members: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                swiped: number;
+                            } & {
+                                [key: string]: unknown;
+                            })[];
+                            swiped: string[];
+                            matches: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            }[];
+                            ranking: {
+                                card: {
+                                    key: string;
+                                    title: string;
+                                    posterUrl: string | null;
+                                    year: string | null;
+                                    overview: string | null;
+                                    /** @enum {string} */
+                                    source?: "list" | "trend";
+                                    listedBy?: number;
+                                };
+                                likes: number;
+                                mine: boolean;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pick/{id}/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        usernames: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            sent: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pick/{id}/swipe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        mediaKey: string;
+                        liked: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            match: {
+                                key: string;
+                                title: string;
+                                posterUrl: string | null;
+                                year: string | null;
+                                overview: string | null;
+                                /** @enum {string} */
+                                source?: "list" | "trend";
+                                listedBy?: number;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pick/{id}/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/person-follows/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            personId: string;
+                            name: string;
+                            profileUrl: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/person-follows/{personId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    personId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            following: boolean;
+                            followers: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    personId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            following: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    personId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            following: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recaps/show/{showKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query: {
+                    season: number;
+                };
+                header?: never;
+                path: {
+                    showKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            season: number;
+                            text: string;
+                            voteCount: number;
+                            voted: boolean;
+                            mine: boolean;
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recaps/show/{showKey}/counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            season: number;
+                            count: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recaps/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        showTmdbId: string;
+                        season: number;
+                        text: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            showTmdbId: string;
+                            season: number;
+                            text: string;
+                            voteCount: number;
+                            voted: boolean;
+                            mine: boolean;
+                            author: ({
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recaps/{id}/vote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            voted: boolean;
+                            voteCount: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recaps/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai/companion/{showId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            title: string;
+                            progress: {
+                                season: number;
+                                episode: number;
+                            } | null;
+                            seasons: {
+                                number: number;
+                                episodeCount: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        season: number;
+                        episode: number;
+                        text: string;
+                        /** @default [] */
+                        history?: {
+                            /** @enum {string} */
+                            role: "user" | "assistant";
+                            text: string;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            configured: boolean;
+                            reply: string;
+                            beyond: boolean;
+                            remaining?: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai/summary/post/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            configured: boolean;
+                            reason?: string;
+                            data: {
+                                summary: string;
+                                points: string[];
+                                /** @enum {string} */
+                                mood: "olumlu" | "karisik" | "olumsuz";
+                                commentCount: number;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        q: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            configured: boolean;
+                            failed?: boolean;
+                            understood: string;
+                            items: {
+                                id: string;
+                                /** @enum {string} */
+                                kind: "tv" | "movie";
+                                title: string;
+                                year: string | null;
+                                posterUrl: string | null;
+                            }[];
+                            remaining?: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/match/profile": {
         parameters: {
             query?: never;
@@ -22863,15 +33385,15 @@ export interface paths {
                             profile: ({
                                 userId: string;
                                 name: string | null;
-                                photos?: unknown;
-                                prompts?: unknown;
+                                photos: unknown;
+                                prompts: unknown;
                                 age: number;
                                 gender: string | null;
                                 interestedIn: string | null;
                                 city: string | null;
                                 location: string | null;
                                 isActive: boolean;
-                                preferences?: unknown;
+                                preferences: unknown;
                                 /** Format: date-time */
                                 updatedAt: string;
                             } & {
@@ -22921,15 +33443,15 @@ export interface paths {
                         "application/json": {
                             userId: string;
                             name: string | null;
-                            photos?: unknown;
-                            prompts?: unknown;
+                            photos: unknown;
+                            prompts: unknown;
                             age: number;
                             gender: string | null;
                             interestedIn: string | null;
                             city: string | null;
                             location: string | null;
                             isActive: boolean;
-                            preferences?: unknown;
+                            preferences: unknown;
                             /** Format: date-time */
                             updatedAt: string;
                         } & {
@@ -23097,15 +33619,15 @@ export interface paths {
                         "application/json": {
                             userId: string;
                             name: string | null;
-                            photos?: unknown;
-                            prompts?: unknown;
+                            photos: unknown;
+                            prompts: unknown;
                             age: number;
                             gender: string | null;
                             interestedIn: string | null;
                             city: string | null;
                             location: string | null;
                             isActive: boolean;
-                            preferences?: unknown;
+                            preferences: unknown;
                             /** Format: date-time */
                             updatedAt: string;
                         } & {
@@ -23152,8 +33674,8 @@ export interface paths {
                             }) | null;
                             profile: {
                                 name: string | null;
-                                photos?: unknown;
-                                prompts?: unknown;
+                                photos: unknown;
+                                prompts: unknown;
                                 age: number | null;
                                 city: string | null;
                             } & {
@@ -24188,6 +34710,7 @@ export interface paths {
                             surface?: string;
                             poolLevel?: number;
                             sessionId?: string;
+                            dwellMs?: number;
                         }[];
                     };
                 };
