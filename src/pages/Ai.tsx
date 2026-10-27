@@ -121,7 +121,7 @@ export function Ai() {
                 className={kinput}
               />
             </Field>
-            <Field label="Gemini modeli" hint="Örn. gemini-2.5-flash (ucuz, hızlı) ya da gemini-2.5-pro (daha güçlü).">
+            <Field label="Gemini modeli" hint="Önerilen: gemini-flash-latest (hep güncel Flash). Eski sürüm adı kapatılırsa sistem otomatik buna geçer.">
               <input value={gmodel} onChange={(e) => setGmodel(e.target.value.trim())} className={kinput} />
             </Field>
           </div>
