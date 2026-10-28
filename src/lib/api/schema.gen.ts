@@ -457,9 +457,11 @@ export interface paths {
                                 tick: string;
                                 accountType: string;
                                 emailVerified: boolean;
+                                founderNo: number | null;
                             };
                             isNew?: boolean;
                             restored?: boolean;
+                            trustedDevice?: string;
                         };
                     };
                 };
@@ -492,6 +494,7 @@ export interface paths {
                     "application/json": {
                         emailOrUsername: string;
                         password: string;
+                        trustedDevice?: string;
                     };
                 };
             };
@@ -513,9 +516,124 @@ export interface paths {
                                 tick: string;
                                 accountType: string;
                                 emailVerified: boolean;
+                                founderNo: number | null;
                             };
                             isNew?: boolean;
                             restored?: boolean;
+                            trustedDevice?: string;
+                        } | {
+                            twoFactor: {
+                                challenge: string;
+                                /** @enum {string} */
+                                method: "totp" | "email";
+                                emailHint: string | null;
+                                expiresIn: number;
+                            };
+                            isNew?: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        challenge: string;
+                        /** @enum {string} */
+                        method: "totp" | "email" | "recovery";
+                        code: string;
+                        remember?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            access: string;
+                            refresh: string;
+                            user: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                tick: string;
+                                accountType: string;
+                                emailVerified: boolean;
+                                founderNo: number | null;
+                            };
+                            isNew?: boolean;
+                            restored?: boolean;
+                            trustedDevice?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/login/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        challenge: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
                         };
                     };
                 };
@@ -636,6 +754,7 @@ export interface paths {
                         idToken: string;
                         /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform */
                         attribution?: unknown;
+                        trustedDevice?: string;
                     };
                 };
             };
@@ -657,9 +776,20 @@ export interface paths {
                                 tick: string;
                                 accountType: string;
                                 emailVerified: boolean;
+                                founderNo: number | null;
                             };
                             isNew?: boolean;
                             restored?: boolean;
+                            trustedDevice?: string;
+                        } | {
+                            twoFactor: {
+                                challenge: string;
+                                /** @enum {string} */
+                                method: "totp" | "email";
+                                emailHint: string | null;
+                                expiresIn: number;
+                            };
+                            isNew?: boolean;
                         };
                     };
                 };
@@ -695,6 +825,7 @@ export interface paths {
                         name?: string;
                         /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform */
                         attribution?: unknown;
+                        trustedDevice?: string;
                     };
                 };
             };
@@ -716,9 +847,20 @@ export interface paths {
                                 tick: string;
                                 accountType: string;
                                 emailVerified: boolean;
+                                founderNo: number | null;
                             };
                             isNew?: boolean;
                             restored?: boolean;
+                            trustedDevice?: string;
+                        } | {
+                            twoFactor: {
+                                challenge: string;
+                                /** @enum {string} */
+                                method: "totp" | "email";
+                                emailHint: string | null;
+                                expiresIn: number;
+                            };
+                            isNew?: boolean;
                         };
                     };
                 };
@@ -809,6 +951,365 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            enabled: boolean;
+                            /** @enum {string|null} */
+                            method: "totp" | "email" | null;
+                            /** Format: date-time */
+                            enabledAt: string | null;
+                            required: boolean;
+                            recoveryRemaining: number;
+                            emailVerified: boolean;
+                            hasPassword: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/totp/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        password?: string;
+                        current?: {
+                            /** @enum {string} */
+                            method: "totp" | "email" | "recovery";
+                            code: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            secret: string;
+                            otpauth: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/totp/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            recoveryCodes: string[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/email/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        password?: string;
+                        current?: {
+                            /** @enum {string} */
+                            method: "totp" | "email" | "recovery";
+                            code: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                            emailHint: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/email/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            recoveryCodes: string[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/email/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                            emailHint: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        password?: string;
+                        /** @enum {string} */
+                        method: "totp" | "email" | "recovery";
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        password?: string;
+                        /** @enum {string} */
+                        method: "totp" | "email" | "recovery";
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            recoveryCodes: string[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1232,6 +1733,7 @@ export interface paths {
                             coverPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo: number | null;
                             /** @enum {string} */
                             accountType: "person" | "fan" | "official" | "sponsor";
                             isBlueVerified: boolean;
@@ -1247,6 +1749,10 @@ export interface paths {
                             })[] | null;
                             emailVerified: boolean;
                             hasPassword: boolean;
+                            twoFactorEnabled: boolean;
+                            /** @enum {string|null} */
+                            twoFactorMethod: "totp" | "email" | null;
+                            twoFactorRequired: boolean;
                             /** @enum {string} */
                             role: "user" | "moderator" | "admin";
                             balance: number;
@@ -1310,6 +1816,7 @@ export interface paths {
                             coverPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo: number | null;
                             /** @enum {string} */
                             accountType: "person" | "fan" | "official" | "sponsor";
                             isBlueVerified: boolean;
@@ -1325,6 +1832,10 @@ export interface paths {
                             })[] | null;
                             emailVerified: boolean;
                             hasPassword: boolean;
+                            twoFactorEnabled: boolean;
+                            /** @enum {string|null} */
+                            twoFactorMethod: "totp" | "email" | null;
+                            twoFactorRequired: boolean;
                             /** @enum {string} */
                             role: "user" | "moderator" | "admin";
                             balance: number;
@@ -1443,6 +1954,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -1523,6 +2035,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -1561,6 +2074,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -1610,6 +2124,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -1683,6 +2198,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -1763,6 +2279,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -1801,6 +2318,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -1850,6 +2368,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -1886,6 +2405,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -1966,6 +2486,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -2004,6 +2525,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -2053,6 +2575,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -2130,6 +2653,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -2210,6 +2734,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -2248,6 +2773,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -2297,6 +2823,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -2333,6 +2860,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -2413,6 +2941,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -2451,6 +2980,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -2500,6 +3030,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -2577,6 +3108,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -2657,6 +3189,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -2695,6 +3228,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -2744,6 +3278,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -2780,6 +3315,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -2860,6 +3396,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -2898,6 +3435,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -2947,6 +3485,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -3139,6 +3678,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                             /** @enum {string} */
                             accountType: "person" | "fan" | "official" | "sponsor";
                             followerCount: number;
@@ -3179,6 +3719,11 @@ export interface paths {
                         username: string;
                         password: string;
                         currentPassword?: string;
+                        twoFactor?: {
+                            /** @enum {string} */
+                            method: "totp" | "email" | "recovery";
+                            code: string;
+                        };
                     };
                 };
             };
@@ -3360,6 +3905,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -3474,6 +4020,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -3676,6 +4223,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -4007,6 +4555,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[] | ({
@@ -4017,6 +4566,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -4071,6 +4621,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[] | ({
@@ -4081,6 +4632,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -4139,6 +4691,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -4219,6 +4772,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -4257,6 +4811,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -4306,6 +4861,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -4342,6 +4898,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -4422,6 +4979,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -4460,6 +5018,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -4509,6 +5068,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -4588,6 +5148,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -4668,6 +5229,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -4706,6 +5268,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -4755,6 +5318,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -4791,6 +5355,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -4871,6 +5436,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -4909,6 +5475,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -4958,6 +5525,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -5037,6 +5605,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -5117,6 +5686,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -5155,6 +5725,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -5204,6 +5775,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -5240,6 +5812,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -5320,6 +5893,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -5358,6 +5932,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -5407,6 +5982,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -5627,6 +6203,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -5707,6 +6284,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -5745,6 +6323,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -5794,6 +6373,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -5830,6 +6410,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -5910,6 +6491,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -5948,6 +6530,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -5997,6 +6580,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -6203,6 +6787,7 @@ export interface paths {
                             coverPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo: number | null;
                             /** @enum {string} */
                             accountType: "person" | "fan" | "official" | "sponsor";
                             isTrusted: boolean;
@@ -6462,6 +7047,14 @@ export interface paths {
                             posterUrl: string | null;
                             genreIds: number[];
                             genres: string[];
+                            score: number;
+                            platforms: {
+                                id: number;
+                                name: string;
+                            }[];
+                            network: string | null;
+                            seasons: number | null;
+                            ended: boolean | null;
                         }[];
                     };
                 };
@@ -7391,6 +7984,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -7471,6 +8065,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -7509,6 +8104,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -7558,6 +8154,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -7636,6 +8233,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -7716,6 +8314,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -7754,6 +8353,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -7803,6 +8403,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -7972,6 +8573,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -8052,6 +8654,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -8090,6 +8693,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -8139,6 +8743,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -8218,6 +8823,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -8298,6 +8904,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -8336,6 +8943,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -8385,6 +8993,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -8469,6 +9078,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -8549,6 +9159,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -8587,6 +9198,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -8636,6 +9248,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -8865,6 +9478,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -8945,6 +9559,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -8983,6 +9598,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -9032,6 +9648,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -9143,6 +9760,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -9223,6 +9841,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -9261,6 +9880,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -9310,6 +9930,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -9414,6 +10035,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -9494,6 +10116,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -9532,6 +10155,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -9581,6 +10205,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -9662,6 +10287,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -9742,6 +10368,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -9780,6 +10407,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -9829,6 +10457,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -9891,6 +10520,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                             canTag: boolean;
                             reason: string | null;
                         } & {
@@ -9956,6 +10586,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -10036,6 +10667,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -10074,6 +10706,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -10123,6 +10756,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -10331,6 +10965,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -10381,6 +11016,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -10394,6 +11030,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -10631,6 +11268,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -10711,6 +11349,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -10749,6 +11388,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -10798,6 +11438,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -11020,6 +11661,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -11416,6 +12058,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             };
@@ -11542,6 +12185,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -11622,6 +12266,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -11660,6 +12305,7 @@ export interface paths {
                                                 avatarPath: string | null;
                                                 /** @enum {string} */
                                                 tick: "none" | "yellow" | "blue";
+                                                founderNo?: number | null;
                                             } & {
                                                 [key: string]: unknown;
                                             }) | null;
@@ -11709,6 +12355,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         };
@@ -11966,6 +12613,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                             liked: boolean;
                         } & {
                             [key: string]: unknown;
@@ -12032,6 +12680,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 })[];
@@ -12843,6 +13492,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -13026,6 +13676,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -13047,6 +13698,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -13272,6 +13924,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -13336,6 +13989,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -13467,6 +14121,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -13486,6 +14141,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -13543,6 +14199,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 };
@@ -13630,6 +14287,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -13671,6 +14329,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 })[];
@@ -14309,6 +14968,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                                 role: string;
                             } & {
                                 [key: string]: unknown;
@@ -14320,6 +14980,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                                 bio: string | null;
                                 followsYou: boolean;
                                 following: boolean;
@@ -15675,6 +16336,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -15933,6 +16595,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -16268,6 +16931,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/watchlist/continue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    l?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            showTmdbId: string;
+                            title: string;
+                            posterUrl: string | null;
+                            backdropUrl: string | null;
+                            current: {
+                                season: number;
+                                episode: number;
+                            } | null;
+                            next: {
+                                season: number;
+                                episode: number;
+                            } | null;
+                            /** @enum {string} */
+                            state: "start" | "next" | "newSeason" | "waiting" | "caughtUp" | "finished";
+                            done: number;
+                            total: number;
+                            left: number;
+                            nextAirDate: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watchlist/{showTmdbId}/advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showTmdbId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default 1 */
+                        count?: number;
+                        l?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            moved: number;
+                            finished: boolean;
+                            current: {
+                                season: number;
+                                episode: number;
+                            } | null;
+                            prev: {
+                                /** @enum {string|null} */
+                                status: "watched" | "watching" | "planned" | "dropped" | null;
+                                season: number | null;
+                                episode: number | null;
+                            };
+                            entryIds: string[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watchlist/{showTmdbId}/undo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    showTmdbId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        prev: {
+                            /** @enum {string|null} */
+                            status: "watched" | "watching" | "planned" | "dropped" | null;
+                            season: number | null;
+                            episode: number | null;
+                        };
+                        entryIds: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/leaderboard/": {
         parameters: {
             query?: never;
@@ -16369,6 +17202,9 @@ export interface paths {
                             notifInApp: {
                                 [key: string]: boolean;
                             };
+                            notifEmail?: {
+                                [key: string]: boolean;
+                            };
                             quietHours: boolean;
                             quietStartHour: number;
                             quietEndHour: number;
@@ -16420,6 +17256,9 @@ export interface paths {
                         notifInApp?: {
                             [key: string]: boolean;
                         };
+                        notifEmail?: {
+                            [key: string]: boolean;
+                        };
                         quietHours?: boolean;
                         quietStartHour?: number;
                         quietEndHour?: number;
@@ -16457,6 +17296,9 @@ export interface paths {
                                 [key: string]: boolean;
                             };
                             notifInApp: {
+                                [key: string]: boolean;
+                            };
+                            notifEmail?: {
                                 [key: string]: boolean;
                             };
                             quietHours: boolean;
@@ -16823,6 +17665,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                                 followerCount: number;
                             } & {
                                 [key: string]: unknown;
@@ -16864,6 +17707,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -16944,6 +17788,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -16982,6 +17827,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -17031,6 +17877,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -17127,6 +17974,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -17231,6 +18079,7 @@ export interface paths {
                                     avatarPath: string | null;
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
                                 } & {
                                     [key: string]: unknown;
                                 }) | null;
@@ -17311,6 +18160,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     }) | null;
@@ -17349,6 +18199,7 @@ export interface paths {
                                             avatarPath: string | null;
                                             /** @enum {string} */
                                             tick: "none" | "yellow" | "blue";
+                                            founderNo?: number | null;
                                         } & {
                                             [key: string]: unknown;
                                         }) | null;
@@ -17398,6 +18249,7 @@ export interface paths {
                                         avatarPath: string | null;
                                         /** @enum {string} */
                                         tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
                                     } & {
                                         [key: string]: unknown;
                                     };
@@ -23585,6 +24437,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -23730,6 +24583,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -27513,6 +28367,7 @@ export interface paths {
                                 postCount: number;
                                 followerCount: number;
                                 followingCount: number;
+                                founderNo: number | null;
                                 watching: {
                                     title: string;
                                     posterUrl: string | null;
@@ -27649,6 +28504,7 @@ export interface paths {
                                 postCount: number;
                                 followerCount: number;
                                 followingCount: number;
+                                founderNo: number | null;
                                 watching: {
                                     title: string;
                                     posterUrl: string | null;
@@ -27785,6 +28641,7 @@ export interface paths {
                                 postCount: number;
                                 followerCount: number;
                                 followingCount: number;
+                                founderNo: number | null;
                                 watching: {
                                     title: string;
                                     posterUrl: string | null;
@@ -27921,6 +28778,7 @@ export interface paths {
                                 postCount: number;
                                 followerCount: number;
                                 followingCount: number;
+                                founderNo: number | null;
                                 watching: {
                                     title: string;
                                     posterUrl: string | null;
@@ -28057,6 +28915,7 @@ export interface paths {
                                 postCount: number;
                                 followerCount: number;
                                 followingCount: number;
+                                founderNo: number | null;
                                 watching: {
                                     title: string;
                                     posterUrl: string | null;
@@ -28172,6 +29031,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/founders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            limit: number;
+                            taken: number;
+                            remaining: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/stats/{username}": {
         parameters: {
             query?: never;
@@ -28204,6 +29102,7 @@ export interface paths {
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
                                 followerCount: number;
+                                founderNo: number | null;
                             };
                             stats: {
                                 watched: number;
@@ -28278,6 +29177,200 @@ export interface paths {
                                 rewatches: number;
                                 /** Format: date-time */
                                 memberSince: string | null;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/summary/{username}/{ym}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                    ym: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            user: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                followerCount: number;
+                                founderNo: number | null;
+                            };
+                            summary: {
+                                month: string;
+                                episodes: number;
+                                minutes: number;
+                                films: number;
+                                titles: number;
+                                prevEpisodes: number;
+                                change: number | null;
+                                hist: {
+                                    month: string;
+                                    episodes: number;
+                                }[];
+                                days: number[];
+                                daysInMonth: number;
+                                firstWeekday: number;
+                                bestRun: {
+                                    len: number;
+                                    from: number;
+                                    to: number;
+                                } | null;
+                                topShow: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    backdropUrl: string | null;
+                                    episodes: number;
+                                    evenings: number;
+                                    bestDay: number;
+                                    share: number;
+                                } | null;
+                                topEpisode: {
+                                    key: string;
+                                    title: string | null;
+                                    season: number;
+                                    episode: number;
+                                    name: string | null;
+                                    stillUrl: string | null;
+                                    rating: number;
+                                    avg: number | null;
+                                } | null;
+                                filmList: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                }[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/wrapped/{username}/{year}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                    year: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            user: {
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                /** @enum {string} */
+                                tick: "none" | "yellow" | "blue";
+                                followerCount: number;
+                                founderNo: number | null;
+                            };
+                            wrapped: {
+                                year: number;
+                                minutes: number;
+                                episodes: number;
+                                estimated: boolean;
+                                titles: number;
+                                topGenres: string[];
+                                topShows: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    minutes: number;
+                                }[];
+                                posts: number;
+                                reviews: number;
+                                likesReceived: number;
+                                commentsReceived: number;
+                                bestPost: {
+                                    id: string;
+                                    text: string | null;
+                                    likeCount: number;
+                                } | null;
+                                topEpisode: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    season: number;
+                                    episode: number;
+                                    rating: number;
+                                } | null;
+                                predictionsRight: number;
+                                lists: number;
+                                topPercent: number | null;
+                                talkedShows: {
+                                    key: string;
+                                    title: string | null;
+                                    posterUrl: string | null;
+                                    count: number;
+                                }[];
+                                persona: {
+                                    key: string;
+                                    stat: number;
+                                };
+                                games: {
+                                    dizidleWins: number;
+                                    dizidleBest: number;
+                                    quizzes: number;
+                                    quizBest: number;
+                                    pickMatches: number;
+                                };
+                                comments: number;
                             };
                         };
                     };
@@ -29527,6 +30620,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -29586,6 +30680,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -29647,6 +30742,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -29754,6 +30850,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -30816,6 +31913,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -30939,6 +32037,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -31050,6 +32149,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -31422,6 +32522,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             })[];
@@ -31662,10 +32763,275 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             };
                         }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/summary/months": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            month: string;
+                            entries: number;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/summary/{ym}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    ym: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            month: string;
+                            episodes: number;
+                            minutes: number;
+                            films: number;
+                            titles: number;
+                            prevEpisodes: number;
+                            change: number | null;
+                            hist: {
+                                month: string;
+                                episodes: number;
+                            }[];
+                            days: number[];
+                            daysInMonth: number;
+                            firstWeekday: number;
+                            bestRun: {
+                                len: number;
+                                from: number;
+                                to: number;
+                            } | null;
+                            topShow: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                backdropUrl: string | null;
+                                episodes: number;
+                                evenings: number;
+                                bestDay: number;
+                                share: number;
+                            } | null;
+                            topEpisode: {
+                                key: string;
+                                title: string | null;
+                                season: number;
+                                episode: number;
+                                name: string | null;
+                                stillUrl: string | null;
+                                rating: number;
+                                avg: number | null;
+                            } | null;
+                            filmList: {
+                                key: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                            }[];
+                        } | null;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/streak": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            current: number;
+                            best: number;
+                            watchedToday: boolean;
+                            startedOn: string | null;
+                            milestone: number | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diary/friends/journeys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            series: {
+                                showTmdbId: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                backdropUrl: string | null;
+                                season: number;
+                                eps: number | null;
+                                aired: number | null;
+                                totalEps: number | null;
+                                nextAirDate: string | null;
+                                /** @enum {string} */
+                                state: "live" | "binge" | "wait" | "new" | "done" | "idle" | "watching";
+                                lanes: {
+                                    user: {
+                                        id: string;
+                                        username: string;
+                                        displayName: string | null;
+                                        avatarPath: string | null;
+                                        /** @enum {string} */
+                                        tick: "none" | "yellow" | "blue";
+                                        founderNo?: number | null;
+                                    } & {
+                                        [key: string]: unknown;
+                                    };
+                                    season: number;
+                                    episode: number;
+                                    /** @enum {string} */
+                                    state: "live" | "binge" | "wait" | "new" | "done" | "idle" | "watching";
+                                    binge: {
+                                        n: number;
+                                        /** @enum {string} */
+                                        day: "today" | "yesterday";
+                                    } | null;
+                                    /** Format: date-time */
+                                    lastAt: string;
+                                    /** Format: date-time */
+                                    startedAt: string;
+                                    sinceDays: number;
+                                    doneDays: number;
+                                    week: number;
+                                    rhythm: number[];
+                                    rating: number | null;
+                                }[];
+                                you: {
+                                    season: number;
+                                    episode: number;
+                                } | null;
+                            }[];
+                            films: {
+                                showTmdbId: string;
+                                title: string | null;
+                                posterUrl: string | null;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    /** @enum {string} */
+                                    tick: "none" | "yellow" | "blue";
+                                    founderNo?: number | null;
+                                } & {
+                                    [key: string]: unknown;
+                                };
+                                /** Format: date-time */
+                                watchedAt: string;
+                                rating: number | null;
+                            }[];
+                        };
                     };
                 };
             };
@@ -31710,6 +33076,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             };
@@ -31917,6 +33284,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -31984,6 +33352,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -32147,6 +33516,80 @@ export interface paths {
                             best: number;
                             dist: number[];
                             nextInMs: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/daily/leaderboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    scope?: "today" | "all";
+                    friends?: boolean;
+                    offset?: number;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            scope: "today" | "all";
+                            day: string;
+                            total: number;
+                            items: {
+                                rank: number;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    tick: string | null;
+                                };
+                                score: number;
+                                avg: number | null;
+                                played: number;
+                                me: boolean;
+                            }[];
+                            nextOffset: number | null;
+                            mine: {
+                                rank: number;
+                                user: {
+                                    id: string;
+                                    username: string;
+                                    displayName: string | null;
+                                    avatarPath: string | null;
+                                    tick: string | null;
+                                };
+                                score: number;
+                                avg: number | null;
+                                played: number;
+                                me: boolean;
+                            } | null;
                         };
                     };
                 };
@@ -32436,6 +33879,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                                 swiped: number;
                             } & {
                                 [key: string]: unknown;
@@ -32530,6 +33974,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                                 swiped: number;
                             } & {
                                 [key: string]: unknown;
@@ -32618,6 +34063,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                                 swiped: number;
                             } & {
                                 [key: string]: unknown;
@@ -32969,6 +34415,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -33074,6 +34521,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -33669,6 +35117,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -33872,6 +35321,7 @@ export interface paths {
                                 avatarPath: string | null;
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
+                                founderNo?: number | null;
                             } & {
                                 [key: string]: unknown;
                             }) | null;
@@ -33919,6 +35369,7 @@ export interface paths {
                             avatarPath: string | null;
                             /** @enum {string} */
                             tick: "none" | "yellow" | "blue";
+                            founderNo?: number | null;
                         } & {
                             [key: string]: unknown;
                         })[];

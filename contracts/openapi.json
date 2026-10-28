@@ -790,6 +790,10 @@
                         },
                         "emailVerified": {
                           "type": "boolean"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -799,7 +803,8 @@
                         "avatarPath",
                         "tick",
                         "accountType",
-                        "emailVerified"
+                        "emailVerified",
+                        "founderNo"
                       ],
                       "additionalProperties": false
                     },
@@ -808,6 +813,9 @@
                     },
                     "restored": {
                       "type": "boolean"
+                    },
+                    "trustedDevice": {
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -842,11 +850,184 @@
                   "password": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "trustedDevice": {
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 200
                   }
                 },
                 "required": [
                   "emailOrUsername",
                   "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "access": {
+                          "type": "string"
+                        },
+                        "refresh": {
+                          "type": "string"
+                        },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "avatarPath": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "tick": {
+                              "type": "string"
+                            },
+                            "accountType": {
+                              "type": "string"
+                            },
+                            "emailVerified": {
+                              "type": "boolean"
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "username",
+                            "displayName",
+                            "avatarPath",
+                            "tick",
+                            "accountType",
+                            "emailVerified",
+                            "founderNo"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "isNew": {
+                          "type": "boolean"
+                        },
+                        "restored": {
+                          "type": "boolean"
+                        },
+                        "trustedDevice": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "access",
+                        "refresh",
+                        "user"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "twoFactor": {
+                          "type": "object",
+                          "properties": {
+                            "challenge": {
+                              "type": "string"
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "totp",
+                                "email"
+                              ]
+                            },
+                            "emailHint": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "expiresIn": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "challenge",
+                            "method",
+                            "emailHint",
+                            "expiresIn"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "isNew": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "twoFactor"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 100
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "totp",
+                      "email",
+                      "recovery"
+                    ]
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 20
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "challenge",
+                  "method",
+                  "code"
                 ]
               }
             }
@@ -891,6 +1072,10 @@
                         },
                         "emailVerified": {
                           "type": "boolean"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -900,7 +1085,8 @@
                         "avatarPath",
                         "tick",
                         "accountType",
-                        "emailVerified"
+                        "emailVerified",
+                        "founderNo"
                       ],
                       "additionalProperties": false
                     },
@@ -909,12 +1095,63 @@
                     },
                     "restored": {
                       "type": "boolean"
+                    },
+                    "trustedDevice": {
+                      "type": "string"
                     }
                   },
                   "required": [
                     "access",
                     "refresh",
                     "user"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/login/resend": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 100
+                  }
+                },
+                "required": [
+                  "challenge"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
                   ],
                   "additionalProperties": false
                 }
@@ -1034,6 +1271,11 @@
                   },
                   "attribution": {
                     "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform"
+                  },
+                  "trustedDevice": {
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 200
                   }
                 },
                 "required": [
@@ -1049,65 +1291,118 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "access": {
-                      "type": "string"
-                    },
-                    "refresh": {
-                      "type": "string"
-                    },
-                    "user": {
+                  "anyOf": [
+                    {
                       "type": "object",
                       "properties": {
-                        "id": {
+                        "access": {
                           "type": "string"
                         },
-                        "username": {
+                        "refresh": {
                           "type": "string"
                         },
-                        "displayName": {
-                          "nullable": true,
-                          "type": "string"
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "avatarPath": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "tick": {
+                              "type": "string"
+                            },
+                            "accountType": {
+                              "type": "string"
+                            },
+                            "emailVerified": {
+                              "type": "boolean"
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "username",
+                            "displayName",
+                            "avatarPath",
+                            "tick",
+                            "accountType",
+                            "emailVerified",
+                            "founderNo"
+                          ],
+                          "additionalProperties": false
                         },
-                        "avatarPath": {
-                          "nullable": true,
-                          "type": "string"
+                        "isNew": {
+                          "type": "boolean"
                         },
-                        "tick": {
-                          "type": "string"
+                        "restored": {
+                          "type": "boolean"
                         },
-                        "accountType": {
+                        "trustedDevice": {
                           "type": "string"
+                        }
+                      },
+                      "required": [
+                        "access",
+                        "refresh",
+                        "user"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "twoFactor": {
+                          "type": "object",
+                          "properties": {
+                            "challenge": {
+                              "type": "string"
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "totp",
+                                "email"
+                              ]
+                            },
+                            "emailHint": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "expiresIn": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "challenge",
+                            "method",
+                            "emailHint",
+                            "expiresIn"
+                          ],
+                          "additionalProperties": false
                         },
-                        "emailVerified": {
+                        "isNew": {
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "username",
-                        "displayName",
-                        "avatarPath",
-                        "tick",
-                        "accountType",
-                        "emailVerified"
+                        "twoFactor"
                       ],
                       "additionalProperties": false
-                    },
-                    "isNew": {
-                      "type": "boolean"
-                    },
-                    "restored": {
-                      "type": "boolean"
                     }
-                  },
-                  "required": [
-                    "access",
-                    "refresh",
-                    "user"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1142,6 +1437,11 @@
                   },
                   "attribution": {
                     "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform"
+                  },
+                  "trustedDevice": {
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 200
                   }
                 },
                 "required": [
@@ -1157,65 +1457,118 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "access": {
-                      "type": "string"
-                    },
-                    "refresh": {
-                      "type": "string"
-                    },
-                    "user": {
+                  "anyOf": [
+                    {
                       "type": "object",
                       "properties": {
-                        "id": {
+                        "access": {
                           "type": "string"
                         },
-                        "username": {
+                        "refresh": {
                           "type": "string"
                         },
-                        "displayName": {
-                          "nullable": true,
-                          "type": "string"
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "avatarPath": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "tick": {
+                              "type": "string"
+                            },
+                            "accountType": {
+                              "type": "string"
+                            },
+                            "emailVerified": {
+                              "type": "boolean"
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "username",
+                            "displayName",
+                            "avatarPath",
+                            "tick",
+                            "accountType",
+                            "emailVerified",
+                            "founderNo"
+                          ],
+                          "additionalProperties": false
                         },
-                        "avatarPath": {
-                          "nullable": true,
-                          "type": "string"
+                        "isNew": {
+                          "type": "boolean"
                         },
-                        "tick": {
-                          "type": "string"
+                        "restored": {
+                          "type": "boolean"
                         },
-                        "accountType": {
+                        "trustedDevice": {
                           "type": "string"
+                        }
+                      },
+                      "required": [
+                        "access",
+                        "refresh",
+                        "user"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "twoFactor": {
+                          "type": "object",
+                          "properties": {
+                            "challenge": {
+                              "type": "string"
+                            },
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "totp",
+                                "email"
+                              ]
+                            },
+                            "emailHint": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "expiresIn": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "challenge",
+                            "method",
+                            "emailHint",
+                            "expiresIn"
+                          ],
+                          "additionalProperties": false
                         },
-                        "emailVerified": {
+                        "isNew": {
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "username",
-                        "displayName",
-                        "avatarPath",
-                        "tick",
-                        "accountType",
-                        "emailVerified"
+                        "twoFactor"
                       ],
                       "additionalProperties": false
-                    },
-                    "isNew": {
-                      "type": "boolean"
-                    },
-                    "restored": {
-                      "type": "boolean"
                     }
-                  },
-                  "required": [
-                    "access",
-                    "refresh",
-                    "user"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1313,6 +1666,466 @@
                   },
                   "required": [
                     "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "method": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "totp",
+                        "email"
+                      ]
+                    },
+                    "enabledAt": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "recoveryRemaining": {
+                      "type": "number"
+                    },
+                    "emailVerified": {
+                      "type": "boolean"
+                    },
+                    "hasPassword": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "enabled",
+                    "method",
+                    "enabledAt",
+                    "required",
+                    "recoveryRemaining",
+                    "emailVerified",
+                    "hasPassword"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/totp/setup": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "current": {
+                    "type": "object",
+                    "properties": {
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "totp",
+                          "email",
+                          "recovery"
+                        ]
+                      },
+                      "code": {
+                        "type": "string",
+                        "minLength": 6,
+                        "maxLength": 20
+                      }
+                    },
+                    "required": [
+                      "method",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "secret": {
+                      "type": "string"
+                    },
+                    "otpauth": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "secret",
+                    "otpauth"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/totp/enable": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "pattern": "^\\d{6}$"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recoveryCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "recoveryCodes"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/email/setup": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "current": {
+                    "type": "object",
+                    "properties": {
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "totp",
+                          "email",
+                          "recovery"
+                        ]
+                      },
+                      "code": {
+                        "type": "string",
+                        "minLength": 6,
+                        "maxLength": 20
+                      }
+                    },
+                    "required": [
+                      "method",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "emailHint": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "emailHint"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/email/enable": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "pattern": "^\\d{6}$"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recoveryCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "recoveryCodes"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/email/send": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "emailHint": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "emailHint"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/disable": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "totp",
+                      "email",
+                      "recovery"
+                    ]
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 20
+                  }
+                },
+                "required": [
+                  "method",
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/2fa/recovery": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "totp",
+                      "email",
+                      "recovery"
+                    ]
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 20
+                  }
+                },
+                "required": [
+                  "method",
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recoveryCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "recoveryCodes"
                   ],
                   "additionalProperties": false
                 }
@@ -1901,6 +2714,10 @@
                         "blue"
                       ]
                     },
+                    "founderNo": {
+                      "nullable": true,
+                      "type": "number"
+                    },
                     "accountType": {
                       "type": "string",
                       "enum": [
@@ -1952,6 +2769,20 @@
                     "hasPassword": {
                       "type": "boolean"
                     },
+                    "twoFactorEnabled": {
+                      "type": "boolean"
+                    },
+                    "twoFactorMethod": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "totp",
+                        "email"
+                      ]
+                    },
+                    "twoFactorRequired": {
+                      "type": "boolean"
+                    },
                     "role": {
                       "type": "string",
                       "enum": [
@@ -1985,6 +2816,7 @@
                     "avatarPath",
                     "coverPath",
                     "tick",
+                    "founderNo",
                     "accountType",
                     "isBlueVerified",
                     "isTrusted",
@@ -1994,6 +2826,9 @@
                     "links",
                     "emailVerified",
                     "hasPassword",
+                    "twoFactorEnabled",
+                    "twoFactorMethod",
+                    "twoFactorRequired",
                     "role",
                     "balance",
                     "followerCount",
@@ -2139,6 +2974,10 @@
                         "blue"
                       ]
                     },
+                    "founderNo": {
+                      "nullable": true,
+                      "type": "number"
+                    },
                     "accountType": {
                       "type": "string",
                       "enum": [
@@ -2190,6 +3029,20 @@
                     "hasPassword": {
                       "type": "boolean"
                     },
+                    "twoFactorEnabled": {
+                      "type": "boolean"
+                    },
+                    "twoFactorMethod": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "totp",
+                        "email"
+                      ]
+                    },
+                    "twoFactorRequired": {
+                      "type": "boolean"
+                    },
                     "role": {
                       "type": "string",
                       "enum": [
@@ -2223,6 +3076,7 @@
                     "avatarPath",
                     "coverPath",
                     "tick",
+                    "founderNo",
                     "accountType",
                     "isBlueVerified",
                     "isTrusted",
@@ -2232,6 +3086,9 @@
                     "links",
                     "emailVerified",
                     "hasPassword",
+                    "twoFactorEnabled",
+                    "twoFactorMethod",
+                    "twoFactorRequired",
                     "role",
                     "balance",
                     "followerCount",
@@ -2428,6 +3285,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -2752,6 +3613,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -2888,6 +3753,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -3066,6 +3935,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -3272,6 +4145,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -3596,6 +4473,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -3732,6 +4613,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -3910,6 +4795,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -4081,6 +4970,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -4405,6 +5298,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -4541,6 +5438,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -4719,6 +5620,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -4938,6 +5843,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -5262,6 +6171,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -5398,6 +6311,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -5576,6 +6493,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -5747,6 +6668,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -6071,6 +6996,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -6207,6 +7136,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -6385,6 +7318,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -6604,6 +7541,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -6928,6 +7869,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -7064,6 +8009,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -7242,6 +8191,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -7413,6 +8366,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -7737,6 +8694,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -7873,6 +8834,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -8051,6 +9016,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -8453,6 +9422,10 @@
                           "blue"
                         ]
                       },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
+                      },
                       "accountType": {
                         "type": "string",
                         "enum": [
@@ -8504,6 +9477,28 @@
                   },
                   "currentPassword": {
                     "type": "string"
+                  },
+                  "twoFactor": {
+                    "type": "object",
+                    "properties": {
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "totp",
+                          "email",
+                          "recovery"
+                        ]
+                      },
+                      "code": {
+                        "type": "string",
+                        "minLength": 6,
+                        "maxLength": 20
+                      }
+                    },
+                    "required": [
+                      "method",
+                      "code"
+                    ]
                   }
                 },
                 "required": [
@@ -8707,6 +9702,10 @@
                           "yellow",
                           "blue"
                         ]
+                      },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
                       }
                     },
                     "required": [
@@ -8845,6 +9844,10 @@
                           "yellow",
                           "blue"
                         ]
+                      },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
                       }
                     },
                     "required": [
@@ -9077,6 +10080,10 @@
                           "yellow",
                           "blue"
                         ]
+                      },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
                       }
                     },
                     "required": [
@@ -9476,6 +10483,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -9517,6 +10528,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -9625,6 +10640,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -9666,6 +10685,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -9790,6 +10813,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -10114,6 +11141,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -10250,6 +11281,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -10428,6 +11463,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -10599,6 +11638,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -10923,6 +11966,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -11059,6 +12106,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -11237,6 +12288,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -11465,6 +12520,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -11789,6 +12848,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -11925,6 +12988,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -12103,6 +13170,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -12274,6 +13345,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -12598,6 +13673,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -12734,6 +13813,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -12912,6 +13995,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -13140,6 +14227,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -13464,6 +14555,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -13600,6 +14695,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -13778,6 +14877,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -13949,6 +15052,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -14273,6 +15380,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -14409,6 +15520,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -14587,6 +15702,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -15053,6 +16172,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -15377,6 +16500,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -15513,6 +16640,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -15691,6 +16822,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -15862,6 +16997,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -16186,6 +17325,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -16322,6 +17465,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -16500,6 +17647,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -16954,6 +18105,10 @@
                         "blue"
                       ]
                     },
+                    "founderNo": {
+                      "nullable": true,
+                      "type": "number"
+                    },
                     "accountType": {
                       "type": "string",
                       "enum": [
@@ -17100,6 +18255,7 @@
                     "avatarPath",
                     "coverPath",
                     "tick",
+                    "founderNo",
                     "accountType",
                     "isTrusted",
                     "isPrivate",
@@ -17460,6 +18616,40 @@
                         "items": {
                           "type": "string"
                         }
+                      },
+                      "score": {
+                        "type": "number"
+                      },
+                      "platforms": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "number"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "network": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "seasons": {
+                        "nullable": true,
+                        "type": "number"
+                      },
+                      "ended": {
+                        "nullable": true,
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -17469,7 +18659,12 @@
                       "year",
                       "posterUrl",
                       "genreIds",
-                      "genres"
+                      "genres",
+                      "score",
+                      "platforms",
+                      "network",
+                      "seasons",
+                      "ended"
                     ],
                     "additionalProperties": false
                   }
@@ -19373,6 +20568,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -19697,6 +20896,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -19833,6 +21036,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -20011,6 +21218,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -20230,6 +21441,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -20554,6 +21769,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -20690,6 +21909,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -20868,6 +22091,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -21243,6 +22470,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -21567,6 +22798,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -21703,6 +22938,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -21881,6 +23120,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -22108,6 +23351,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -22432,6 +23679,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -22568,6 +23819,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -22746,6 +24001,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -23014,6 +24273,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -23338,6 +24601,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -23474,6 +24741,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -23652,6 +24923,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -24258,6 +25533,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -24582,6 +25861,10 @@
                                 "yellow",
                                 "blue"
                               ]
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
                             }
                           },
                           "required": [
@@ -24718,6 +26001,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -24896,6 +26183,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -25129,6 +26420,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -25453,6 +26748,10 @@
                                 "yellow",
                                 "blue"
                               ]
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
                             }
                           },
                           "required": [
@@ -25589,6 +26888,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -25767,6 +27070,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -26032,6 +27339,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -26356,6 +27667,10 @@
                                 "yellow",
                                 "blue"
                               ]
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
                             }
                           },
                           "required": [
@@ -26492,6 +27807,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -26670,6 +27989,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -26921,6 +28244,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -27245,6 +28572,10 @@
                                 "yellow",
                                 "blue"
                               ]
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
                             }
                           },
                           "required": [
@@ -27381,6 +28712,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -27559,6 +28894,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -27736,6 +29075,10 @@
                           "blue"
                         ]
                       },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
+                      },
                       "canTag": {
                         "type": "boolean"
                       },
@@ -27873,6 +29216,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -28197,6 +29544,10 @@
                                 "yellow",
                                 "blue"
                               ]
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
                             }
                           },
                           "required": [
@@ -28333,6 +29684,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -28511,6 +29866,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -28864,6 +30223,10 @@
                           "yellow",
                           "blue"
                         ]
+                      },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
                       }
                     },
                     "required": [
@@ -28951,6 +30314,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -29000,6 +30367,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -29312,6 +30683,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -29636,6 +31011,10 @@
                                 "yellow",
                                 "blue"
                               ]
+                            },
+                            "founderNo": {
+                              "nullable": true,
+                              "type": "number"
                             }
                           },
                           "required": [
@@ -29772,6 +31151,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -29950,6 +31333,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -30474,6 +31861,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -31364,6 +32755,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -31991,6 +33386,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -32315,6 +33714,10 @@
                                             "yellow",
                                             "blue"
                                           ]
+                                        },
+                                        "founderNo": {
+                                          "nullable": true,
+                                          "type": "number"
                                         }
                                       },
                                       "required": [
@@ -32451,6 +33854,10 @@
                                                 "yellow",
                                                 "blue"
                                               ]
+                                            },
+                                            "founderNo": {
+                                              "nullable": true,
+                                              "type": "number"
                                             }
                                           },
                                           "required": [
@@ -32629,6 +34036,10 @@
                                               "yellow",
                                               "blue"
                                             ]
+                                          },
+                                          "founderNo": {
+                                            "nullable": true,
+                                            "type": "number"
                                           }
                                         },
                                         "required": [
@@ -33076,6 +34487,10 @@
                           "blue"
                         ]
                       },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
+                      },
                       "liked": {
                         "type": "boolean"
                       }
@@ -33212,6 +34627,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -34858,6 +36277,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -35099,6 +36522,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -35172,6 +36599,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -35501,6 +36932,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -35668,6 +37103,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -35900,6 +37339,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -35961,6 +37404,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -36058,6 +37505,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -36111,7 +37562,7 @@
                   "text": {
                     "nullable": true,
                     "type": "string",
-                    "maxLength": 60
+                    "maxLength": 240
                   }
                 },
                 "required": [
@@ -36228,6 +37679,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -36383,6 +37838,10 @@
                                     "yellow",
                                     "blue"
                                   ]
+                                },
+                                "founderNo": {
+                                  "nullable": true,
+                                  "type": "number"
                                 }
                               },
                               "required": [
@@ -37590,6 +39049,10 @@
                               "blue"
                             ]
                           },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
+                          },
                           "role": {
                             "type": "string"
                           }
@@ -37630,6 +39093,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         },
                         "bio": {
                           "nullable": true,
@@ -40114,6 +41581,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -40526,6 +41997,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -41415,6 +42890,344 @@
         }
       }
     },
+    "/api/v1/watchlist/continue": {
+      "get": {
+        "tags": [
+          "watchlist"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 5
+            },
+            "in": "query",
+            "name": "l",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "showTmdbId": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "posterUrl": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "backdropUrl": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "current": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                          "season": {
+                            "type": "number"
+                          },
+                          "episode": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "season",
+                          "episode"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "next": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                          "season": {
+                            "type": "number"
+                          },
+                          "episode": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "season",
+                          "episode"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "state": {
+                        "type": "string",
+                        "enum": [
+                          "start",
+                          "next",
+                          "newSeason",
+                          "waiting",
+                          "caughtUp",
+                          "finished"
+                        ]
+                      },
+                      "done": {
+                        "type": "number"
+                      },
+                      "total": {
+                        "type": "number"
+                      },
+                      "left": {
+                        "type": "number"
+                      },
+                      "nextAirDate": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "showTmdbId",
+                      "title",
+                      "posterUrl",
+                      "backdropUrl",
+                      "current",
+                      "next",
+                      "state",
+                      "done",
+                      "total",
+                      "left",
+                      "nextAirDate",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/watchlist/{showTmdbId}/advance": {
+      "post": {
+        "tags": [
+          "watchlist"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "default": 1,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50
+                  },
+                  "l": {
+                    "type": "string",
+                    "maxLength": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "showTmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "moved": {
+                      "type": "number"
+                    },
+                    "finished": {
+                      "type": "boolean"
+                    },
+                    "current": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "season": {
+                          "type": "number"
+                        },
+                        "episode": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "season",
+                        "episode"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prev": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "nullable": true,
+                          "type": "string",
+                          "enum": [
+                            "watched",
+                            "watching",
+                            "planned",
+                            "dropped"
+                          ]
+                        },
+                        "season": {
+                          "nullable": true,
+                          "type": "number"
+                        },
+                        "episode": {
+                          "nullable": true,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "season",
+                        "episode"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "entryIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "moved",
+                    "finished",
+                    "current",
+                    "prev",
+                    "entryIds"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/watchlist/{showTmdbId}/undo": {
+      "post": {
+        "tags": [
+          "watchlist"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prev": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "nullable": true,
+                        "type": "string",
+                        "enum": [
+                          "watched",
+                          "watching",
+                          "planned",
+                          "dropped"
+                        ]
+                      },
+                      "season": {
+                        "nullable": true,
+                        "type": "number"
+                      },
+                      "episode": {
+                        "nullable": true,
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "season",
+                      "episode"
+                    ]
+                  },
+                  "entryIds": {
+                    "maxItems": 60,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  }
+                },
+                "required": [
+                  "prev",
+                  "entryIds"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "showTmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/leaderboard/": {
       "get": {
         "tags": [
@@ -41612,6 +43425,12 @@
                         "type": "boolean"
                       }
                     },
+                    "notifEmail": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "boolean"
+                      }
+                    },
                     "quietHours": {
                       "type": "boolean"
                     },
@@ -41737,6 +43556,12 @@
                       "type": "boolean"
                     }
                   },
+                  "notifEmail": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "boolean"
+                    }
+                  },
                   "quietHours": {
                     "type": "boolean"
                   },
@@ -41846,6 +43671,12 @@
                       }
                     },
                     "notifInApp": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "boolean"
+                      }
+                    },
+                    "notifEmail": {
                       "type": "object",
                       "additionalProperties": {
                         "type": "boolean"
@@ -42530,6 +44361,10 @@
                               "blue"
                             ]
                           },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
+                          },
                           "followerCount": {
                             "type": "number"
                           }
@@ -42686,6 +44521,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -43010,6 +44849,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -43146,6 +44989,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -43324,6 +45171,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -43598,6 +45449,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -43786,6 +45641,10 @@
                                   "yellow",
                                   "blue"
                                 ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
                               }
                             },
                             "required": [
@@ -44110,6 +45969,10 @@
                                       "yellow",
                                       "blue"
                                     ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
                                   }
                                 },
                                 "required": [
@@ -44246,6 +46109,10 @@
                                           "yellow",
                                           "blue"
                                         ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
                                       }
                                     },
                                     "required": [
@@ -44424,6 +46291,10 @@
                                         "yellow",
                                         "blue"
                                       ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
                                     }
                                   },
                                   "required": [
@@ -57846,6 +59717,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -58049,6 +59924,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -67457,6 +69336,10 @@
                         "followingCount": {
                           "type": "number"
                         },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        },
                         "watching": {
                           "nullable": true,
                           "type": "object",
@@ -67495,6 +69378,7 @@
                         "postCount",
                         "followerCount",
                         "followingCount",
+                        "founderNo",
                         "watching"
                       ],
                       "additionalProperties": false
@@ -67925,6 +69809,10 @@
                         "followingCount": {
                           "type": "number"
                         },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        },
                         "watching": {
                           "nullable": true,
                           "type": "object",
@@ -67963,6 +69851,7 @@
                         "postCount",
                         "followerCount",
                         "followingCount",
+                        "founderNo",
                         "watching"
                       ],
                       "additionalProperties": false
@@ -68393,6 +70282,10 @@
                         "followingCount": {
                           "type": "number"
                         },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        },
                         "watching": {
                           "nullable": true,
                           "type": "object",
@@ -68431,6 +70324,7 @@
                         "postCount",
                         "followerCount",
                         "followingCount",
+                        "founderNo",
                         "watching"
                       ],
                       "additionalProperties": false
@@ -68861,6 +70755,10 @@
                         "followingCount": {
                           "type": "number"
                         },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        },
                         "watching": {
                           "nullable": true,
                           "type": "object",
@@ -68899,6 +70797,7 @@
                         "postCount",
                         "followerCount",
                         "followingCount",
+                        "founderNo",
                         "watching"
                       ],
                       "additionalProperties": false
@@ -69329,6 +71228,10 @@
                         "followingCount": {
                           "type": "number"
                         },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        },
                         "watching": {
                           "nullable": true,
                           "type": "object",
@@ -69367,6 +71270,7 @@
                         "postCount",
                         "followerCount",
                         "followingCount",
+                        "founderNo",
                         "watching"
                       ],
                       "additionalProperties": false
@@ -69675,6 +71579,42 @@
         }
       }
     },
+    "/api/v1/public/founders": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "number"
+                    },
+                    "taken": {
+                      "type": "number"
+                    },
+                    "remaining": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "limit",
+                    "taken",
+                    "remaining"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/stats/{username}": {
       "get": {
         "tags": [
@@ -69724,6 +71664,10 @@
                         },
                         "followerCount": {
                           "type": "number"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -69731,7 +71675,8 @@
                         "displayName",
                         "avatarPath",
                         "tick",
-                        "followerCount"
+                        "followerCount",
+                        "founderNo"
                       ],
                       "additionalProperties": false
                     },
@@ -70086,6 +72031,625 @@
                   "required": [
                     "user",
                     "stats"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/summary/{username}/{ym}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "in": "path",
+            "name": "username",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            },
+            "in": "path",
+            "name": "ym",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "avatarPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "tick": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "yellow",
+                            "blue"
+                          ]
+                        },
+                        "followerCount": {
+                          "type": "number"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick",
+                        "followerCount",
+                        "founderNo"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "month": {
+                          "type": "string"
+                        },
+                        "episodes": {
+                          "type": "number"
+                        },
+                        "minutes": {
+                          "type": "number"
+                        },
+                        "films": {
+                          "type": "number"
+                        },
+                        "titles": {
+                          "type": "number"
+                        },
+                        "prevEpisodes": {
+                          "type": "number"
+                        },
+                        "change": {
+                          "nullable": true,
+                          "type": "number"
+                        },
+                        "hist": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "month": {
+                                "type": "string"
+                              },
+                              "episodes": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "month",
+                              "episodes"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "days": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "daysInMonth": {
+                          "type": "number"
+                        },
+                        "firstWeekday": {
+                          "type": "number"
+                        },
+                        "bestRun": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "len": {
+                              "type": "number"
+                            },
+                            "from": {
+                              "type": "number"
+                            },
+                            "to": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "len",
+                            "from",
+                            "to"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "topShow": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "posterUrl": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "backdropUrl": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "episodes": {
+                              "type": "number"
+                            },
+                            "evenings": {
+                              "type": "number"
+                            },
+                            "bestDay": {
+                              "type": "number"
+                            },
+                            "share": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "title",
+                            "posterUrl",
+                            "backdropUrl",
+                            "episodes",
+                            "evenings",
+                            "bestDay",
+                            "share"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "topEpisode": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "season": {
+                              "type": "number"
+                            },
+                            "episode": {
+                              "type": "number"
+                            },
+                            "name": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "stillUrl": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "rating": {
+                              "type": "number"
+                            },
+                            "avg": {
+                              "nullable": true,
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "title",
+                            "season",
+                            "episode",
+                            "name",
+                            "stillUrl",
+                            "rating",
+                            "avg"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "filmList": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "posterUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "title",
+                              "posterUrl"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "month",
+                        "episodes",
+                        "minutes",
+                        "films",
+                        "titles",
+                        "prevEpisodes",
+                        "change",
+                        "hist",
+                        "days",
+                        "daysInMonth",
+                        "firstWeekday",
+                        "bestRun",
+                        "topShow",
+                        "topEpisode",
+                        "filmList"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "summary"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/wrapped/{username}/{year}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "in": "path",
+            "name": "username",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 2024,
+              "maximum": 2100
+            },
+            "in": "path",
+            "name": "year",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "avatarPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "tick": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "yellow",
+                            "blue"
+                          ]
+                        },
+                        "followerCount": {
+                          "type": "number"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick",
+                        "followerCount",
+                        "founderNo"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "wrapped": {
+                      "type": "object",
+                      "properties": {
+                        "year": {
+                          "type": "number"
+                        },
+                        "minutes": {
+                          "type": "number"
+                        },
+                        "episodes": {
+                          "type": "number"
+                        },
+                        "estimated": {
+                          "type": "boolean"
+                        },
+                        "titles": {
+                          "type": "number"
+                        },
+                        "topGenres": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "topShows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "posterUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "minutes": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "title",
+                              "posterUrl",
+                              "minutes"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "posts": {
+                          "type": "number"
+                        },
+                        "reviews": {
+                          "type": "number"
+                        },
+                        "likesReceived": {
+                          "type": "number"
+                        },
+                        "commentsReceived": {
+                          "type": "number"
+                        },
+                        "bestPost": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "text": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "likeCount": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "text",
+                            "likeCount"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "topEpisode": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "posterUrl": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "season": {
+                              "type": "number"
+                            },
+                            "episode": {
+                              "type": "number"
+                            },
+                            "rating": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "title",
+                            "posterUrl",
+                            "season",
+                            "episode",
+                            "rating"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "predictionsRight": {
+                          "type": "number"
+                        },
+                        "lists": {
+                          "type": "number"
+                        },
+                        "topPercent": {
+                          "nullable": true,
+                          "type": "number"
+                        },
+                        "talkedShows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "posterUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "count": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "title",
+                              "posterUrl",
+                              "count"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "persona": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "stat": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "stat"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "games": {
+                          "type": "object",
+                          "properties": {
+                            "dizidleWins": {
+                              "type": "number"
+                            },
+                            "dizidleBest": {
+                              "type": "number"
+                            },
+                            "quizzes": {
+                              "type": "number"
+                            },
+                            "quizBest": {
+                              "type": "number"
+                            },
+                            "pickMatches": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "dizidleWins",
+                            "dizidleBest",
+                            "quizzes",
+                            "quizBest",
+                            "pickMatches"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "comments": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "year",
+                        "minutes",
+                        "episodes",
+                        "estimated",
+                        "titles",
+                        "topGenres",
+                        "topShows",
+                        "posts",
+                        "reviews",
+                        "likesReceived",
+                        "commentsReceived",
+                        "bestPost",
+                        "topEpisode",
+                        "predictionsRight",
+                        "lists",
+                        "topPercent",
+                        "talkedShows",
+                        "persona",
+                        "games",
+                        "comments"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "wrapped"
                   ],
                   "additionalProperties": false
                 }
@@ -73017,6 +75581,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -73126,6 +75694,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -73245,6 +75817,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -73424,6 +76000,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -75703,6 +78283,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -76003,6 +78587,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -76246,6 +78834,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -77063,6 +79655,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -77420,6 +80016,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -77445,6 +80045,641 @@
                     ],
                     "additionalProperties": false
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/diary/summary/months": {
+      "get": {
+        "tags": [
+          "diary"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "month": {
+                        "type": "string"
+                      },
+                      "entries": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "month",
+                      "entries"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/diary/summary/{ym}": {
+      "get": {
+        "tags": [
+          "diary"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            },
+            "in": "path",
+            "name": "ym",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "nullable": true,
+                  "type": "object",
+                  "properties": {
+                    "month": {
+                      "type": "string"
+                    },
+                    "episodes": {
+                      "type": "number"
+                    },
+                    "minutes": {
+                      "type": "number"
+                    },
+                    "films": {
+                      "type": "number"
+                    },
+                    "titles": {
+                      "type": "number"
+                    },
+                    "prevEpisodes": {
+                      "type": "number"
+                    },
+                    "change": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "hist": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "month": {
+                            "type": "string"
+                          },
+                          "episodes": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "month",
+                          "episodes"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "days": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "daysInMonth": {
+                      "type": "number"
+                    },
+                    "firstWeekday": {
+                      "type": "number"
+                    },
+                    "bestRun": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "len": {
+                          "type": "number"
+                        },
+                        "from": {
+                          "type": "number"
+                        },
+                        "to": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "len",
+                        "from",
+                        "to"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "topShow": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "posterUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "backdropUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "episodes": {
+                          "type": "number"
+                        },
+                        "evenings": {
+                          "type": "number"
+                        },
+                        "bestDay": {
+                          "type": "number"
+                        },
+                        "share": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "title",
+                        "posterUrl",
+                        "backdropUrl",
+                        "episodes",
+                        "evenings",
+                        "bestDay",
+                        "share"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "topEpisode": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "season": {
+                          "type": "number"
+                        },
+                        "episode": {
+                          "type": "number"
+                        },
+                        "name": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "stillUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "rating": {
+                          "type": "number"
+                        },
+                        "avg": {
+                          "nullable": true,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "title",
+                        "season",
+                        "episode",
+                        "name",
+                        "stillUrl",
+                        "rating",
+                        "avg"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "filmList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "posterUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "title",
+                          "posterUrl"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "month",
+                    "episodes",
+                    "minutes",
+                    "films",
+                    "titles",
+                    "prevEpisodes",
+                    "change",
+                    "hist",
+                    "days",
+                    "daysInMonth",
+                    "firstWeekday",
+                    "bestRun",
+                    "topShow",
+                    "topEpisode",
+                    "filmList"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/diary/streak": {
+      "get": {
+        "tags": [
+          "diary"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "current": {
+                      "type": "number"
+                    },
+                    "best": {
+                      "type": "number"
+                    },
+                    "watchedToday": {
+                      "type": "boolean"
+                    },
+                    "startedOn": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "milestone": {
+                      "nullable": true,
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "current",
+                    "best",
+                    "watchedToday",
+                    "startedOn",
+                    "milestone"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/diary/friends/journeys": {
+      "get": {
+        "tags": [
+          "diary"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "series": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "showTmdbId": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "posterUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "backdropUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "season": {
+                            "type": "number"
+                          },
+                          "eps": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "aired": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "totalEps": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "nextAirDate": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "live",
+                              "binge",
+                              "wait",
+                              "new",
+                              "done",
+                              "idle",
+                              "watching"
+                            ]
+                          },
+                          "lanes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "user": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "displayName": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "avatarPath": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "tick": {
+                                      "type": "string",
+                                      "enum": [
+                                        "none",
+                                        "yellow",
+                                        "blue"
+                                      ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "username",
+                                    "displayName",
+                                    "avatarPath",
+                                    "tick"
+                                  ],
+                                  "additionalProperties": {}
+                                },
+                                "season": {
+                                  "type": "number"
+                                },
+                                "episode": {
+                                  "type": "number"
+                                },
+                                "state": {
+                                  "type": "string",
+                                  "enum": [
+                                    "live",
+                                    "binge",
+                                    "wait",
+                                    "new",
+                                    "done",
+                                    "idle",
+                                    "watching"
+                                  ]
+                                },
+                                "binge": {
+                                  "nullable": true,
+                                  "type": "object",
+                                  "properties": {
+                                    "n": {
+                                      "type": "number"
+                                    },
+                                    "day": {
+                                      "type": "string",
+                                      "enum": [
+                                        "today",
+                                        "yesterday"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "n",
+                                    "day"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "lastAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "startedAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "sinceDays": {
+                                  "type": "number"
+                                },
+                                "doneDays": {
+                                  "type": "number"
+                                },
+                                "week": {
+                                  "type": "number"
+                                },
+                                "rhythm": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                },
+                                "rating": {
+                                  "nullable": true,
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "user",
+                                "season",
+                                "episode",
+                                "state",
+                                "binge",
+                                "lastAt",
+                                "startedAt",
+                                "sinceDays",
+                                "doneDays",
+                                "week",
+                                "rhythm",
+                                "rating"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "you": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "season": {
+                                "type": "number"
+                              },
+                              "episode": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "season",
+                              "episode"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "showTmdbId",
+                          "title",
+                          "posterUrl",
+                          "backdropUrl",
+                          "season",
+                          "eps",
+                          "aired",
+                          "totalEps",
+                          "nextAirDate",
+                          "state",
+                          "lanes",
+                          "you"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "films": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "showTmdbId": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "posterUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": {}
+                          },
+                          "watchedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "rating": {
+                            "nullable": true,
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "showTmdbId",
+                          "title",
+                          "posterUrl",
+                          "user",
+                          "watchedAt",
+                          "rating"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "series",
+                    "films"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -77498,6 +80733,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -77842,6 +81081,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -77973,6 +81216,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -78304,6 +81551,225 @@
                     "best",
                     "dist",
                     "nextInMs"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/daily/leaderboard": {
+      "get": {
+        "tags": [
+          "daily"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": "today",
+              "type": "string",
+              "enum": [
+                "today",
+                "all"
+              ]
+            },
+            "in": "query",
+            "name": "scope",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "friends",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            "in": "query",
+            "name": "offset",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "scope": {
+                      "type": "string",
+                      "enum": [
+                        "today",
+                        "all"
+                      ]
+                    },
+                    "day": {
+                      "type": "string"
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rank": {
+                            "type": "number"
+                          },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "tick": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "score": {
+                            "type": "number"
+                          },
+                          "avg": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "played": {
+                            "type": "number"
+                          },
+                          "me": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "rank",
+                          "user",
+                          "score",
+                          "avg",
+                          "played",
+                          "me"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextOffset": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "mine": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "rank": {
+                          "type": "number"
+                        },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "avatarPath": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "tick": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "username",
+                            "displayName",
+                            "avatarPath",
+                            "tick"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "score": {
+                          "type": "number"
+                        },
+                        "avg": {
+                          "nullable": true,
+                          "type": "number"
+                        },
+                        "played": {
+                          "type": "number"
+                        },
+                        "me": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "rank",
+                        "user",
+                        "score",
+                        "avg",
+                        "played",
+                        "me"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "scope",
+                    "day",
+                    "total",
+                    "items",
+                    "nextOffset",
+                    "mine"
                   ],
                   "additionalProperties": false
                 }
@@ -79010,6 +82476,10 @@
                               "blue"
                             ]
                           },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
+                          },
                           "swiped": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -79295,6 +82765,10 @@
                               "blue"
                             ]
                           },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
+                          },
                           "swiped": {
                             "type": "integer",
                             "minimum": -9007199254740991,
@@ -79571,6 +83045,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           },
                           "swiped": {
                             "type": "integer",
@@ -80183,6 +83661,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -80355,6 +83837,10 @@
                             "yellow",
                             "blue"
                           ]
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -81330,6 +84816,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -81620,6 +85110,10 @@
                               "yellow",
                               "blue"
                             ]
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
                           }
                         },
                         "required": [
@@ -81682,6 +85176,10 @@
                           "yellow",
                           "blue"
                         ]
+                      },
+                      "founderNo": {
+                        "nullable": true,
+                        "type": "number"
                       }
                     },
                     "required": [

@@ -200,9 +200,26 @@ export interface ProfilePatch {
   note?: string;
 }
 
+/** Şifre doğru, hesapta iki adımlı doğrulama açık: oturum için ikinci adım gerekir. */
+export interface TwoFactorChallenge {
+  challenge: string;
+  method: 'totp' | 'email';
+  emailHint: string | null;
+  expiresIn: number;
+}
+export type LoginResult = { access: string; refresh: string } | { twoFactor: TwoFactorChallenge };
+
 export const authApi = {
   login: (emailOrUsername: string, password: string) =>
-    request<{ access: string; refresh: string }>('/auth/login', { method: 'POST', body: { emailOrUsername, password }, anonymous: true }),
+    request<LoginResult>('/auth/login', { method: 'POST', body: { emailOrUsername, password }, anonymous: true }),
+  twoFactorLogin: (challenge: string, method: 'totp' | 'email' | 'recovery', code: string) =>
+    request<{ access: string; refresh: string }>('/auth/2fa/login', {
+      method: 'POST',
+      body: { challenge, method, code, remember: false },
+      anonymous: true,
+    }),
+  twoFactorResend: (challenge: string) =>
+    request<{ ok: boolean }>('/auth/2fa/login/resend', { method: 'POST', body: { challenge }, anonymous: true }),
   logout: () => request<{ ok: boolean }>('/auth/logout', { method: 'POST', body: {}, anonymous: true }),
   me: () => api.get<Me>('/users/me'),
 };

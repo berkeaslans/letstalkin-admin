@@ -8,7 +8,7 @@ import { Shell } from '@/components/layout/Shell';
 import { ConfirmDialog, Toaster } from '@/components/ui/Overlays';
 import { ApiError } from '@/lib/api/client';
 import { unlockSoundOnFirstInteraction } from '@/lib/sound';
-import { Forbidden, Login } from '@/pages/Login';
+import { Forbidden, Login, NeedsTwoFactor } from '@/pages/Login';
 import { Overview } from '@/pages/Overview';
 import { Tv } from '@/pages/Tv';
 import { useIsAdmin, useSession } from '@/stores/session';
@@ -148,6 +148,7 @@ function App() {
     );
   if (status === 'signedOut') return <Login />;
   if (status === 'forbidden') return <Forbidden />;
+  if (status === 'needs2fa') return <NeedsTwoFactor />;
 
   return (
     <Routes>
