@@ -174,6 +174,24 @@ export type TitleData = TitleEdit['data'];
 export type TitleKind = TitleEdit['kind'];
 export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
 export type Signups = Res<'/api/v1/admin/analytics/signups', 'get'>;
+/** İçerik taslağı (tohum içerik + otomatik editör onay kuyruğu). */
+export type Draft = {
+  id: string;
+  source: 'seed' | 'auto';
+  kind: 'post' | 'poll' | 'quiz';
+  eventType: string | null;
+  showTmdbId: string | null;
+  showTitle: string | null;
+  account: string | null;
+  lang: string;
+  status: 'draft' | 'published' | 'rejected';
+  seedRunId: string | null;
+  rejectReason: string | null;
+  createdAt: string;
+  payload:
+    | { text: string; options?: string[] }
+    | { title: string; questions: Array<{ text: string; options: string[]; correctIndex: number; sourceFact?: string }> };
+};
 /** Fan sayfası programı (şema üretilene kadar elle; backend /admin/fanpages). */
 export type FanLead = {
   id: string;
@@ -477,6 +495,10 @@ export const adminApi = {
   signups: (days: number) => api.get<Signups>('/admin/analytics/signups', { days }),
   invites: (days: number) => api.get<Invites>('/admin/analytics/invites', { days }),
   fanPages: () => api.get<FanPages>('/admin/fanpages'),
+  drafts: (status: Draft['status'], source?: 'seed' | 'auto') => api.get<{ items: Draft[] }>('/admin/drafts', { status, source }),
+  editDraft: (id: string, payload: Draft['payload']) => api.patch<{ ok: true }>(`/admin/drafts/${id}`, { payload }),
+  publishDraft: (id: string) => api.post<{ id: string }>(`/admin/drafts/${id}/publish`),
+  rejectDraft: (id: string, reason?: string) => api.post<{ ok: true }>(`/admin/drafts/${id}/reject`, { reason }),
   createPageAccount: (b: { username: string; displayName: string; showTmdbId: string; reserved: boolean }) =>
     api.post<{ id: string; username: string }>('/admin/fanpages/accounts', b),
   claimCode: (id: string, note?: string) =>

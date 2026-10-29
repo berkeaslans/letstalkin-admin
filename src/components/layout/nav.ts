@@ -93,6 +93,12 @@ export const NAV: NavGroup[] = [
       { to: '/yayin/bildirim', label: 'Bildirim gönder', desc: 'Herkese, bir kitleye ya da tek kişiye duyuru', admin: true },
       { to: '/yayin/hesaplar', label: 'Yayın hesapları', desc: 'Panelden adına yayın yapılabilecek hesaplar', admin: true },
       {
+        to: '/yayin/taslaklar',
+        label: 'İçerik taslakları',
+        desc: 'Tohum içerik ve otomatik editör: oku, düzelt, yayınla ya da reddet',
+        admin: true,
+      },
+      {
         to: '/yayin/fan-sayfalari',
         label: 'Fan sayfaları',
         desc: 'Ad ayır, dizi sayfası aç, sahiplenme kodu ver, iletişimi takip et',

@@ -22,6 +22,7 @@ const Audience = page(() => import('@/pages/Analytics'), 'Audience');
 const Usage = page(() => import('@/pages/Analytics'), 'Usage');
 const Signups = page(() => import('@/pages/Signups'), 'Signups');
 const FanPages = page(() => import('@/pages/FanPages'), 'FanPages');
+const Drafts = page(() => import('@/pages/Drafts'), 'Drafts');
 const GooglePage = page(() => import('@/pages/Google'), 'GooglePage');
 const Audit = page(() => import('@/pages/Audit'), 'Audit');
 const Broadcast = page(() => import('@/pages/Broadcast'), 'Broadcast');
@@ -87,6 +88,7 @@ const PAGES: Record<string, ComponentType> = {
   '/yayin/bildirim': Broadcast,
   '/yayin/hesaplar': PublishAccounts,
   '/yayin/fan-sayfalari': FanPages,
+  '/yayin/taslaklar': Drafts,
   '/katalog': Shows,
   '/katalog/vitrin': Showcase,
   '/katalog/dizidle': Daily,
