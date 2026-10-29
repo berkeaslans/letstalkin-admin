@@ -21,6 +21,7 @@ function page<M extends Record<string, unknown>>(load: () => Promise<M>, name: k
 const Audience = page(() => import('@/pages/Analytics'), 'Audience');
 const Usage = page(() => import('@/pages/Analytics'), 'Usage');
 const Signups = page(() => import('@/pages/Signups'), 'Signups');
+const FanPages = page(() => import('@/pages/FanPages'), 'FanPages');
 const GooglePage = page(() => import('@/pages/Google'), 'GooglePage');
 const Audit = page(() => import('@/pages/Audit'), 'Audit');
 const Broadcast = page(() => import('@/pages/Broadcast'), 'Broadcast');
@@ -85,6 +86,7 @@ const PAGES: Record<string, ComponentType> = {
   '/yayin/quizler': Quizzes,
   '/yayin/bildirim': Broadcast,
   '/yayin/hesaplar': PublishAccounts,
+  '/yayin/fan-sayfalari': FanPages,
   '/katalog': Shows,
   '/katalog/vitrin': Showcase,
   '/katalog/dizidle': Daily,

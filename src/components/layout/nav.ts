@@ -92,6 +92,12 @@ export const NAV: NavGroup[] = [
       { to: '/yayin/quizler', label: 'Quizler', desc: 'Planlı, canlı ve biten quizler; düzenle, başlat, bitir', admin: true },
       { to: '/yayin/bildirim', label: 'Bildirim gönder', desc: 'Herkese, bir kitleye ya da tek kişiye duyuru', admin: true },
       { to: '/yayin/hesaplar', label: 'Yayın hesapları', desc: 'Panelden adına yayın yapılabilecek hesaplar', admin: true },
+      {
+        to: '/yayin/fan-sayfalari',
+        label: 'Fan sayfaları',
+        desc: 'Ad ayır, dizi sayfası aç, sahiplenme kodu ver, iletişimi takip et',
+        admin: true,
+      },
     ],
   },
   {

@@ -174,6 +174,34 @@ export type TitleData = TitleEdit['data'];
 export type TitleKind = TitleEdit['kind'];
 export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
 export type Signups = Res<'/api/v1/admin/analytics/signups', 'get'>;
+/** Fan sayfası programı (şema üretilene kadar elle; backend /admin/fanpages). */
+export type FanLead = {
+  id: string;
+  handle: string;
+  platform: string;
+  followers: number | null;
+  showTmdbId: string | null;
+  status: 'todo' | 'contacted' | 'talking' | 'claimed' | 'declined';
+  accountId: string | null;
+  notes: string | null;
+  updatedAt: string;
+};
+export type FanPages = {
+  accounts: Array<{
+    id: string;
+    username: string;
+    displayName: string | null;
+    managed: boolean;
+    reserved: boolean;
+    followerCount: number;
+    showTmdbId: string | null;
+    showTitle: string | null;
+    openCodes: number;
+    claimed: boolean;
+    createdAt: string;
+  }>;
+  leads: FanLead[];
+};
 /** Davet liderliği (şema üretilene kadar elle; backend /admin/analytics/invites). */
 export type Invites = {
   total: number;
@@ -448,6 +476,15 @@ export const adminApi = {
   analytics: (days: number) => api.get<Analytics>('/admin/analytics/overview', { days }),
   signups: (days: number) => api.get<Signups>('/admin/analytics/signups', { days }),
   invites: (days: number) => api.get<Invites>('/admin/analytics/invites', { days }),
+  fanPages: () => api.get<FanPages>('/admin/fanpages'),
+  createPageAccount: (b: { username: string; displayName: string; showTmdbId: string; reserved: boolean }) =>
+    api.post<{ id: string; username: string }>('/admin/fanpages/accounts', b),
+  claimCode: (id: string, note?: string) =>
+    api.post<{ code: string; expiresInDays: number }>(`/admin/fanpages/accounts/${id}/claim-code`, { note }),
+  setPageHidden: (id: string, hidden: boolean) => api.post<{ ok: true }>(`/admin/fanpages/accounts/${id}/visibility`, { hidden }),
+  createLead: (b: Partial<FanLead> & { handle: string }) => api.post<FanLead>('/admin/fanpages/leads', b),
+  updateLead: (id: string, b: Partial<FanLead>) => api.patch<FanLead>(`/admin/fanpages/leads/${id}`, b),
+  deleteLead: (id: string) => api.del<{ ok: true }>(`/admin/fanpages/leads/${id}`),
   googleStatus: () => api.get<GoogleStatus>('/admin/google/status'),
   googleKeys: () => api.get<GoogleKeysResponse>('/admin/google/keys'),
   aiSettings: () => api.get<AiSettings>('/admin/ai/settings'),
