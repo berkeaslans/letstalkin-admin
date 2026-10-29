@@ -736,7 +736,7 @@
                     ]
                   },
                   "attribution": {
-                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform"
+                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform"
                   }
                 },
                 "required": [
@@ -1270,7 +1270,7 @@
                     "minLength": 1
                   },
                   "attribution": {
-                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform"
+                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform"
                   },
                   "trustedDevice": {
                     "type": "string",
@@ -1436,7 +1436,7 @@
                     "maxLength": 50
                   },
                   "attribution": {
-                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, inApp, firstSeenAt, platform"
+                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform"
                   },
                   "trustedDevice": {
                     "type": "string",
@@ -9666,6 +9666,91 @@
         }
       }
     },
+    "/api/v1/users/me/one-episode": {
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "showTmdbId": {
+                    "type": "string",
+                    "pattern": "^\\d{1,10}$"
+                  },
+                  "season": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 200
+                  },
+                  "episode": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5000
+                  }
+                },
+                "required": [
+                  "showTmdbId",
+                  "season",
+                  "episode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/me/blocks": {
       "get": {
         "tags": [
@@ -15979,6 +16064,45 @@
                       ],
                       "additionalProperties": false
                     },
+                    "watching": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "posterUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "season": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "episode": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "percent": {
+                            "nullable": true,
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "title",
+                          "posterUrl",
+                          "season",
+                          "episode",
+                          "percent"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "yearEpisodes": {
                       "type": "number"
                     }
@@ -18197,6 +18321,40 @@
                         "likes",
                         "favorites",
                         "watched"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "managed": {
+                      "type": "boolean"
+                    },
+                    "oneEpisode": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "showTmdbId": {
+                          "type": "string"
+                        },
+                        "season": {
+                          "type": "number"
+                        },
+                        "episode": {
+                          "type": "number"
+                        },
+                        "showTitle": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "posterUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "showTmdbId",
+                        "season",
+                        "episode",
+                        "showTitle",
+                        "posterUrl"
                       ],
                       "additionalProperties": false
                     },
@@ -34856,6 +35014,16 @@
                     "type": "string",
                     "format": "date-time",
                     "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "season": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "episode": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500
                   }
                 },
                 "required": [
@@ -34951,6 +35119,14 @@
                     },
                     "language": {
                       "type": "string"
+                    },
+                    "season": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "episode": {
+                      "nullable": true,
+                      "type": "number"
                     },
                     "createdAt": {
                       "type": "string",
@@ -35748,6 +35924,14 @@
                     "language": {
                       "type": "string"
                     },
+                    "season": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "episode": {
+                      "nullable": true,
+                      "type": "number"
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
@@ -35769,6 +35953,9 @@
                       ]
                     },
                     "muted": {
+                      "type": "boolean"
+                    },
+                    "inDm": {
                       "type": "boolean"
                     },
                     "ownedByMe": {
@@ -35810,6 +35997,7 @@
                     "isMember",
                     "myRole",
                     "muted",
+                    "inDm",
                     "ownedByMe",
                     "requestStatus"
                   ],
@@ -36005,6 +36193,14 @@
                     },
                     "language": {
                       "type": "string"
+                    },
+                    "season": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "episode": {
+                      "nullable": true,
+                      "type": "number"
                     },
                     "createdAt": {
                       "type": "string",
@@ -36211,6 +36407,176 @@
                   "required": [
                     "ok",
                     "muted"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rooms/in-dm": {
+      "get": {
+        "tags": [
+          "rooms"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "coverSeed": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "showTmdbId": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "memberCount": {
+                        "type": "number"
+                      },
+                      "muted": {
+                        "type": "boolean"
+                      },
+                      "unread": {
+                        "type": "number"
+                      },
+                      "lastSender": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "lastText": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "lastAt": {
+                        "nullable": true,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "coverSeed",
+                      "showTmdbId",
+                      "memberCount",
+                      "muted",
+                      "unread",
+                      "lastSender",
+                      "lastText",
+                      "lastAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rooms/{id}/read": {
+      "post": {
+        "tags": [
+          "rooms"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rooms/{id}/in-dm": {
+      "post": {
+        "tags": [
+          "rooms"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "inDm": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "inDm"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "inDm": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "inDm"
                   ],
                   "additionalProperties": {}
                 }
@@ -42028,6 +42394,503 @@
         }
       }
     },
+    "/api/v1/personality/show/{tmdbId}": {
+      "get": {
+        "tags": [
+          "personality"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tr",
+                "en"
+              ]
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "in": "path",
+            "name": "tmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "lang": {
+                        "type": "string"
+                      },
+                      "attemptCount": {
+                        "type": "number"
+                      },
+                      "questionCount": {
+                        "type": "number"
+                      },
+                      "faces": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "character": {
+                              "type": "string"
+                            },
+                            "imageUrl": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "character",
+                            "imageUrl"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "title",
+                      "lang",
+                      "attemptCount",
+                      "questionCount",
+                      "faces"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/personality/{id}": {
+      "get": {
+        "tags": [
+          "personality"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "lang": {
+                      "type": "string"
+                    },
+                    "showTmdbId": {
+                      "type": "string"
+                    },
+                    "showTitle": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "posterUrl": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "attemptCount": {
+                      "type": "number"
+                    },
+                    "questions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "options"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "character": {
+                            "type": "string"
+                          },
+                          "actor": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "character",
+                          "actor",
+                          "description",
+                          "imageUrl"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "mine": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "character": {
+                          "type": "string"
+                        },
+                        "actor": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "imageUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "character",
+                        "actor",
+                        "description",
+                        "imageUrl"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "lang",
+                    "showTmdbId",
+                    "showTitle",
+                    "posterUrl",
+                    "attemptCount",
+                    "questions",
+                    "results",
+                    "mine"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/personality/{id}/attempt": {
+      "post": {
+        "tags": [
+          "personality"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "minItems": 1,
+                    "maxItems": 30,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9
+                    }
+                  }
+                },
+                "required": [
+                  "answers"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "character": {
+                          "type": "string"
+                        },
+                        "actor": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "imageUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "character",
+                        "actor",
+                        "description",
+                        "imageUrl"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "guest": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "guest"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/personality/{id}/share": {
+      "get": {
+        "tags": [
+          "personality"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w.]{1,40}$"
+            },
+            "in": "query",
+            "name": "u",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "lang": {
+                      "type": "string"
+                    },
+                    "showTmdbId": {
+                      "type": "string"
+                    },
+                    "showTitle": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "posterUrl": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "questionCount": {
+                      "type": "number"
+                    },
+                    "attemptCount": {
+                      "type": "number"
+                    },
+                    "faces": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "character": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "character",
+                          "imageUrl"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "result": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "character": {
+                          "type": "string"
+                        },
+                        "actor": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "imageUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "player": {
+                          "type": "object",
+                          "properties": {
+                            "username": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "avatarPath": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "username",
+                            "displayName",
+                            "avatarPath"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "character",
+                        "actor",
+                        "description",
+                        "imageUrl",
+                        "player"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "lang",
+                    "showTmdbId",
+                    "showTitle",
+                    "posterUrl",
+                    "questionCount",
+                    "attemptCount",
+                    "faces",
+                    "result"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/watchlist/": {
       "get": {
         "tags": [
@@ -42766,6 +43629,9 @@
                     "type": "string",
                     "format": "date-time",
                     "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "watchedAt": {
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -43221,6 +44087,411 @@
                     "ok"
                   ],
                   "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import/match": {
+      "post": {
+        "tags": [
+          "import"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "maxItems": 1500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "maxLength": 80
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "tv",
+                            "movie"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "year": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}$"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "kind",
+                        "name"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "items"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "best": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "tmdbId": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "year": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "posterUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "tmdbId",
+                              "title",
+                              "year",
+                              "posterUrl"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exact": {
+                            "type": "boolean"
+                          },
+                          "candidates": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "tmdbId": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "year": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "posterUrl": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "tmdbId",
+                                "title",
+                                "year",
+                                "posterUrl"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "best",
+                          "exact",
+                          "candidates"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/import/apply": {
+      "post": {
+        "tags": [
+          "import"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "shows": {
+                    "maxItems": 1500,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "tmdbId": {
+                          "type": "string",
+                          "pattern": "^\\d{1,10}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "watching",
+                            "watched",
+                            "planned"
+                          ]
+                        },
+                        "episodes": {
+                          "maxItems": 20000,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "s": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 200
+                              },
+                              "e": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 5000
+                              },
+                              "at": {
+                                "nullable": true,
+                                "type": "string",
+                                "maxLength": 40
+                              }
+                            },
+                            "required": [
+                              "s",
+                              "e"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "tmdbId",
+                        "status",
+                        "episodes"
+                      ]
+                    }
+                  },
+                  "movies": {
+                    "maxItems": 5000,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "tmdbId": {
+                          "type": "string",
+                          "pattern": "^\\d{1,10}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "watched",
+                            "planned"
+                          ]
+                        },
+                        "at": {
+                          "nullable": true,
+                          "type": "string",
+                          "maxLength": 40
+                        }
+                      },
+                      "required": [
+                        "tmdbId",
+                        "status"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "shows",
+                  "movies"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "shows": {
+                      "type": "number"
+                    },
+                    "episodes": {
+                      "type": "number"
+                    },
+                    "movies": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "shows",
+                    "episodes",
+                    "movies"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claim/": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 20
+                  },
+                  "email": {
+                    "type": "string",
+                    "maxLength": 254,
+                    "format": "email",
+                    "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "code",
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access": {
+                      "type": "string"
+                    },
+                    "refresh": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "avatarPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "tick": {
+                          "type": "string"
+                        },
+                        "accountType": {
+                          "type": "string"
+                        },
+                        "emailVerified": {
+                          "type": "boolean"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick",
+                        "accountType",
+                        "emailVerified",
+                        "founderNo"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "isNew": {
+                      "type": "boolean"
+                    },
+                    "restored": {
+                      "type": "boolean"
+                    },
+                    "trustedDevice": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "access",
+                    "refresh",
+                    "user"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -43851,6 +45122,80 @@
                     "ok"
                   ],
                   "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/content-issue": {
+      "post": {
+        "tags": [
+          "reports"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "quiz",
+                      "poll",
+                      "post",
+                      "personality",
+                      "show"
+                    ]
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 280
+                  },
+                  "detail": {
+                    "type": "string",
+                    "maxLength": 80
+                  }
+                },
+                "required": [
+                  "targetType",
+                  "targetId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "hidden": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "hidden"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -49889,6 +51234,11 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 100
+                    },
+                    "contentIssueThreshold": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
                     }
                   },
                   "required": [
@@ -49916,6 +51266,11 @@
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 100
+                  },
+                  "contentIssueThreshold": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
                   }
                 },
                 "required": [
@@ -49934,6 +51289,11 @@
                   "type": "object",
                   "properties": {
                     "autoHideThreshold": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "contentIssueThreshold": {
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 100
@@ -51344,6 +52704,16 @@
                     "type": "string",
                     "format": "date-time",
                     "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "season": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "episode": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500
                   },
                   "welcome": {
                     "description": "Oda açılınca hesap adına ilk mesaj",
@@ -55339,13 +56709,20 @@
                             "minimum": 0,
                             "maximum": 100000
                           }
+                        },
+                        "invite": {
+                          "default": 50,
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100000
                         }
                       },
                       "required": [
                         "welcome",
                         "dailyPost",
                         "quizJoin",
-                        "quizRank"
+                        "quizRank",
+                        "invite"
                       ],
                       "additionalProperties": false
                     },
@@ -55488,6 +56865,12 @@
                           "minimum": 0,
                           "maximum": 100000
                         }
+                      },
+                      "invite": {
+                        "default": 50,
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000
                       }
                     },
                     "required": [
@@ -55606,13 +56989,20 @@
                             "minimum": 0,
                             "maximum": 100000
                           }
+                        },
+                        "invite": {
+                          "default": 50,
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100000
                         }
                       },
                       "required": [
                         "welcome",
                         "dailyPost",
                         "quizJoin",
-                        "quizRank"
+                        "quizRank",
+                        "invite"
                       ],
                       "additionalProperties": false
                     },
@@ -61723,6 +63113,80 @@
         }
       }
     },
+    "/api/v1/admin/analytics/invites": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": 365,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            },
+            "in": "query",
+            "name": "days",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "number"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "founderNo": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "joined": {
+                            "type": "number"
+                          },
+                          "verified": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "founderNo",
+                          "joined",
+                          "verified"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/analytics/signups": {
       "get": {
         "tags": [
@@ -62058,6 +63522,1299 @@
                     "inApp",
                     "daily",
                     "recent"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/fanpages": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "managed": {
+                            "type": "boolean"
+                          },
+                          "reserved": {
+                            "type": "boolean"
+                          },
+                          "followerCount": {
+                            "type": "number"
+                          },
+                          "showTmdbId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "showTitle": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "openCodes": {
+                            "type": "number"
+                          },
+                          "claimed": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "username",
+                          "displayName",
+                          "managed",
+                          "reserved",
+                          "followerCount",
+                          "showTmdbId",
+                          "showTitle",
+                          "openCodes",
+                          "claimed",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "leads": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "handle": {
+                            "type": "string"
+                          },
+                          "platform": {
+                            "type": "string"
+                          },
+                          "followers": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "showTmdbId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "accountId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "notes": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "handle",
+                          "platform",
+                          "followers",
+                          "showTmdbId",
+                          "status",
+                          "accountId",
+                          "notes",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "accounts",
+                    "leads"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/fanpages/accounts": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9._]{3,30}$"
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "showTmdbId": {
+                    "type": "string",
+                    "pattern": "^\\d{1,10}$"
+                  },
+                  "reserved": {
+                    "default": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "username",
+                  "displayName",
+                  "showTmdbId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/fanpages/accounts/{id}/claim-code": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "days": {
+                    "default": 30,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 90
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "expiresInDays": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "expiresInDays"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/fanpages/accounts/{id}/visibility": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hidden": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "hidden"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/fanpages/leads": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "platform": {
+                    "default": "instagram",
+                    "type": "string",
+                    "enum": [
+                      "instagram",
+                      "tiktok",
+                      "x",
+                      "youtube",
+                      "other"
+                    ]
+                  },
+                  "followers": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "showTmdbId": {
+                    "nullable": true,
+                    "type": "string",
+                    "pattern": "^\\d{1,10}$"
+                  },
+                  "status": {
+                    "default": "todo",
+                    "type": "string",
+                    "enum": [
+                      "todo",
+                      "contacted",
+                      "talking",
+                      "claimed",
+                      "declined"
+                    ]
+                  },
+                  "accountId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "notes": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "handle"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "handle": {
+                      "type": "string"
+                    },
+                    "platform": {
+                      "type": "string"
+                    },
+                    "followers": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "showTmdbId": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "accountId": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "notes": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "handle",
+                    "platform",
+                    "followers",
+                    "showTmdbId",
+                    "status",
+                    "accountId",
+                    "notes",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/fanpages/leads/{id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "platform": {
+                    "default": "instagram",
+                    "type": "string",
+                    "enum": [
+                      "instagram",
+                      "tiktok",
+                      "x",
+                      "youtube",
+                      "other"
+                    ]
+                  },
+                  "followers": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "showTmdbId": {
+                    "nullable": true,
+                    "type": "string",
+                    "pattern": "^\\d{1,10}$"
+                  },
+                  "status": {
+                    "default": "todo",
+                    "type": "string",
+                    "enum": [
+                      "todo",
+                      "contacted",
+                      "talking",
+                      "claimed",
+                      "declined"
+                    ]
+                  },
+                  "accountId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "notes": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "handle": {
+                      "type": "string"
+                    },
+                    "platform": {
+                      "type": "string"
+                    },
+                    "followers": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "showTmdbId": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "accountId": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "notes": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "handle",
+                    "platform",
+                    "followers",
+                    "showTmdbId",
+                    "status",
+                    "accountId",
+                    "notes",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/drafts": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": "draft",
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "rejected"
+              ]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "post",
+                "poll",
+                "quiz",
+                "personality"
+              ]
+            },
+            "in": "query",
+            "name": "kind",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "seed",
+                "auto"
+              ]
+            },
+            "in": "query",
+            "name": "source",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "showTmdbId",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 200,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/drafts/{id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payload": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "results": {
+                            "minItems": 2,
+                            "maxItems": 8,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "key": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 40
+                                },
+                                "character": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                },
+                                "actor": {
+                                  "nullable": true,
+                                  "type": "string",
+                                  "maxLength": 80
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 400
+                                },
+                                "imagePath": {
+                                  "nullable": true,
+                                  "type": "string",
+                                  "maxLength": 200
+                                }
+                              },
+                              "required": [
+                                "key",
+                                "character",
+                                "description"
+                              ]
+                            }
+                          },
+                          "questions": {
+                            "minItems": 4,
+                            "maxItems": 15,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "options": {
+                                  "minItems": 2,
+                                  "maxItems": 4,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "text": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 160
+                                      },
+                                      "points": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "type": "integer",
+                                          "minimum": 0,
+                                          "maximum": 5
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "text",
+                                      "points"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "options"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "results",
+                          "questions"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120
+                          },
+                          "questions": {
+                            "minItems": 1,
+                            "maxItems": 20,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 300
+                                },
+                                "options": {
+                                  "minItems": 2,
+                                  "maxItems": 4,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 120
+                                  }
+                                },
+                                "correctIndex": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 3
+                                },
+                                "sourceFact": {
+                                  "type": "string",
+                                  "maxLength": 500
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "options",
+                                "correctIndex"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "questions"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          },
+                          "options": {
+                            "minItems": 2,
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 80
+                            }
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "options"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        },
+                        "required": [
+                          "text"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "payload"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/drafts/{id}/publish": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/drafts/{id}/reject": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 300
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/drafts/rollback/{seedRunId}": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "seedRunId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content-issues": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": "active",
+              "type": "string",
+              "enum": [
+                "active",
+                "open",
+                "hidden",
+                "fixed",
+                "dismissed",
+                "all"
+              ]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 200,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "targetType": {
+                            "type": "string"
+                          },
+                          "targetId": {
+                            "type": "string"
+                          },
+                          "showTmdbId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "showTitle": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "preview": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "autoHidden": {
+                            "type": "boolean"
+                          },
+                          "lastAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "reports": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "detail": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "username": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "guest": {
+                                  "type": "boolean"
+                                },
+                                "createdAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "detail",
+                                "username",
+                                "guest",
+                                "createdAt"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "targetType",
+                          "targetId",
+                          "showTmdbId",
+                          "showTitle",
+                          "preview",
+                          "count",
+                          "status",
+                          "autoHidden",
+                          "lastAt",
+                          "createdAt",
+                          "reports"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content-issues/{id}/hide": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content-issues/{id}/fix": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content-issues/{id}/dismiss": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
                   ],
                   "additionalProperties": false
                 }
@@ -66885,6 +69642,10 @@
                           "nullable": true,
                           "type": "number"
                         },
+                        "status": {
+                          "nullable": true,
+                          "type": "string"
+                        },
                         "providers": {
                           "type": "object",
                           "properties": {
@@ -67344,6 +70105,39 @@
                         ],
                         "additionalProperties": {}
                       }
+                    },
+                    "oneEpisode": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number"
+                        },
+                        "users": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "username": {
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "username",
+                              "avatarPath"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "count",
+                        "users"
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "required": [
@@ -69546,6 +72340,64 @@
                             "tick"
                           ],
                           "additionalProperties": false
+                        },
+                        "result": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "player": {
+                              "type": "object",
+                              "properties": {
+                                "username": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "avatarPath": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "tick": {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "yellow",
+                                    "blue"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "username",
+                                "displayName",
+                                "avatarPath",
+                                "tick"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "score": {
+                              "type": "number"
+                            },
+                            "correct": {
+                              "type": "number"
+                            },
+                            "rank": {
+                              "nullable": true,
+                              "type": "number"
+                            },
+                            "players": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "player",
+                            "score",
+                            "correct",
+                            "rank",
+                            "players"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -70019,6 +72871,64 @@
                             "tick"
                           ],
                           "additionalProperties": false
+                        },
+                        "result": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "player": {
+                              "type": "object",
+                              "properties": {
+                                "username": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "avatarPath": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "tick": {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "yellow",
+                                    "blue"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "username",
+                                "displayName",
+                                "avatarPath",
+                                "tick"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "score": {
+                              "type": "number"
+                            },
+                            "correct": {
+                              "type": "number"
+                            },
+                            "rank": {
+                              "nullable": true,
+                              "type": "number"
+                            },
+                            "players": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "player",
+                            "score",
+                            "correct",
+                            "rank",
+                            "players"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -70049,12 +72959,554 @@
         }
       }
     },
+    "/api/v1/public/room-archive/{tmdbId}/{season}/{episode}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tr",
+                "en",
+                "es",
+                "pt",
+                "de",
+                "fr",
+                "it",
+                "ru",
+                "ar",
+                "hi",
+                "id",
+                "zh",
+                "ja",
+                "ko",
+                "pl",
+                "el"
+              ]
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "tmdbId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "in": "path",
+            "name": "season",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            },
+            "in": "path",
+            "name": "episode",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "showTmdbId": {
+                      "type": "string"
+                    },
+                    "showTitle": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "posterPath": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "backdropPath": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "season": {
+                      "type": "number"
+                    },
+                    "episode": {
+                      "type": "number"
+                    },
+                    "episodeName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "airDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "openedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "closedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "participantCount": {
+                      "type": "number"
+                    },
+                    "messageCount": {
+                      "type": "number"
+                    },
+                    "question": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "poll": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "question": {
+                          "type": "string"
+                        },
+                        "total": {
+                          "type": "number"
+                        },
+                        "options": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "votes": {
+                                "type": "number"
+                              },
+                              "pct": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "votes",
+                              "pct"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "question",
+                        "total",
+                        "options"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "top": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "likeCount": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "tick": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "text",
+                          "likeCount",
+                          "createdAt",
+                          "author"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "memberCount": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "memberCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "showTmdbId",
+                    "showTitle",
+                    "posterPath",
+                    "backdropPath",
+                    "season",
+                    "episode",
+                    "episodeName",
+                    "airDate",
+                    "openedAt",
+                    "closedAt",
+                    "participantCount",
+                    "messageCount",
+                    "question",
+                    "poll",
+                    "top",
+                    "rooms"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/room-archive/{tmdbId}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "tmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "season": {
+                        "type": "number"
+                      },
+                      "episode": {
+                        "type": "number"
+                      },
+                      "episodeName": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "closedAt": {
+                        "type": "string"
+                      },
+                      "messageCount": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "season",
+                      "episode",
+                      "episodeName",
+                      "closedAt",
+                      "messageCount"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/room-archive-sitemap": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "showTmdbId": {
+                        "type": "string"
+                      },
+                      "showTitle": {
+                        "type": "string"
+                      },
+                      "season": {
+                        "type": "number"
+                      },
+                      "episode": {
+                        "type": "number"
+                      },
+                      "lastmod": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "showTmdbId",
+                      "showTitle",
+                      "season",
+                      "episode",
+                      "lastmod"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/personality/{id}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w.]{1,40}$"
+            },
+            "in": "query",
+            "name": "u",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 5
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "lang": {
+                      "type": "string"
+                    },
+                    "showTmdbId": {
+                      "type": "string"
+                    },
+                    "showTitle": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "posterUrl": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "questionCount": {
+                      "type": "number"
+                    },
+                    "attemptCount": {
+                      "type": "number"
+                    },
+                    "faces": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "character": {
+                            "type": "string"
+                          },
+                          "imageUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "character",
+                          "imageUrl"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "result": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "character": {
+                          "type": "string"
+                        },
+                        "actor": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "imageUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "player": {
+                          "type": "object",
+                          "properties": {
+                            "username": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "avatarPath": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "username",
+                            "displayName",
+                            "avatarPath"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "character",
+                        "actor",
+                        "description",
+                        "imageUrl",
+                        "player"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "lang",
+                    "showTmdbId",
+                    "showTitle",
+                    "posterUrl",
+                    "questionCount",
+                    "attemptCount",
+                    "faces",
+                    "result"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/share/quiz/{id}": {
       "get": {
         "tags": [
           "public"
         ],
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w.]{1,40}$"
+            },
+            "in": "query",
+            "name": "u",
+            "required": false
+          },
           {
             "schema": {
               "type": "string",
@@ -70490,6 +73942,64 @@
                             "displayName",
                             "avatarPath",
                             "tick"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "result": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "player": {
+                              "type": "object",
+                              "properties": {
+                                "username": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "avatarPath": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "tick": {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "yellow",
+                                    "blue"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "username",
+                                "displayName",
+                                "avatarPath",
+                                "tick"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "score": {
+                              "type": "number"
+                            },
+                            "correct": {
+                              "type": "number"
+                            },
+                            "rank": {
+                              "nullable": true,
+                              "type": "number"
+                            },
+                            "players": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "player",
+                            "score",
+                            "correct",
+                            "rank",
+                            "players"
                           ],
                           "additionalProperties": false
                         }
@@ -70965,6 +74475,64 @@
                             "tick"
                           ],
                           "additionalProperties": false
+                        },
+                        "result": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "player": {
+                              "type": "object",
+                              "properties": {
+                                "username": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "avatarPath": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "tick": {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "yellow",
+                                    "blue"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "username",
+                                "displayName",
+                                "avatarPath",
+                                "tick"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "score": {
+                              "type": "number"
+                            },
+                            "correct": {
+                              "type": "number"
+                            },
+                            "rank": {
+                              "nullable": true,
+                              "type": "number"
+                            },
+                            "players": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "player",
+                            "score",
+                            "correct",
+                            "rank",
+                            "players"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -71438,6 +75006,64 @@
                             "tick"
                           ],
                           "additionalProperties": false
+                        },
+                        "result": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "player": {
+                              "type": "object",
+                              "properties": {
+                                "username": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "avatarPath": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "tick": {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "yellow",
+                                    "blue"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "username",
+                                "displayName",
+                                "avatarPath",
+                                "tick"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "score": {
+                              "type": "number"
+                            },
+                            "correct": {
+                              "type": "number"
+                            },
+                            "rank": {
+                              "nullable": true,
+                              "type": "number"
+                            },
+                            "players": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "player",
+                            "score",
+                            "correct",
+                            "rank",
+                            "players"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -71570,6 +75196,201 @@
                     "episode",
                     "author",
                     "show"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/week/{username}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w.]{1,40}$"
+            },
+            "in": "path",
+            "name": "username",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "avatarPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "tick": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "yellow",
+                            "blue"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "showTmdbId": {
+                            "type": "string"
+                          },
+                          "showTitle": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "posterUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "season": {
+                            "type": "number"
+                          },
+                          "episode": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "showTmdbId",
+                          "showTitle",
+                          "posterUrl",
+                          "season",
+                          "episode"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/one-episode/{username}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[\\w.]{1,40}$"
+            },
+            "in": "path",
+            "name": "username",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "avatarPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "tick": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "yellow",
+                            "blue"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "showTmdbId": {
+                      "type": "string"
+                    },
+                    "showTitle": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "posterUrl": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "season": {
+                      "type": "number"
+                    },
+                    "episode": {
+                      "type": "number"
+                    },
+                    "episodeName": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "user",
+                    "showTmdbId",
+                    "showTitle",
+                    "posterUrl",
+                    "season",
+                    "episode",
+                    "episodeName"
                   ],
                   "additionalProperties": false
                 }
@@ -79814,6 +83635,42 @@
         }
       }
     },
+    "/api/v1/badges/me/invites": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "joined": {
+                      "type": "number"
+                    },
+                    "verified": {
+                      "type": "number"
+                    },
+                    "reward": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "joined",
+                    "verified",
+                    "reward"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/badges/{username}": {
       "get": {
         "tags": [
@@ -80615,6 +84472,10 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "backdropUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          },
                           "user": {
                             "type": "object",
                             "properties": {
@@ -80667,6 +84528,7 @@
                           "showTmdbId",
                           "title",
                           "posterUrl",
+                          "backdropUrl",
                           "user",
                           "watchedAt",
                           "rating"
@@ -80877,6 +84739,31 @@
                     "nextCursor": {
                       "nullable": true,
                       "type": "string"
+                    },
+                    "undated": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "showTmdbId": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "posterUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "showTmdbId",
+                          "title",
+                          "posterUrl"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -84068,7 +87955,7 @@
                   },
                   "history": {
                     "default": [],
-                    "maxItems": 8,
+                    "maxItems": 12,
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -84128,6 +88015,12 @@
                     },
                     "beyond": {
                       "type": "boolean"
+                    },
+                    "followUps": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "remaining": {
                       "type": "number"
@@ -84263,6 +88156,9 @@
                       "type": "boolean"
                     },
                     "understood": {
+                      "type": "string"
+                    },
+                    "reply": {
                       "type": "string"
                     },
                     "items": {
@@ -85650,7 +89546,7 @@
                   },
                   "history": {
                     "default": [],
-                    "maxItems": 8,
+                    "maxItems": 12,
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -85738,6 +89634,21 @@
                     },
                     "remaining": {
                       "type": "number"
+                    },
+                    "followUps": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "intent": {
+                      "type": "string",
+                      "enum": [
+                        "recommend",
+                        "identify",
+                        "info",
+                        "chat"
+                      ]
                     }
                   },
                   "required": [

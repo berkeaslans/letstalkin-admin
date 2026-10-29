@@ -49,6 +49,11 @@ export const NAV: NavGroup[] = [
       { to: '/moderasyon/odalar', label: 'Odalar', desc: 'Sohbet odaları, üyeler, mesajlar' },
       { to: '/moderasyon/topluluk', label: 'Topluluk içerikleri', desc: 'Listeler, karakter sıralamaları, izleme kulüpleri' },
       { to: '/moderasyon/eslesme', label: 'Eşleşme', desc: 'Şikayetli ve yaşı tutarsız profiller' },
+      {
+        to: '/moderasyon/bilgi-hatalari',
+        label: 'Bilgi hataları',
+        desc: '“Bir hata mı var?” bildirimleri: quiz, anket, test, dizi bilgisi',
+      },
       { to: '/moderasyon/kurallar', label: 'Kurallar', desc: 'Kara liste ve otomatik gizleme eşiği' },
       { to: '/moderasyon/ozet', label: 'Özet', desc: 'Şikayet ve karar istatistikleri' },
       {

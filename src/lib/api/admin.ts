@@ -178,7 +178,7 @@ export type Signups = Res<'/api/v1/admin/analytics/signups', 'get'>;
 export type Draft = {
   id: string;
   source: 'seed' | 'auto';
-  kind: 'post' | 'poll' | 'quiz';
+  kind: 'post' | 'poll' | 'quiz' | 'personality';
   eventType: string | null;
   showTmdbId: string | null;
   showTitle: string | null;
@@ -190,7 +190,29 @@ export type Draft = {
   createdAt: string;
   payload:
     | { text: string; options?: string[] }
-    | { title: string; questions: Array<{ text: string; options: string[]; correctIndex: number; sourceFact?: string }> };
+    | { title: string; questions: Array<{ text: string; options: string[]; correctIndex: number; sourceFact?: string }> }
+    | PersonalityPayload;
+};
+/** Kişilik testi taslağı: her şık bir ya da birkaç karakter anahtarına puan verir. */
+export type PersonalityPayload = {
+  title: string;
+  results: Array<{ key: string; character: string; actor?: string | null; description: string; imagePath?: string | null }>;
+  questions: Array<{ text: string; options: Array<{ text: string; points: Record<string, number> }> }>;
+};
+/** "Bir hata mı var?" bildirimi (içerik başına tek satır). */
+export type ContentIssue = {
+  id: string;
+  targetType: 'quiz' | 'poll' | 'post' | 'personality' | 'show';
+  targetId: string;
+  showTmdbId: string | null;
+  showTitle: string | null;
+  preview: string | null;
+  count: number;
+  status: 'open' | 'hidden' | 'fixed' | 'dismissed';
+  autoHidden: boolean;
+  lastAt: string;
+  createdAt: string;
+  reports: Array<{ text: string | null; detail: string | null; username: string | null; guest: boolean; createdAt: string }>;
 };
 /** Fan sayfası programı (şema üretilene kadar elle; backend /admin/fanpages). */
 export type FanLead = {
@@ -495,7 +517,12 @@ export const adminApi = {
   signups: (days: number) => api.get<Signups>('/admin/analytics/signups', { days }),
   invites: (days: number) => api.get<Invites>('/admin/analytics/invites', { days }),
   fanPages: () => api.get<FanPages>('/admin/fanpages'),
-  drafts: (status: Draft['status'], source?: 'seed' | 'auto') => api.get<{ items: Draft[] }>('/admin/drafts', { status, source }),
+  drafts: (status: Draft['status'], source?: 'seed' | 'auto', kind?: Draft['kind']) =>
+    api.get<{ items: Draft[] }>('/admin/drafts', { status, source, kind }),
+  rollbackDrafts: (seedRunId: string) => api.post<{ rejected: number }>(`/admin/drafts/rollback/${seedRunId}`),
+  contentIssues: (status: 'active' | 'open' | 'hidden' | 'fixed' | 'dismissed' | 'all') =>
+    api.get<{ items: ContentIssue[] }>('/admin/content-issues', { status }),
+  issueAction: (id: string, action: 'hide' | 'fix' | 'dismiss') => api.post<{ ok: true }>(`/admin/content-issues/${id}/${action}`),
   editDraft: (id: string, payload: Draft['payload']) => api.patch<{ ok: true }>(`/admin/drafts/${id}`, { payload }),
   publishDraft: (id: string) => api.post<{ id: string }>(`/admin/drafts/${id}/publish`),
   rejectDraft: (id: string, reason?: string) => api.post<{ ok: true }>(`/admin/drafts/${id}/reject`, { reason }),
