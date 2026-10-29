@@ -922,6 +922,8 @@ export function Rules() {
         </div>
       </Card>
 
+      <IssueThreshold />
+
       <Card title="Kara liste" sub="Gönderi, yorum, oda mesajı, DM, hikâye ve profilde uygulanır">
         <div className="flex flex-col gap-3 px-[18px] pb-4">
           {isAdmin && (
@@ -1136,5 +1138,54 @@ export function Summary() {
         </>
       )}
     </>
+  );
+}
+
+/** "Bir hata mı var?" eşiği: bu kadar farklı kişi bildirince otomatik içerik kendiliğinden gizlenir. */
+function IssueThreshold() {
+  const isAdmin = useIsAdmin();
+  const ok = useMod();
+  const s = useQuery({ queryKey: ['admin', 'modsettings'], queryFn: adminApi.modSettings });
+  const [th, setTh] = useState<number | null>(null);
+  const saved = s.data?.contentIssueThreshold ?? 3;
+  const save = useMutation({
+    mutationFn: (n: number) => adminApi.setModSettings({ autoHideThreshold: s.data?.autoHideThreshold ?? 0, contentIssueThreshold: n }),
+    ...ok('Eşik kaydedildi'),
+  });
+  const current = th ?? saved;
+  return (
+    <Card title="Bilgi hatası eşiği" sub="“Bir hata mı var?” bildirimleri">
+      <div className="flex flex-col gap-3 px-[18px] pb-5">
+        <p className="text-[13.5px] text-sub">
+          Otomatik üretilen bir quiz, anket ya da teste bu kadar <b className="text-text">farklı kişi</b> hata bildirince içerik incelemeye
+          kadar yayından kalkar. Dizi bilgisi gizlenmez, yalnız listede öne çıkar.
+        </p>
+        {s.isLoading ? (
+          <Rows n={1} />
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            {[0, 3, 5, 10].map((n) => (
+              <button
+                key={n}
+                type="button"
+                disabled={!isAdmin}
+                onClick={() => setTh(n)}
+                className={cn(
+                  'press h-9 rounded-full px-4 text-[13px] font-semibold disabled:opacity-60',
+                  current === n ? 'bg-text text-black' : 'bg-elev2 text-sub shadow-[inset_0_0_0_0.5px_var(--color-line2)]',
+                )}
+              >
+                {n === 0 ? 'Kapalı' : `${n} kişi`}
+              </button>
+            ))}
+            {isAdmin && th !== null && th !== saved && (
+              <Button size="sm" variant="primary" busy={save.isPending} onClick={() => save.mutate(th)}>
+                Kaydet
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }

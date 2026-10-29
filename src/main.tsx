@@ -60,6 +60,7 @@ const PublishAccounts = page(() => import('@/pages/Publish'), 'PublishAccounts')
 const QuizPage = page(() => import('@/pages/Publish'), 'QuizPage');
 const Quizzes = page(() => import('@/pages/Publish'), 'Quizzes');
 const Reports = page(() => import('@/pages/Reports'), 'Reports');
+const ContentIssues = page(() => import('@/pages/ContentIssues'), 'ContentIssues');
 const SeriesPages = page(() => import('@/pages/SeriesPages'), 'SeriesPages');
 const Settings = page(() => import('@/pages/System'), 'Settings');
 const Status = page(() => import('@/pages/System'), 'Status');
@@ -79,6 +80,7 @@ const PAGES: Record<string, ComponentType> = {
   '/moderasyon/kurallar': Rules,
   '/moderasyon/ozet': Summary,
   '/moderasyon/geri-bildirim': FeedbackInbox,
+  '/moderasyon/bilgi-hatalari': ContentIssues,
   '/kullanicilar': Users,
   '/kullanicilar/tikler': Ticks,
   '/kullanicilar/sayfalar': SeriesPages,
