@@ -189,7 +189,7 @@ export type Draft = {
   rejectReason: string | null;
   createdAt: string;
   payload:
-    | { text: string; options?: string[] }
+    | { text: string; options?: string[]; images?: string[]; embedUrl?: string }
     | { title: string; questions: Array<{ text: string; options: string[]; correctIndex: number; sourceFact?: string }> }
     | PersonalityPayload;
 };
