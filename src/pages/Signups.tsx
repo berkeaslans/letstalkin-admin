@@ -372,11 +372,54 @@ export function Signups() {
           {!d.recent.length && <p className="px-[18px] pb-4 text-[13px] text-faint">Bu dönemde kayıt yok.</p>}
         </div>
       </Card>
+      <InviteBoard days={Number(days)} />
       <p className="text-[12px] text-faint">
         Kaynak, kişinin siteye ilk geldiği andan (30 gün içinde) kayıt olduğu ana kadar tarayıcıda tutulur; IP saklanmaz. WhatsApp ve
         Telegram gibi uygulamalar yönlendiren bilgisi göndermediği için paylaşılan uygulama linkiyle (gönderi, profil, istatistik) gelenler
         "Paylaşılan link" sayılır. Takip başlamadan önceki kayıtlar "Bilinmiyor" görünür.
       </p>
     </>
+  );
+}
+
+/** Kişisel davet bağlantısıyla (?ref=) en çok kişi getirenler; "doğruladı" coin kazandıran sayıdır. */
+function InviteBoard({ days }: { days: number }) {
+  const q = useQuery({ queryKey: ['admin', 'invites', days], queryFn: () => adminApi.invites(days) });
+  const d = q.data;
+  return (
+    <Card title="Davet liderliği" sub={d ? `bu dönemde davetle ${fmt(d.total)} kayıt` : 'kişisel davet bağlantısıyla gelenler'}>
+      {q.isError ? (
+        <ErrorState error={q.error} retry={() => q.refetch()} />
+      ) : !d ? (
+        <Rows n={4} />
+      ) : !d.items.length ? (
+        <p className="px-[18px] pb-4 text-[13px] text-faint">Bu dönemde davetle gelen yok.</p>
+      ) : (
+        <table className="w-full border-collapse text-[13px]">
+          <thead>
+            <tr className="text-left text-[12px] text-faint">
+              <th className="px-[18px] py-2 font-semibold">Davet eden</th>
+              <th className="px-3 py-2 text-right font-semibold">Katılan</th>
+              <th className="px-[18px] py-2 text-right font-semibold">Doğrulayan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {d.items.map((r, i) => (
+              <tr key={r.id} className="shadow-[inset_0_0.5px_0_var(--color-line)]">
+                <td className="px-[18px] py-2.5">
+                  <button type="button" onClick={() => go(paths.user(r.id))} className="press flex items-center gap-2 text-left">
+                    <span className="w-6 text-faint tabular">{i + 1}</span>
+                    <b>@{r.username}</b>
+                    {r.founderNo != null && <Tag tone="yellow">#{String(r.founderNo).padStart(4, '0')}</Tag>}
+                  </button>
+                </td>
+                <td className="px-3 py-2.5 text-right tabular">{fmt(r.joined)}</td>
+                <td className="px-[18px] py-2.5 text-right font-semibold tabular">{fmt(r.verified)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Card>
   );
 }

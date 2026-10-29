@@ -174,6 +174,11 @@ export type TitleData = TitleEdit['data'];
 export type TitleKind = TitleEdit['kind'];
 export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
 export type Signups = Res<'/api/v1/admin/analytics/signups', 'get'>;
+/** Davet liderliği (şema üretilene kadar elle; backend /admin/analytics/invites). */
+export type Invites = {
+  total: number;
+  items: Array<{ id: string; username: string; founderNo: number | null; joined: number; verified: number }>;
+};
 export type GoogleStatus = Res<'/api/v1/admin/google/status', 'get'>;
 export type GaReport = Res<'/api/v1/admin/google/analytics', 'get'>;
 export type ScReport = Res<'/api/v1/admin/google/search', 'get'>;
@@ -442,6 +447,7 @@ export const adminApi = {
   // Analiz
   analytics: (days: number) => api.get<Analytics>('/admin/analytics/overview', { days }),
   signups: (days: number) => api.get<Signups>('/admin/analytics/signups', { days }),
+  invites: (days: number) => api.get<Invites>('/admin/analytics/invites', { days }),
   googleStatus: () => api.get<GoogleStatus>('/admin/google/status'),
   googleKeys: () => api.get<GoogleKeysResponse>('/admin/google/keys'),
   aiSettings: () => api.get<AiSettings>('/admin/ai/settings'),
