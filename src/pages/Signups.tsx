@@ -348,8 +348,11 @@ export function Signups() {
                     {r.landingPath && <span className="block truncate text-[11.5px] text-faint">{r.landingPath}</span>}
                   </td>
                   <td className="max-w-[200px] px-3 py-2.5 text-sub">
+                    {/* Yönlendiren göndermeyen kaynaklar (ChatGPT: utm_source=chatgpt.com) utm_source ile görünür. */}
                     <span className="block truncate">
-                      {[r.referrer, r.utmCampaign && `#${r.utmCampaign}`].filter(Boolean).join(' · ') || '—'}
+                      {[r.referrer, r.utmSource && r.utmSource !== r.referrer && r.utmSource, r.utmCampaign && `#${r.utmCampaign}`]
+                        .filter(Boolean)
+                        .join(' · ') || '—'}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 whitespace-nowrap text-sub">
