@@ -10,7 +10,13 @@ import { errorMessage } from '@/lib/api/client';
 import { toast } from '@/stores/ui';
 import { field } from './Publish';
 
-const EVENT: Record<string, string> = { new_season: 'Yeni sezon', trailer: 'Fragman', anniversary: 'Yıl dönümü' };
+const EVENT: Record<string, string> = {
+  new_season: 'Yeni sezon',
+  trailer: 'Fragman',
+  anniversary: 'Yıl dönümü',
+  still: 'Bölüm karesi',
+  characters: 'Karakter anketi',
+};
 const KIND: Record<Draft['kind'], string> = { post: 'Gönderi', poll: 'Anket', quiz: 'Quiz', personality: 'Kişilik testi' };
 
 export function Drafts() {
@@ -198,6 +204,7 @@ function DraftCard({
           </>
         ) : d.status === 'draft' ? (
           <>
+            <Media p={p} />
             <textarea className={`${field} min-h-[72px] w-full`} value={text} onChange={(e) => setText(e.target.value)} />
             {p.options && <p className="mt-1.5 text-[12.5px] text-sub">Şıklar: {p.options.join(' · ')}</p>}
             {text !== p.text && (
@@ -207,7 +214,10 @@ function DraftCard({
             )}
           </>
         ) : (
-          <p className="text-[13.5px] whitespace-pre-wrap">{p.text}</p>
+          <>
+            <Media p={p} />
+            <p className="text-[13.5px] whitespace-pre-wrap">{p.text}</p>
+          </>
         )}
       </div>
     </Card>
@@ -323,6 +333,23 @@ function PersonalityEditor({ d, p, onSaved }: { d: Draft; p: PersonalityPayload;
             Geri al
           </Button>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** Görselli taslak: TMDB görseli (yayında depoya kopyalanır) ve fragman bağlantısı. */
+function Media({ p }: { p: { images?: string[]; embedUrl?: string } }) {
+  if (!p.images?.length && !p.embedUrl) return null;
+  return (
+    <div className="mb-2.5 flex flex-wrap items-center gap-2">
+      {p.images?.map((src) => (
+        <img key={src} src={src} alt="" className="h-[120px] w-auto max-w-full rounded-[10px] object-cover" />
+      ))}
+      {p.embedUrl && (
+        <a href={p.embedUrl} target="_blank" rel="noreferrer" className="text-[13px] font-semibold text-blue hover:underline">
+          Fragmanı aç
+        </a>
       )}
     </div>
   );
