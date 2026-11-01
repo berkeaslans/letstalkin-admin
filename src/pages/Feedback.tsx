@@ -17,6 +17,8 @@ import { playSound } from '@/lib/sound';
 import { toast } from '@/stores/ui';
 import { area } from './Publish';
 
+const SITE = (import.meta.env.VITE_SITE_URL ?? 'https://letstalkin.com').replace(/\/$/, '');
+
 const KIND: Record<FeedbackKind, [string, IconName, 'live' | 'yellow' | 'blue' | undefined]> = {
   bug: ['Hata', 'error', 'live'],
   idea: ['Öneri', 'local_fire_department', 'yellow'],
@@ -142,15 +144,34 @@ function Row({ f, open, toggle }: { f: Feedback; open: boolean; toggle: () => vo
       {open && (
         <div className="flex flex-col gap-3 px-[18px] pb-4 pl-[62px]">
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-sub">
+            {f.pageTitle && (
+              <span>
+                Sayfa: <b className="text-text">{f.pageTitle}</b>
+              </span>
+            )}
             {f.route && (
               <span>
-                Ekran: <code>{f.route}</code>
+                Adres:{' '}
+                {f.platform === 'web' && f.route.startsWith('/') ? (
+                  <a href={`${SITE}${f.route}`} target="_blank" rel="noreferrer" className="underline hover:text-text">
+                    <code>{f.route}</code>
+                  </a>
+                ) : (
+                  <code>{f.route}</code>
+                )}
               </span>
             )}
             {f.device && <span>Cihaz: {f.device}</span>}
+            {f.viewport && <span>Pencere: {f.viewport}</span>}
           </div>
           {shot && (
-            <a href={shot} target="_blank" rel="noreferrer" className="block w-40 overflow-hidden rounded-[12px]">
+            // Hata bildirimindeki ekran görüntüsü: tıklayınca tam boyut.
+            <a
+              href={shot}
+              target="_blank"
+              rel="noreferrer"
+              className="block w-full max-w-[420px] overflow-hidden rounded-[12px] shadow-[inset_0_0_0_0.5px_var(--color-line2)]"
+            >
               <img src={shot} alt="Ekran görüntüsü" className="w-full" />
             </a>
           )}

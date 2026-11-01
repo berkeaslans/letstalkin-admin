@@ -3318,6 +3318,28 @@
                         "nullable": true,
                         "type": "string"
                       },
+                      "person": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "photoUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "photoUrl"
+                        ],
+                        "additionalProperties": false
+                      },
                       "episodeTag": {
                         "nullable": true,
                         "type": "string"
@@ -3514,6 +3536,18 @@
                       },
                       "reshared": {
                         "type": "boolean"
+                      },
+                      "auto": {
+                        "type": "boolean"
+                      },
+                      "originalLanguage": {
+                        "type": "string"
+                      },
+                      "langs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       },
                       "poll": {
                         "nullable": true,
@@ -4178,6 +4212,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -4374,6 +4430,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -5003,6 +5071,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -5199,6 +5289,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -5876,6 +5978,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -6072,6 +6196,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -6701,6 +6837,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -6897,6 +7055,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -7574,6 +7744,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -7770,6 +7962,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -8399,6 +8603,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -8595,6 +8821,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -10931,6 +11169,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -11127,6 +11387,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -11756,6 +12028,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -11952,6 +12246,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -12638,6 +12944,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -12834,6 +13162,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -13463,6 +13803,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -13659,6 +14021,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -14345,6 +14719,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -14541,6 +14937,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -15170,6 +15578,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -15366,6 +15796,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -16329,6 +16771,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -16525,6 +16989,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -17154,6 +17630,28 @@
                                 "nullable": true,
                                 "type": "string"
                               },
+                              "person": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "photoUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "photoUrl"
+                                ],
+                                "additionalProperties": false
+                              },
                               "episodeTag": {
                                 "nullable": true,
                                 "type": "string"
@@ -17350,6 +17848,18 @@
                               },
                               "reshared": {
                                 "type": "boolean"
+                              },
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "originalLanguage": {
+                                "type": "string"
+                              },
+                              "langs": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
                               },
                               "poll": {
                                 "nullable": true,
@@ -18826,6 +19336,92 @@
                     ],
                     "additionalProperties": false
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shows/{key}/peek": {
+      "get": {
+        "tags": [
+          "shows"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "friends": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "username",
+                              "displayName",
+                              "avatarPath"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "watching": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "users",
+                        "total",
+                        "watching"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "rewatchers": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "friends",
+                    "rewatchers"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -20759,6 +21355,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -20955,6 +21573,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -21632,6 +22262,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -21828,6 +22480,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -22661,6 +23325,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -22857,6 +23543,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -23542,6 +24240,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -23738,6 +24458,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -24464,6 +25196,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -24660,6 +25414,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -25426,6 +26192,10 @@
                   "showTmdbId": {
                     "type": "string"
                   },
+                  "personTmdbId": {
+                    "type": "string",
+                    "pattern": "^\\d{1,10}$"
+                  },
                   "episodeTag": {
                     "type": "string"
                   },
@@ -25635,6 +26405,28 @@
                         "h"
                       ]
                     }
+                  },
+                  "versions": {
+                    "maxItems": 15,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "lang": {
+                          "type": "string",
+                          "pattern": "^[a-z]{2}$"
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4000
+                        }
+                      },
+                      "required": [
+                        "lang",
+                        "text"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -25723,6 +26515,28 @@
                     "showTitle": {
                       "nullable": true,
                       "type": "string"
+                    },
+                    "person": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "photoUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "photoUrl"
+                      ],
+                      "additionalProperties": false
                     },
                     "episodeTag": {
                       "nullable": true,
@@ -25920,6 +26734,18 @@
                     },
                     "reshared": {
                       "type": "boolean"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "originalLanguage": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "poll": {
                       "nullable": true,
@@ -26611,6 +27437,28 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "person": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "photoUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "photoUrl"
+                      ],
+                      "additionalProperties": false
+                    },
                     "episodeTag": {
                       "nullable": true,
                       "type": "string"
@@ -26807,6 +27655,18 @@
                     },
                     "reshared": {
                       "type": "boolean"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "originalLanguage": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "poll": {
                       "nullable": true,
@@ -27530,6 +28390,28 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "person": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "photoUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "photoUrl"
+                      ],
+                      "additionalProperties": false
+                    },
                     "episodeTag": {
                       "nullable": true,
                       "type": "string"
@@ -27726,6 +28608,18 @@
                     },
                     "reshared": {
                       "type": "boolean"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "originalLanguage": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "poll": {
                       "nullable": true,
@@ -28316,6 +29210,157 @@
         }
       }
     },
+    "/api/v1/posts/{id}/versions": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "original": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lang": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "lang",
+                          "text"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "original",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "posts"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "versions": {
+                    "maxItems": 15,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "lang": {
+                          "type": "string",
+                          "pattern": "^[a-z]{2}$"
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4000
+                        }
+                      },
+                      "required": [
+                        "lang",
+                        "text"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "versions"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "original": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lang": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "lang",
+                          "text"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "original",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/posts/{id}/manage": {
       "patch": {
         "tags": [
@@ -28434,6 +29479,28 @@
                     "showTitle": {
                       "nullable": true,
                       "type": "string"
+                    },
+                    "person": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "photoUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "photoUrl"
+                      ],
+                      "additionalProperties": false
                     },
                     "episodeTag": {
                       "nullable": true,
@@ -28631,6 +29698,18 @@
                     },
                     "reshared": {
                       "type": "boolean"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "originalLanguage": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "poll": {
                       "nullable": true,
@@ -29407,6 +30486,28 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "person": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "photoUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "photoUrl"
+                      ],
+                      "additionalProperties": false
+                    },
                     "episodeTag": {
                       "nullable": true,
                       "type": "string"
@@ -29603,6 +30704,18 @@
                     },
                     "reshared": {
                       "type": "boolean"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "originalLanguage": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "poll": {
                       "nullable": true,
@@ -30874,6 +31987,28 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "person": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "photoUrl": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "photoUrl"
+                      ],
+                      "additionalProperties": false
+                    },
                     "episodeTag": {
                       "nullable": true,
                       "type": "string"
@@ -31070,6 +32205,18 @@
                     },
                     "reshared": {
                       "type": "boolean"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "originalLanguage": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "poll": {
                       "nullable": true,
@@ -33577,6 +34724,28 @@
                                   "nullable": true,
                                   "type": "string"
                                 },
+                                "person": {
+                                  "nullable": true,
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "photoUrl": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "name",
+                                    "photoUrl"
+                                  ],
+                                  "additionalProperties": false
+                                },
                                 "episodeTag": {
                                   "nullable": true,
                                   "type": "string"
@@ -33773,6 +34942,18 @@
                                 },
                                 "reshared": {
                                   "type": "boolean"
+                                },
+                                "auto": {
+                                  "type": "boolean"
+                                },
+                                "originalLanguage": {
+                                  "type": "string"
+                                },
+                                "langs": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
                                 },
                                 "poll": {
                                   "nullable": true,
@@ -42935,6 +44116,14 @@
                             "nullable": true,
                             "type": "number"
                           },
+                          "rewatching": {
+                            "type": "boolean"
+                          },
+                          "watchCount": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
                           "remindAt": {
                             "nullable": true,
                             "type": "string",
@@ -42974,6 +44163,8 @@
                           "status",
                           "progressSeason",
                           "progressEpisode",
+                          "rewatching",
+                          "watchCount",
                           "remindAt",
                           "updatedAt",
                           "createdAt",
@@ -43013,6 +44204,14 @@
                             "nullable": true,
                             "type": "number"
                           },
+                          "rewatching": {
+                            "type": "boolean"
+                          },
+                          "watchCount": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
                           "remindAt": {
                             "nullable": true,
                             "type": "string",
@@ -43052,6 +44251,8 @@
                           "status",
                           "progressSeason",
                           "progressEpisode",
+                          "rewatching",
+                          "watchCount",
                           "remindAt",
                           "updatedAt",
                           "createdAt",
@@ -43091,6 +44292,14 @@
                             "nullable": true,
                             "type": "number"
                           },
+                          "rewatching": {
+                            "type": "boolean"
+                          },
+                          "watchCount": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
                           "remindAt": {
                             "nullable": true,
                             "type": "string",
@@ -43130,6 +44339,8 @@
                           "status",
                           "progressSeason",
                           "progressEpisode",
+                          "rewatching",
+                          "watchCount",
                           "remindAt",
                           "updatedAt",
                           "createdAt",
@@ -43169,6 +44380,14 @@
                             "nullable": true,
                             "type": "number"
                           },
+                          "rewatching": {
+                            "type": "boolean"
+                          },
+                          "watchCount": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
                           "remindAt": {
                             "nullable": true,
                             "type": "string",
@@ -43208,6 +44427,8 @@
                           "status",
                           "progressSeason",
                           "progressEpisode",
+                          "rewatching",
+                          "watchCount",
                           "remindAt",
                           "updatedAt",
                           "createdAt",
@@ -43686,6 +44907,14 @@
                       "nullable": true,
                       "type": "number"
                     },
+                    "rewatching": {
+                      "type": "boolean"
+                    },
+                    "watchCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
                     "remindAt": {
                       "nullable": true,
                       "type": "string",
@@ -43707,6 +44936,8 @@
                     "status",
                     "progressSeason",
                     "progressEpisode",
+                    "rewatching",
+                    "watchCount",
                     "remindAt",
                     "updatedAt",
                     "createdAt"
@@ -44087,6 +45318,380 @@
                     "ok"
                   ],
                   "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/watchlist/{showTmdbId}/watches": {
+      "get": {
+        "tags": [
+          "watchlist"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "showTmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rewatching": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "index": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "startedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "finishedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "manual": {
+                            "type": "boolean"
+                          },
+                          "open": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "index",
+                          "startedAt",
+                          "finishedAt",
+                          "manual",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "rewatching",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "watchlist"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "showTmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rewatching": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "index": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "startedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "finishedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "manual": {
+                            "type": "boolean"
+                          },
+                          "open": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "index",
+                          "startedAt",
+                          "finishedAt",
+                          "manual",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "rewatching",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "watchlist"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 99
+                  }
+                },
+                "required": [
+                  "count"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "showTmdbId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rewatching": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "index": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "startedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "finishedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "manual": {
+                            "type": "boolean"
+                          },
+                          "open": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "index",
+                          "startedAt",
+                          "finishedAt",
+                          "manual",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "rewatching",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/watchlist/{showTmdbId}/watches/{id}": {
+      "delete": {
+        "tags": [
+          "watchlist"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "showTmdbId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rewatching": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "index": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "startedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "finishedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "manual": {
+                            "type": "boolean"
+                          },
+                          "open": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "index",
+                          "startedAt",
+                          "finishedAt",
+                          "manual",
+                          "open"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "count",
+                    "rewatching",
+                    "items"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -44771,6 +46376,12 @@
                         "type": "boolean"
                       }
                     },
+                    "postLangs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
@@ -44902,6 +46513,14 @@
                       ]
                     }
                   },
+                  "postLangs": {
+                    "maxItems": 15,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z]{2}$"
+                    }
+                  },
                   "tagPolicy": {
                     "type": "string",
                     "enum": [
@@ -45020,6 +46639,12 @@
                       "type": "object",
                       "additionalProperties": {
                         "type": "boolean"
+                      }
+                    },
+                    "postLangs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
                       }
                     },
                     "updatedAt": {
@@ -45899,6 +47524,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -46095,6 +47742,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -47019,6 +48678,28 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
                           "episodeTag": {
                             "nullable": true,
                             "type": "string"
@@ -47215,6 +48896,18 @@
                           },
                           "reshared": {
                             "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "poll": {
                             "nullable": true,
@@ -54644,6 +56337,14 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "pageTitle": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "viewport": {
+                            "nullable": true,
+                            "type": "string"
+                          },
                           "device": {
                             "nullable": true,
                             "type": "string"
@@ -54753,6 +56454,8 @@
                           "platform",
                           "appVersion",
                           "route",
+                          "pageTitle",
+                          "viewport",
                           "device",
                           "screenshot",
                           "status",
@@ -64415,6 +66118,14 @@
                               "minLength": 1,
                               "maxLength": 80
                             }
+                          },
+                          "images": {
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uri"
+                            }
                           }
                         },
                         "required": [
@@ -64429,6 +66140,19 @@
                             "type": "string",
                             "minLength": 1,
                             "maxLength": 2000
+                          },
+                          "images": {
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uri"
+                            }
+                          },
+                          "embedUrl": {
+                            "type": "string",
+                            "maxLength": 500,
+                            "format": "uri"
                           }
                         },
                         "required": [
@@ -67919,7 +69643,15 @@
                   },
                   "route": {
                     "type": "string",
+                    "maxLength": 300
+                  },
+                  "pageTitle": {
+                    "type": "string",
                     "maxLength": 200
+                  },
+                  "viewport": {
+                    "type": "string",
+                    "maxLength": 20
                   },
                   "screenshot": {
                     "type": "string",
@@ -72950,6 +74682,48 @@
                     "kind",
                     "title",
                     "appPath"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/backdrops/{key}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(m:)?\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
                   ],
                   "additionalProperties": false
                 }
@@ -82945,6 +84719,36 @@
         }
       }
     },
+    "/api/v1/tierlists/claim": {
+      "post": {
+        "tags": [
+          "tierlists"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "moved": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "moved"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/pulse/{showId}/{season}/{episode}": {
       "get": {
         "tags": [
@@ -86253,6 +88057,11 @@
                       "minLength": 1,
                       "maxLength": 40
                     }
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "pattern": "^[^\\n\\r<>]*$"
                   }
                 }
               }
@@ -86371,6 +88180,9 @@
                             "type": "integer",
                             "minimum": -9007199254740991,
                             "maximum": 9007199254740991
+                          },
+                          "guest": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -86383,6 +88195,9 @@
                         ],
                         "additionalProperties": {}
                       }
+                    },
+                    "me": {
+                      "type": "string"
                     },
                     "swiped": {
                       "type": "array",
@@ -86511,6 +88326,7 @@
                     "createdBy",
                     "deck",
                     "members",
+                    "me",
                     "swiped",
                     "matches",
                     "ranking"
@@ -86539,6 +88355,11 @@
                     "type": "string",
                     "minLength": 6,
                     "maxLength": 6
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "pattern": "^[^\\n\\r<>]*$"
                   }
                 },
                 "required": [
@@ -86660,6 +88481,9 @@
                             "type": "integer",
                             "minimum": -9007199254740991,
                             "maximum": 9007199254740991
+                          },
+                          "guest": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -86672,6 +88496,9 @@
                         ],
                         "additionalProperties": {}
                       }
+                    },
+                    "me": {
+                      "type": "string"
                     },
                     "swiped": {
                       "type": "array",
@@ -86800,6 +88627,7 @@
                     "createdBy",
                     "deck",
                     "members",
+                    "me",
                     "swiped",
                     "matches",
                     "ranking"
@@ -86941,6 +88769,9 @@
                             "type": "integer",
                             "minimum": -9007199254740991,
                             "maximum": 9007199254740991
+                          },
+                          "guest": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -86953,6 +88784,9 @@
                         ],
                         "additionalProperties": {}
                       }
+                    },
+                    "me": {
+                      "type": "string"
                     },
                     "swiped": {
                       "type": "array",
@@ -87081,6 +88915,7 @@
                     "createdBy",
                     "deck",
                     "members",
+                    "me",
                     "swiped",
                     "matches",
                     "ranking"
@@ -87304,6 +89139,36 @@
         }
       }
     },
+    "/api/v1/pick/claim": {
+      "post": {
+        "tags": [
+          "pick"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sessions": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "sessions"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/person-follows/mine": {
       "get": {
         "tags": [
@@ -87457,6 +89322,1229 @@
                   },
                   "required": [
                     "following"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/person-follows/{personId}/reviews": {
+      "get": {
+        "tags": [
+          "people"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": "top",
+              "type": "string",
+              "enum": [
+                "top",
+                "new"
+              ]
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 10,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "personId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "post",
+                              "review",
+                              "poll",
+                              "quote",
+                              "story",
+                              "clip"
+                            ]
+                          },
+                          "author": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": {}
+                          },
+                          "text": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "language": {
+                            "type": "string"
+                          },
+                          "mediaPaths": {
+                            "nullable": true
+                          },
+                          "showTmdbId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "showTitle": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "person": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "photoUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "photoUrl"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "episodeTag": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "season": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "episode": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "minute": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "rating": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "quote": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "isSpoiler": {
+                            "type": "boolean"
+                          },
+                          "spoilerNote": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "talk": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "people": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "faces": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "displayName": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "avatarPath": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "username",
+                                    "displayName",
+                                    "avatarPath"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "top": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "username": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "spoiler": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "username",
+                                  "text",
+                                  "spoiler"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "people",
+                              "faces",
+                              "top"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "spoilerRegions": {
+                            "nullable": true,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "mediaIndex": {
+                                  "type": "number"
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "y": {
+                                  "type": "number"
+                                },
+                                "w": {
+                                  "type": "number"
+                                },
+                                "h": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "mediaIndex",
+                                "x",
+                                "y",
+                                "w",
+                                "h"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "likeCount": {
+                            "type": "number"
+                          },
+                          "commentCount": {
+                            "type": "number"
+                          },
+                          "shareCount": {
+                            "type": "number"
+                          },
+                          "saveCount": {
+                            "type": "number"
+                          },
+                          "viewCount": {
+                            "type": "number"
+                          },
+                          "playCount": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "editedAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "video": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "thumbUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "durationSec": {
+                                "nullable": true,
+                                "type": "number"
+                              },
+                              "width": {
+                                "nullable": true,
+                                "type": "number"
+                              },
+                              "height": {
+                                "nullable": true,
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "thumbUrl",
+                              "durationSec",
+                              "width",
+                              "height"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "liked": {
+                            "type": "boolean"
+                          },
+                          "saved": {
+                            "type": "boolean"
+                          },
+                          "reshared": {
+                            "type": "boolean"
+                          },
+                          "auto": {
+                            "type": "boolean"
+                          },
+                          "originalLanguage": {
+                            "type": "string"
+                          },
+                          "langs": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "poll": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "index": {
+                                      "type": "number"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    },
+                                    "voteCount": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "index",
+                                    "label",
+                                    "voteCount"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "myVote": {
+                                "nullable": true,
+                                "type": "number"
+                              },
+                              "endsAt": {
+                                "nullable": true,
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "ended": {
+                                "type": "boolean"
+                              },
+                              "closed": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "options",
+                              "myVote",
+                              "endsAt",
+                              "ended",
+                              "closed"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "quoted": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "unavailable": {
+                                "type": "boolean"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "post",
+                                  "review",
+                                  "poll",
+                                  "quote",
+                                  "story",
+                                  "clip"
+                                ]
+                              },
+                              "author": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "username": {
+                                    "type": "string"
+                                  },
+                                  "displayName": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "avatarPath": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "tick": {
+                                    "type": "string",
+                                    "enum": [
+                                      "none",
+                                      "yellow",
+                                      "blue"
+                                    ]
+                                  },
+                                  "founderNo": {
+                                    "nullable": true,
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "username",
+                                  "displayName",
+                                  "avatarPath",
+                                  "tick"
+                                ],
+                                "additionalProperties": {}
+                              },
+                              "text": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "quote": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "rating": {
+                                "nullable": true,
+                                "type": "number"
+                              },
+                              "mediaPaths": {
+                                "nullable": true
+                              },
+                              "thumbUrl": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "showTmdbId": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "showTitle": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "isSpoiler": {
+                                "type": "boolean"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "embed": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "x",
+                                      "instagram"
+                                    ]
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "video",
+                                      "short",
+                                      "post",
+                                      "reel"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "url": {
+                                    "type": "string"
+                                  },
+                                  "start": {
+                                    "type": "number"
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "author": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "provider",
+                                  "kind",
+                                  "id",
+                                  "url"
+                                ],
+                                "additionalProperties": {}
+                              },
+                              "quoted": {
+                                "nullable": true,
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "unavailable": {
+                                    "type": "boolean"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "post",
+                                      "review",
+                                      "poll",
+                                      "quote",
+                                      "story",
+                                      "clip"
+                                    ]
+                                  },
+                                  "author": {
+                                    "nullable": true,
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "username": {
+                                        "type": "string"
+                                      },
+                                      "displayName": {
+                                        "nullable": true,
+                                        "type": "string"
+                                      },
+                                      "avatarPath": {
+                                        "nullable": true,
+                                        "type": "string"
+                                      },
+                                      "tick": {
+                                        "type": "string",
+                                        "enum": [
+                                          "none",
+                                          "yellow",
+                                          "blue"
+                                        ]
+                                      },
+                                      "founderNo": {
+                                        "nullable": true,
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "username",
+                                      "displayName",
+                                      "avatarPath",
+                                      "tick"
+                                    ],
+                                    "additionalProperties": {}
+                                  },
+                                  "text": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "quote": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "rating": {
+                                    "nullable": true,
+                                    "type": "number"
+                                  },
+                                  "mediaPaths": {
+                                    "nullable": true
+                                  },
+                                  "thumbUrl": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "showTmdbId": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "showTitle": {
+                                    "nullable": true,
+                                    "type": "string"
+                                  },
+                                  "isSpoiler": {
+                                    "type": "boolean"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "embed": {
+                                    "nullable": true,
+                                    "type": "object",
+                                    "properties": {
+                                      "provider": {
+                                        "type": "string",
+                                        "enum": [
+                                          "youtube",
+                                          "x",
+                                          "instagram"
+                                        ]
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "video",
+                                          "short",
+                                          "post",
+                                          "reel"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "url": {
+                                        "type": "string"
+                                      },
+                                      "start": {
+                                        "type": "number"
+                                      },
+                                      "title": {
+                                        "type": "string"
+                                      },
+                                      "author": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "provider",
+                                      "kind",
+                                      "id",
+                                      "url"
+                                    ],
+                                    "additionalProperties": {}
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "unavailable"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "unavailable"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "embed": {
+                            "nullable": true,
+                            "type": "object",
+                            "properties": {
+                              "provider": {
+                                "type": "string",
+                                "enum": [
+                                  "youtube",
+                                  "x",
+                                  "instagram"
+                                ]
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "video",
+                                  "short",
+                                  "post",
+                                  "reel"
+                                ]
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "start": {
+                                "type": "number"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "author": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "provider",
+                              "kind",
+                              "id",
+                              "url"
+                            ],
+                            "additionalProperties": {}
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "user": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "displayName": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "avatarPath": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "tick": {
+                                      "type": "string",
+                                      "enum": [
+                                        "none",
+                                        "yellow",
+                                        "blue"
+                                      ]
+                                    },
+                                    "founderNo": {
+                                      "nullable": true,
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "username",
+                                    "displayName",
+                                    "avatarPath",
+                                    "tick"
+                                  ],
+                                  "additionalProperties": {}
+                                },
+                                "mediaIndex": {
+                                  "type": "number"
+                                },
+                                "x": {
+                                  "nullable": true,
+                                  "type": "number"
+                                },
+                                "y": {
+                                  "nullable": true,
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "user",
+                                "mediaIndex",
+                                "x",
+                                "y"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "pinned": {
+                            "type": "boolean"
+                          },
+                          "archived": {
+                            "type": "boolean"
+                          },
+                          "hideLikeCount": {
+                            "type": "boolean"
+                          },
+                          "commentsOff": {
+                            "type": "boolean"
+                          },
+                          "likesHidden": {
+                            "type": "boolean"
+                          },
+                          "myTagHidden": {
+                            "nullable": true,
+                            "type": "boolean"
+                          },
+                          "context": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "reshare",
+                                  "like"
+                                ]
+                              },
+                              "users": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "username": {
+                                      "type": "string"
+                                    },
+                                    "displayName": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "username",
+                                    "displayName"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "count": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "users",
+                              "count"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "author",
+                          "text",
+                          "mediaPaths",
+                          "showTmdbId",
+                          "showTitle",
+                          "episodeTag",
+                          "season",
+                          "episode",
+                          "minute",
+                          "rating",
+                          "quote",
+                          "isSpoiler",
+                          "spoilerNote",
+                          "likeCount",
+                          "commentCount",
+                          "shareCount",
+                          "saveCount",
+                          "createdAt",
+                          "editedAt",
+                          "video",
+                          "liked",
+                          "saved",
+                          "reshared",
+                          "poll"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/person-follows/{personId}/rating": {
+      "get": {
+        "tags": [
+          "people"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "personId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mine": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number"
+                        },
+                        "text": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "text"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "average": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "distribution": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": {}
+                          },
+                          "value": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "user",
+                          "value",
+                          "text",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "mine",
+                    "average",
+                    "count",
+                    "distribution",
+                    "comments"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "people"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10
+                  },
+                  "text": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "value"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,10}$"
+            },
+            "in": "path",
+            "name": "personId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mine": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number"
+                        },
+                        "text": {
+                          "nullable": true,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "text"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "average": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "distribution": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "tick": {
+                                "type": "string",
+                                "enum": [
+                                  "none",
+                                  "yellow",
+                                  "blue"
+                                ]
+                              },
+                              "founderNo": {
+                                "nullable": true,
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "username",
+                              "displayName",
+                              "avatarPath",
+                              "tick"
+                            ],
+                            "additionalProperties": {}
+                          },
+                          "value": {
+                            "type": "number"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "user",
+                          "value",
+                          "text",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "mine",
+                    "average",
+                    "count",
+                    "distribution",
+                    "comments"
                   ],
                   "additionalProperties": false
                 }
