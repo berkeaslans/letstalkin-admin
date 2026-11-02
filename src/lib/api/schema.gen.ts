@@ -1754,7 +1754,7 @@ export interface paths {
                             twoFactorMethod: "totp" | "email" | null;
                             twoFactorRequired: boolean;
                             /** @enum {string} */
-                            role: "user" | "moderator" | "admin";
+                            role: "user" | "growth" | "moderator" | "admin";
                             balance: number;
                             followerCount: number;
                             followingCount: number;
@@ -1837,7 +1837,7 @@ export interface paths {
                             twoFactorMethod: "totp" | "email" | null;
                             twoFactorRequired: boolean;
                             /** @enum {string} */
-                            role: "user" | "moderator" | "admin";
+                            role: "user" | "growth" | "moderator" | "admin";
                             balance: number;
                             followerCount: number;
                             followingCount: number;
@@ -19624,7 +19624,7 @@ export interface paths {
                                 /** @enum {string|null} */
                                 tickManual: "none" | "yellow" | "blue" | null;
                                 /** @enum {string} */
-                                role: "user" | "moderator" | "admin";
+                                role: "user" | "growth" | "moderator" | "admin";
                                 /** @enum {string} */
                                 accountType: "person" | "fan" | "official" | "sponsor";
                                 isBanned: boolean;
@@ -19686,7 +19686,7 @@ export interface paths {
                             /** @enum {string|null} */
                             tickManual: "none" | "yellow" | "blue" | null;
                             /** @enum {string} */
-                            role: "user" | "moderator" | "admin";
+                            role: "user" | "growth" | "moderator" | "admin";
                             /** @enum {string} */
                             accountType: "person" | "fan" | "official" | "sponsor";
                             isBanned: boolean;
@@ -19834,7 +19834,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        role: "user" | "moderator" | "admin";
+                        role: "user" | "growth" | "moderator" | "admin";
                         note?: string;
                     };
                 };
@@ -22797,7 +22797,7 @@ export interface paths {
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
                                 /** @enum {string} */
-                                role: "user" | "moderator" | "admin";
+                                role: "user" | "growth" | "moderator" | "admin";
                                 /** Format: date-time */
                                 lastActiveAt: string | null;
                             }[];
@@ -27810,7 +27810,7 @@ export interface paths {
                             displayName: string | null;
                             email: string;
                             /** @enum {string} */
-                            role: "moderator" | "admin";
+                            role: "growth" | "moderator" | "admin";
                             emailVerified: boolean;
                             panelAccount: boolean;
                             isSelf: boolean;
@@ -27838,7 +27838,7 @@ export interface paths {
                         /** Format: email */
                         email: string;
                         /** @enum {string} */
-                        role: "moderator" | "admin";
+                        role: "growth" | "moderator" | "admin";
                         displayName?: string;
                         note?: string;
                     };
@@ -27888,7 +27888,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        role: "user" | "moderator" | "admin";
+                        role: "user" | "growth" | "moderator" | "admin";
                         note?: string;
                     };
                 };
@@ -27906,7 +27906,7 @@ export interface paths {
                             displayName: string | null;
                             email: string;
                             /** @enum {string} */
-                            role: "moderator" | "admin";
+                            role: "growth" | "moderator" | "admin";
                             emailVerified: boolean;
                             panelAccount: boolean;
                             isSelf: boolean;
@@ -27919,6 +27919,946 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            meId: string;
+                            canManage: boolean;
+                            areas: {
+                                id: string;
+                                name: string;
+                                description: string | null;
+                                channel: string | null;
+                                sortOrder: number;
+                                archived: boolean;
+                                members: {
+                                    id: string;
+                                    userId: string;
+                                    note: string | null;
+                                }[];
+                            }[];
+                            tasks: {
+                                id: string;
+                                title: string;
+                                description: string | null;
+                                areaId: string | null;
+                                assigneeId: string | null;
+                                /** @enum {string} */
+                                status: "todo" | "doing" | "done" | "dropped";
+                                /** Format: date-time */
+                                dueAt: string | null;
+                                target: string | null;
+                                campaign: string | null;
+                                resultNote: string | null;
+                                createdById: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                                /** Format: date-time */
+                                doneAt: string | null;
+                                signups: number | null;
+                            }[];
+                            people: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                role: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        description?: string | null;
+                        channel?: string | null;
+                        sortOrder?: number;
+                        archived?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/areas/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        description?: string | null;
+                        channel?: string | null;
+                        sortOrder?: number;
+                        archived?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/growth/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        username: string;
+                        areaId: string;
+                        note?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                            promoted: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/members/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                            demoted: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        note?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/growth/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title: string;
+                        description?: string | null;
+                        areaId?: string | null;
+                        assigneeId?: string | null;
+                        /** @enum {string} */
+                        status?: "todo" | "doing" | "done" | "dropped";
+                        dueAt?: unknown;
+                        target?: string | null;
+                        campaign?: string | null;
+                        resultNote?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title?: string;
+                        description?: string | null;
+                        areaId?: string | null;
+                        assigneeId?: string | null;
+                        /** @enum {string} */
+                        status?: "todo" | "doing" | "done" | "dropped";
+                        dueAt?: unknown;
+                        target?: string | null;
+                        campaign?: string | null;
+                        resultNote?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/growth/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                    userId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                userId: string;
+                                day: string;
+                                text: string;
+                                areaId: string | null;
+                                taskId: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                            people: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                role: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        day?: string;
+                        text: string;
+                        areaId?: string | null;
+                        taskId?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/logs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        day?: string;
+                        text?: string;
+                        areaId?: string | null;
+                        taskId?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/growth/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                code: string;
+                                label: string;
+                                ownerId: string | null;
+                                areaId: string | null;
+                                source: string;
+                                medium: string | null;
+                                campaign: string | null;
+                                path: string;
+                                clicks: number;
+                                archived: boolean;
+                                /** Format: date-time */
+                                createdAt: string;
+                                signups: number;
+                                activated: number;
+                                shortUrl: string;
+                                url: string;
+                            }[];
+                            people: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                role: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        label: string;
+                        code?: string;
+                        ownerId?: string | null;
+                        areaId?: string | null;
+                        source: string;
+                        medium?: string | null;
+                        campaign?: string | null;
+                        /** @default / */
+                        path?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/links/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        label?: string;
+                        archived?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/growth/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            days: number;
+                            total: number;
+                            prevTotal: number;
+                            tracked: number;
+                            activated: number;
+                            retained: number;
+                            eligible: number;
+                            daily: {
+                                day: string;
+                                total: number;
+                                channels: {
+                                    [key: string]: number;
+                                };
+                            }[];
+                            weekly: {
+                                week: string;
+                                total: number;
+                                channels: {
+                                    [key: string]: number;
+                                };
+                            }[];
+                            channels: {
+                                key: string;
+                                n: number;
+                                activated: number;
+                                retained: number;
+                                eligible: number;
+                            }[];
+                            campaigns: {
+                                key: string;
+                                n: number;
+                                activated: number;
+                                retained: number;
+                                eligible: number;
+                            }[];
+                            areas: {
+                                key: string;
+                                n: number;
+                                activated: number;
+                                retained: number;
+                                eligible: number;
+                            }[];
+                            people: {
+                                key: string;
+                                n: number;
+                                activated: number;
+                                retained: number;
+                                eligible: number;
+                                username: string;
+                                displayName: string | null;
+                                invites: number;
+                                logs: number;
+                                tasksDone: number;
+                            }[];
+                            terms: {
+                                key: string;
+                                n: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            connected: boolean;
+                            range: {
+                                startDate: string;
+                                endDate: string;
+                            } | null;
+                            totals: {
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            } | null;
+                            queries: {
+                                key: string;
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            }[];
+                            pages: {
+                                key: string;
+                                clicks: number;
+                                impressions: number;
+                                ctr: number;
+                                position: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -32689,6 +33629,47 @@ export interface paths {
                                 episodes: number;
                             }[];
                         }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/go/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    count?: "0" | "1";
+                };
+                header?: never;
+                path: {
+                    code: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            url: string;
+                        };
                     };
                 };
             };

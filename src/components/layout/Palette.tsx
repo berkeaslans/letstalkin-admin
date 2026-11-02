@@ -10,7 +10,7 @@ import type { IconName } from '@/components/ui/icon-names';
 import { adminApi, type SearchHit, type SearchKind } from '@/lib/api/admin';
 import { cn } from '@/lib/cn';
 import { closeOverlays, GO_TO, META, useOverlay } from '@/lib/shortcuts';
-import { useIsAdmin } from '@/stores/session';
+import { useGrowthOnly, useIsAdmin } from '@/stores/session';
 
 const KIND: Record<SearchKind, [string, IconName]> = {
   user: ['Kullanıcı', 'person'],
@@ -102,6 +102,8 @@ const fold = (s: string) => s.toLocaleLowerCase('tr-TR');
 export function Palette() {
   const open = useOverlay((s) => s.palette);
   const isAdmin = useIsAdmin();
+  // Büyüme ekibi panelde yalnız Büyüme'yi görür; arama uçları moderatör ister.
+  const growthOnly = useGrowthOnly();
   const nav = useNavigate();
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
@@ -124,7 +126,7 @@ export function Palette() {
   const search = useQuery({
     queryKey: ['admin', 'palette', debounced],
     queryFn: () => adminApi.search(debounced),
-    enabled: open && debounced.length >= 2,
+    enabled: open && !growthOnly && debounced.length >= 2,
     staleTime: 15_000,
   });
 
@@ -153,7 +155,7 @@ export function Palette() {
     listRef.current?.querySelector(`[data-index="${sel}"]`)?.scrollIntoView({ block: 'nearest' });
   }, [sel]);
 
-  if (!open) return null;
+  if (!open || growthOnly) return null;
   const go = (row?: Row) => {
     if (!row) return;
     closeOverlays();

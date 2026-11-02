@@ -18,6 +18,8 @@ export interface NavGroup {
   subs: NavSub[];
   live?: boolean;
   count?: NavSub['count'][];
+  /** Büyüme ekibi (growth rolü) yalnız bu bölümü görür. */
+  growth?: boolean;
 }
 
 // Prototipteki 9 başlık. Alt sayfalar sayfa üstünde sarı çizgili sekme olarak durur.
@@ -172,6 +174,20 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    key: 'buyume',
+    icon: 'rocket_launch',
+    label: 'Büyüme',
+    growth: true,
+    subs: [
+      { to: '/buyume', label: 'Genel bakış', desc: 'Kim, hangi kanaldan, ne kadar getirdi: günlük, haftalık, kalıcılık' },
+      { to: '/buyume/gorevler', label: 'Görevler', desc: 'Ekibe atanan işler, durumları ve sonuçları' },
+      { to: '/buyume/gunluk', label: 'Günlük', desc: 'Her gün ne yapıldı' },
+      { to: '/buyume/baglantilar', label: 'Bağlantılar', desc: 'Kişi ve kampanyaya özel izlenen link ve QR' },
+      { to: '/buyume/ekip', label: 'Ekip ve alanlar', desc: 'Alanlar, kim hangi alanda' },
+      { to: '/buyume/arama', label: 'Google aramaları', desc: 'Siteyi Google’da hangi sözcüklerle buldular' },
+    ],
+  },
+  {
     key: 'sistem',
     icon: 'settings',
     label: 'Sistem',
@@ -191,8 +207,18 @@ export const NAV: NavGroup[] = [
 ];
 
 /** Rolün görebileceği gezinme (admin'e özel alt sayfalar moderatörden düşer). */
-export function navFor(isAdmin: boolean): NavGroup[] {
-  return NAV.map((g) => ({ ...g, subs: g.subs.filter((s) => isAdmin || !s.admin) })).filter((g) => g.subs.length);
+export type PanelRole = 'growth' | 'moderator' | 'admin';
+
+/** Rolün görebileceği bölümler: büyüme ekibi yalnız Büyüme'yi, moderatör admin alt sayfaları hariç her şeyi. */
+export function navFor(role: PanelRole): NavGroup[] {
+  return NAV.filter((g) => role !== 'growth' || g.growth)
+    .map((g) => ({ ...g, subs: g.subs.filter((s) => role === 'admin' || !s.admin) }))
+    .filter((g) => g.subs.length);
+}
+
+/** Bu adres bu role açık mı (adres doğrudan yazılsa da). */
+export function canSee(role: PanelRole, to: string): boolean {
+  return navFor(role).some((g) => g.subs.some((s) => s.to === to));
 }
 
 /** Adresin ait olduğu alt sayfa. Detay sayfaları (ör. /kullanicilar/abc) en uzun

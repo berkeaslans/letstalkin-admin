@@ -1,6 +1,15 @@
 // Panelin kullandığı ikonlar. Font yalnız bu listenin alt kümesidir:
 // ikon ekleyince `npm run icons` çalıştır (Docker build bunu her seferinde yapar).
 export const ICON_NAMES = [
+  'rocket_launch',
+  'task_alt',
+  'edit_note',
+  'qr_code_2',
+  'content_copy',
+  'download',
+  'archive',
+  'unarchive',
+  'person_add',
   'lightbulb',
   'inbox',
   'quiz',

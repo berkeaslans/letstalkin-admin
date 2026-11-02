@@ -16,7 +16,7 @@ interface SessionState {
   logout: () => void;
 }
 
-const isStaff = (me: Me) => me.role === 'admin' || me.role === 'moderator';
+const isStaff = (me: Me) => me.role === 'admin' || me.role === 'moderator' || me.role === 'growth';
 const statusOf = (me: Me): Status => (!isStaff(me) ? 'forbidden' : me.twoFactorEnabled === false ? 'needs2fa' : 'ready');
 
 export const useSession = create<SessionState>((set) => ({
@@ -55,3 +55,7 @@ export const useSession = create<SessionState>((set) => ({
 tokens.onSignedOut(() => useSession.setState({ me: null, status: 'signedOut' }));
 
 export const useIsAdmin = () => useSession((s) => s.me?.role === 'admin');
+/** Panel rolü (oturum hazırken user olamaz). */
+export const usePanelRole = () => useSession((s) => (s.me?.role === 'user' || !s.me ? 'growth' : s.me.role));
+/** Yalnız Büyüme bölümünü gören ekip üyesi (moderasyon/canlı uçlarına erişemez). */
+export const useGrowthOnly = () => useSession((s) => s.me?.role === 'growth');

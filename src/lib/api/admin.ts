@@ -58,7 +58,7 @@ export type QuizPage = Res<'/api/v1/admin/quizzes', 'get'>;
 export type QuizRow = QuizPage['items'][number];
 export type QuizDetail = Res<'/api/v1/admin/quizzes/{id}', 'get'>;
 export type QuizStatus = QuizRow['status'];
-type Body<P extends keyof paths, M extends 'post' | 'put'> = paths[P][M] extends {
+type Body<P extends keyof paths, M extends 'post' | 'put' | 'patch'> = paths[P][M] extends {
   requestBody?: { content: { 'application/json': infer B } };
 }
   ? B
@@ -174,6 +174,21 @@ export type TitleData = TitleEdit['data'];
 export type TitleKind = TitleEdit['kind'];
 export type Analytics = Res<'/api/v1/admin/analytics/overview', 'get'>;
 export type Signups = Res<'/api/v1/admin/analytics/signups', 'get'>;
+export type GrowthBoard = Res<'/api/v1/admin/growth/board', 'get'>;
+export type GrowthArea = GrowthBoard['areas'][number];
+export type GrowthTask = GrowthBoard['tasks'][number];
+export type GrowthPerson = GrowthBoard['people'][number];
+export type GrowthTaskStatus = GrowthTask['status'];
+export type GrowthLogs = Res<'/api/v1/admin/growth/logs', 'get'>;
+export type GrowthLog = GrowthLogs['items'][number];
+export type GrowthLinks = Res<'/api/v1/admin/growth/links', 'get'>;
+export type GrowthLink = GrowthLinks['items'][number];
+export type GrowthOverview = Res<'/api/v1/admin/growth/overview', 'get'>;
+export type GrowthSearch = Res<'/api/v1/admin/growth/search', 'get'>;
+export type GrowthAreaInput = Body<'/api/v1/admin/growth/areas', 'post'>;
+export type GrowthTaskInput = Body<'/api/v1/admin/growth/tasks', 'post'>;
+export type GrowthLogInput = Body<'/api/v1/admin/growth/logs', 'post'>;
+export type GrowthLinkInput = Body<'/api/v1/admin/growth/links', 'post'>;
 /** İçerik taslağı (tohum içerik + otomatik editör onay kuyruğu). */
 export type Draft = {
   id: string;
@@ -588,13 +603,37 @@ export const adminApi = {
   commentPost: (id: string) => api.get<{ postId: string }>(`/admin/content/comment/${id}`),
 
   staff: () => api.get<StaffRow[]>('/admin/staff'),
-  createStaff: (body: { username: string; email: string; role: 'moderator' | 'admin'; displayName?: string; note?: string }) =>
+  createStaff: (body: { username: string; email: string; role: 'growth' | 'moderator' | 'admin'; displayName?: string; note?: string }) =>
     api.post<StaffCredentials>('/admin/staff', body),
   /** Geçici şifre: gerekçe zorunlu, hesabın tüm oturumları kapanır. */
   tempPassword: (id: string, note: string) =>
     api.post<StaffCredentials & { sessionsRevoked: number }>(`/admin/users/${id}/temp-password`, { note }),
-  setStaffRole: (id: string, role: 'user' | 'moderator' | 'admin', note?: string) =>
+  setStaffRole: (id: string, role: 'user' | 'growth' | 'moderator' | 'admin', note?: string) =>
     api.post<StaffRow[]>(`/admin/staff/${id}/role`, { role, note: note || undefined }),
+
+  growth: {
+    board: () => api.get<GrowthBoard>('/admin/growth/board'),
+    overview: (days: number) => api.get<GrowthOverview>('/admin/growth/overview', { days }),
+    search: (days: number) => api.get<GrowthSearch>('/admin/growth/search', { days }),
+    createArea: (b: GrowthAreaInput) => api.post<{ ok: true }>('/admin/growth/areas', b),
+    updateArea: (id: string, b: Partial<GrowthAreaInput>) => api.patch<{ ok: true }>(`/admin/growth/areas/${id}`, b),
+    deleteArea: (id: string) => api.del<{ ok: true }>(`/admin/growth/areas/${id}`),
+    addMember: (b: { username: string; areaId: string; note?: string | null }) =>
+      api.post<{ ok: true; promoted: boolean }>('/admin/growth/members', b),
+    updateMember: (id: string, note: string | null) => api.patch<{ ok: true }>(`/admin/growth/members/${id}`, { note }),
+    removeMember: (id: string) => api.del<{ ok: true; demoted: boolean }>(`/admin/growth/members/${id}`),
+    createTask: (b: GrowthTaskInput) => api.post<{ ok: true }>('/admin/growth/tasks', b),
+    updateTask: (id: string, b: Partial<GrowthTaskInput>) => api.patch<{ ok: true }>(`/admin/growth/tasks/${id}`, b),
+    deleteTask: (id: string) => api.del<{ ok: true }>(`/admin/growth/tasks/${id}`),
+    logs: (days: number, userId?: string) => api.get<GrowthLogs>('/admin/growth/logs', { days, userId }),
+    createLog: (b: GrowthLogInput) => api.post<{ ok: true }>('/admin/growth/logs', b),
+    updateLog: (id: string, b: Partial<GrowthLogInput>) => api.patch<{ ok: true }>(`/admin/growth/logs/${id}`, b),
+    deleteLog: (id: string) => api.del<{ ok: true }>(`/admin/growth/logs/${id}`),
+    links: () => api.get<GrowthLinks>('/admin/growth/links'),
+    createLink: (b: GrowthLinkInput) => api.post<{ ok: true }>('/admin/growth/links', b),
+    updateLink: (id: string, b: { label?: string; archived?: boolean }) => api.patch<{ ok: true }>(`/admin/growth/links/${id}`, b),
+    deleteLink: (id: string) => api.del<{ ok: true }>(`/admin/growth/links/${id}`),
+  },
 
   flags: () => api.get<Flag[]>('/admin/flags'),
   setFlag: (key: Flag['key'], enabled: boolean | null) => api.put<Flag[]>(`/admin/flags/${key}`, { enabled }),

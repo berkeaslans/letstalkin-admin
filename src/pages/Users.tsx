@@ -31,7 +31,7 @@ const SORTS: Array<{ key: UserSort; label: string }> = [
   { key: 'active', label: 'Son aktif olan' },
   { key: 'balance', label: 'Çok coinli' },
 ];
-const ROLE_TR = { user: 'Kullanıcı', moderator: 'Moderatör', admin: 'Admin' } as const;
+const ROLE_TR = { user: 'Kullanıcı', growth: 'Büyüme ekibi', moderator: 'Moderatör', admin: 'Admin' } as const;
 const date = (d: string | Date | null) =>
   d ? new Date(d).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
 

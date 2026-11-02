@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ComponentType, lazy, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
-import { NAV } from '@/components/layout/nav';
+import { canSee, NAV } from '@/components/layout/nav';
 import { Palette, ShortcutHelp } from '@/components/layout/Palette';
 import { Shell } from '@/components/layout/Shell';
 import { ConfirmDialog, Toaster } from '@/components/ui/Overlays';
@@ -11,7 +11,7 @@ import { unlockSoundOnFirstInteraction } from '@/lib/sound';
 import { Forbidden, Login, NeedsTwoFactor } from '@/pages/Login';
 import { Overview } from '@/pages/Overview';
 import { Tv } from '@/pages/Tv';
-import { useIsAdmin, useSession } from '@/stores/session';
+import { usePanelRole, useSession } from '@/stores/session';
 import './styles.css';
 
 /** Sayfalar ilk ziyarette yüklenir (ilk açılış hafif kalır). */
@@ -68,6 +68,12 @@ const Ticks = page(() => import('@/pages/Ticks'), 'Ticks');
 const UserPage = page(() => import('@/pages/UserPage'), 'UserPage');
 const Team = page(() => import('@/pages/Team'), 'Team');
 const Users = page(() => import('@/pages/Users'), 'Users');
+const GrowthOverview = page(() => import('@/pages/Growth'), 'GrowthOverview');
+const GrowthTasks = page(() => import('@/pages/Growth'), 'GrowthTasks');
+const GrowthLogs = page(() => import('@/pages/Growth'), 'GrowthLogs');
+const GrowthLinks = page(() => import('@/pages/Growth'), 'GrowthLinks');
+const GrowthTeam = page(() => import('@/pages/Growth'), 'GrowthTeam');
+const GrowthSearch = page(() => import('@/pages/Growth'), 'GrowthSearch');
 
 const PAGES: Record<string, ComponentType> = {
   '/': Overview,
@@ -113,6 +119,12 @@ const PAGES: Record<string, ComponentType> = {
   '/sistem/yapay-zeka': Ai,
   '/sistem/durum': Status,
   '/sistem/denetim': Audit,
+  '/buyume': GrowthOverview,
+  '/buyume/gorevler': GrowthTasks,
+  '/buyume/gunluk': GrowthLogs,
+  '/buyume/baglantilar': GrowthLinks,
+  '/buyume/ekip': GrowthTeam,
+  '/buyume/arama': GrowthSearch,
 };
 
 /** Ayrıntı sayfaları: her şey kendi adresinde açılır (paylaşılabilir, geri tuşu çalışır). */
@@ -140,7 +152,9 @@ const queryClient = new QueryClient({
 
 function App() {
   const { status, boot } = useSession();
-  const isAdmin = useIsAdmin();
+  const role = usePanelRole();
+  // Büyüme ekibinin ana sayfası Büyüme'dir (genel bakış ve diğer bölümler kapalı).
+  const home = role === 'growth' ? '/buyume' : '/';
   useEffect(() => {
     void boot();
     unlockSoundOnFirstInteraction();
@@ -158,22 +172,22 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/tv" element={<Tv />} />
+      <Route path="/tv" element={role === 'growth' ? <Navigate to={home} replace /> : <Tv />} />
       <Route element={<Shell />}>
         {NAV.flatMap((g) => g.subs).map((s) => {
           const Page = PAGES[s.to];
-          const allowed = isAdmin || !s.admin;
-          return <Route key={s.to} path={s.to} element={allowed && Page ? <Page /> : <Navigate to="/" replace />} />;
+          const allowed = canSee(role, s.to);
+          return <Route key={s.to} path={s.to} element={allowed && Page ? <Page /> : <Navigate to={home} replace />} />;
         })}
         {DETAILS.map((d) => {
           const parent = NAV.flatMap((g) => g.subs).find((s) => s.to === d.parent);
-          const allowed = isAdmin || !parent?.admin;
+          const allowed = !!parent && canSee(role, parent.to);
           const Page = d.page;
-          return <Route key={d.path} path={d.path} element={allowed ? <Page /> : <Navigate to="/" replace />} />;
+          return <Route key={d.path} path={d.path} element={allowed ? <Page /> : <Navigate to={home} replace />} />;
         })}
         {/* Eski adres (Katalog altındaydı). */}
         <Route path="/katalog/etkinlikler" element={<Navigate to="/yaklasanlar" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to={home} replace />} />
       </Route>
     </Routes>
   );

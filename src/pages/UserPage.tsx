@@ -27,7 +27,7 @@ export const ACCOUNT: Record<UserDetail['accountType'], string> = {
   official: 'Resmi sayfa',
   sponsor: 'Sponsor',
 };
-const ROLE: Record<Role, string> = { user: 'Kullanıcı', moderator: 'Moderatör', admin: 'Admin' };
+const ROLE: Record<Role, string> = { user: 'Kullanıcı', growth: 'Büyüme ekibi', moderator: 'Moderatör', admin: 'Admin' };
 const SOURCE: Record<UserDetail['tickSource'], string> = {
   manual: 'Elle verildi',
   official: 'Resmi dizi sayfası onayından geliyor',

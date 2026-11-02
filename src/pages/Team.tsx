@@ -15,7 +15,8 @@ import { paths } from '@/lib/go';
 import { useIsAdmin } from '@/stores/session';
 import { confirmAction, toast } from '@/stores/ui';
 
-const ROL: Record<'moderator' | 'admin', string> = { moderator: 'Moderatör', admin: 'Admin' };
+type Rol = 'growth' | 'moderator' | 'admin';
+const ROL: Record<Rol, string> = { growth: 'Büyüme ekibi', moderator: 'Moderatör', admin: 'Admin' };
 const input =
   'h-10 w-full rounded-option bg-elev2 px-3 text-[14px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]';
 const label = 'mb-1.5 block text-[12.5px] font-semibold text-sub';
@@ -62,7 +63,7 @@ function Credentials({ cred, onClose }: { cred: StaffCredentials; onClose: () =>
 function GrantExisting({ onDone }: { onDone: (rows: StaffRow[]) => void }) {
   const [q, setQ] = useState('');
   const [secili, setSecili] = useState<UserRow | null>(null);
-  const [rol, setRol] = useState<'moderator' | 'admin'>('moderator');
+  const [rol, setRol] = useState<Rol>('moderator');
   const terim = q.trim();
   const arama = useQuery({
     queryKey: ['admin', 'users', 'ekip-ara', terim],
@@ -90,7 +91,8 @@ function GrantExisting({ onDone }: { onDone: (rows: StaffRow[]) => void }) {
             <Avatar src={secili.avatarPath} name={secili.username} size={30} />
             <span className="text-[14px] font-semibold">@{secili.username}</span>
           </span>
-          <select className={cn(input, 'h-9 w-[150px]')} value={rol} onChange={(e) => setRol(e.target.value as 'moderator' | 'admin')}>
+          <select className={cn(input, 'h-9 w-[150px]')} value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
+            <option value="growth">Büyüme ekibi</option>
             <option value="moderator">Moderatör</option>
             <option value="admin">Admin</option>
           </select>
@@ -146,7 +148,7 @@ function CreateAccount({ onCreated }: { onCreated: (c: StaffCredentials) => void
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [isim, setIsim] = useState('');
-  const [rol, setRol] = useState<'moderator' | 'admin'>('moderator');
+  const [rol, setRol] = useState<Rol>('moderator');
   const qc = useQueryClient();
   const ac = useMutation({
     mutationFn: () =>
@@ -225,7 +227,8 @@ function CreateAccount({ onCreated }: { onCreated: (c: StaffCredentials) => void
           <label className={label} htmlFor="ekip-rol">
             Rol
           </label>
-          <select id="ekip-rol" className={input} value={rol} onChange={(e) => setRol(e.target.value as 'moderator' | 'admin')}>
+          <select id="ekip-rol" className={input} value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
+            <option value="growth">Büyüme ekibi — yalnız Büyüme bölümü</option>
             <option value="moderator">Moderatör — şikayet, içerik, kullanıcı</option>
             <option value="admin">Admin — her şey</option>
           </select>
@@ -251,7 +254,7 @@ export function Team() {
   const yaz = (rows: StaffRow[]) => qc.setQueryData(['admin', 'staff'], rows);
 
   const rolDegistir = useMutation({
-    mutationFn: ({ id, role }: { id: string; role: 'user' | 'moderator' | 'admin' }) => adminApi.setStaffRole(id, role),
+    mutationFn: ({ id, role }: { id: string; role: 'user' | Rol }) => adminApi.setStaffRole(id, role),
     onSuccess: (rows) => {
       toast('Rol güncellendi');
       yaz(rows);
@@ -340,9 +343,9 @@ export function Team() {
                       size="xs"
                       variant="ghost"
                       busy={rolDegistir.isPending}
-                      onClick={() => rolDegistir.mutate({ id: r.id, role: r.role === 'admin' ? 'moderator' : 'admin' })}
+                      onClick={() => rolDegistir.mutate({ id: r.id, role: r.role === 'moderator' ? 'admin' : 'moderator' })}
                     >
-                      {r.role === 'admin' ? 'Moderatör yap' : 'Admin yap'}
+                      {r.role === 'moderator' ? 'Admin yap' : 'Moderatör yap'}
                     </Button>
                     <Button
                       size="xs"

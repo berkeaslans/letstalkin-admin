@@ -13,7 +13,7 @@ import { setNavigator } from '@/lib/go';
 import { startRealtime, stopRealtime, useLive } from '@/lib/realtime';
 import { META, openPalette, useGlobalShortcuts, useOverlay } from '@/lib/shortcuts';
 import { playSound } from '@/lib/sound';
-import { useIsAdmin, useSession } from '@/stores/session';
+import { useGrowthOnly, usePanelRole, useSession } from '@/stores/session';
 import { toast, useUi } from '@/stores/ui';
 import { findSub, navFor } from './nav';
 
@@ -37,14 +37,16 @@ function useNewReportAlert(o: Overview | undefined) {
 }
 
 export function Shell() {
-  const isAdmin = useIsAdmin();
+  const role = usePanelRole();
+  // Büyüme ekibi: genel bakış sayaçları, canlı akış, TV ve arama paleti yok (uçları moderatör ister).
+  const growthOnly = useGrowthOnly();
   const me = useSession((s) => s.me);
   const logout = useSession((s) => s.logout);
   const { mini, setMini, sound, setSound } = useUi();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const ov = useQuery(overviewQuery);
+  const ov = useQuery({ ...overviewQuery, enabled: !growthOnly });
   const qc = useQueryClient();
   const liveStatus = useLive((s) => s.status);
   const pulse = useLive((s) => s.unseen);
@@ -54,13 +56,14 @@ export function Shell() {
   }, [navigate]);
   useGlobalShortcuts(navigate);
   useEffect(() => {
+    if (growthOnly) return;
     startRealtime(qc);
     return () => stopRealtime();
-  }, [qc]);
+  }, [qc, growthOnly]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: sayfa değişince mobil menü kapanır
   useEffect(() => setOpen(false), [pathname]);
 
-  const nav = navFor(isAdmin);
+  const nav = navFor(role);
   const here = findSub(pathname);
   const group = nav.find((g) => g.key === here?.group.key);
   const counts = ov.data;
@@ -79,7 +82,11 @@ export function Shell() {
           mini && 'md:px-3',
         )}
       >
-        <Link to="/" className={cn('mb-5 flex items-end gap-2.5 px-2.5', mini && 'md:justify-center md:px-0')} aria-label="Genel bakış">
+        <Link
+          to={growthOnly ? '/buyume' : '/'}
+          className={cn('mb-5 flex items-end gap-2.5 px-2.5', mini && 'md:justify-center md:px-0')}
+          aria-label="Genel bakış"
+        >
           <img
             src="/marka/dikey-koyu.svg"
             alt="Let's Talkin'"
@@ -137,26 +144,30 @@ export function Shell() {
           );
         })}
 
-        <div
-          className={cn(
-            'px-3 pt-4 pb-1.5 text-[11px] font-semibold tracking-[0.06em] text-faint uppercase',
-            mini && 'md:px-0 md:text-center md:text-[0px]',
-          )}
-        >
-          Ekranlar
-        </div>
-        <Link
-          to="/tv"
-          title="TV ekranı"
-          className={cn(
-            'press flex h-11 items-center gap-3.5 rounded-[14px] px-3 text-[14.5px] font-medium text-up hover:bg-white/5',
-            mini && 'md:justify-center md:px-0',
-          )}
-        >
-          <Icon name="tv" size={23} />
-          <span className={cn('flex-1', mini && 'md:hidden')}>TV ekranı</span>
-          <span className={cn('h-2 w-2 rounded-full bg-up shadow-[0_0_0_3px_rgb(48_212_107/0.18)]', mini && 'md:hidden')} />
-        </Link>
+        {!growthOnly && (
+          <>
+            <div
+              className={cn(
+                'px-3 pt-4 pb-1.5 text-[11px] font-semibold tracking-[0.06em] text-faint uppercase',
+                mini && 'md:px-0 md:text-center md:text-[0px]',
+              )}
+            >
+              Ekranlar
+            </div>
+            <Link
+              to="/tv"
+              title="TV ekranı"
+              className={cn(
+                'press flex h-11 items-center gap-3.5 rounded-[14px] px-3 text-[14.5px] font-medium text-up hover:bg-white/5',
+                mini && 'md:justify-center md:px-0',
+              )}
+            >
+              <Icon name="tv" size={23} />
+              <span className={cn('flex-1', mini && 'md:hidden')}>TV ekranı</span>
+              <span className={cn('h-2 w-2 rounded-full bg-up shadow-[0_0_0_3px_rgb(48_212_107/0.18)]', mini && 'md:hidden')} />
+            </Link>
+          </>
+        )}
 
         <div className="mt-auto flex flex-col gap-0.5 pt-5">
           <div className="mx-2.5 mb-2 h-[0.5px] bg-line" />
@@ -172,7 +183,7 @@ export function Shell() {
                   <Tick tick={me.tick} size={13} />
                 </p>
                 <p className="truncate text-[12px] text-sub">
-                  {me.role === 'admin' ? 'Admin' : 'Moderatör'} · @{me.username}
+                  {me.role === 'admin' ? 'Admin' : me.role === 'growth' ? 'Büyüme ekibi' : 'Moderatör'} · @{me.username}
                 </p>
               </div>
             </div>
@@ -233,48 +244,52 @@ export function Shell() {
             </h1>
             {here && <p className="truncate text-[12px] text-sub">{here.detail ? `${here.group.label} · ayrıntı` : here.sub.desc}</p>}
           </div>
-          <button
-            type="button"
-            onClick={openPalette}
-            title={`Ara ve git (${META}K)`}
-            className="press hidden h-[34px] min-w-[180px] items-center gap-2 rounded-full bg-elev2 pr-2 pl-3 text-[13px] text-faint shadow-[inset_0_0_0_0.5px_var(--color-line2)] hover:text-sub lg:flex"
-          >
-            <Icon name="search" size={17} />
-            <span className="flex-1 text-left">Ara ve git…</span>
-            <kbd className="rounded-[5px] bg-elev3 px-1.5 py-0.5 text-[10.5px]">{META}K</kbd>
-          </button>
-          <IconButton icon="search" label="Ara ve git" className="lg:hidden" onClick={openPalette} />
-          <Link
-            to="/canli/akis"
-            title={
-              liveStatus === 'live'
-                ? 'Canlı akış bağlı — olaylar anında geliyor'
-                : liveStatus === 'connecting'
-                  ? 'Canlı akışa bağlanıyor'
-                  : "Canlı akış koptu — veriler 15 sn'de bir yoklanıyor"
-            }
-            className="hidden h-[34px] items-center gap-2 rounded-full bg-elev2 px-3 text-[12.5px] font-semibold whitespace-nowrap sm:flex"
-          >
-            <span
-              className={cn(
-                'h-[7px] w-[7px] rounded-full',
-                liveStatus === 'live' ? 'ok-dot bg-up' : liveStatus === 'connecting' ? 'bg-yellow' : 'bg-faint',
+          {!growthOnly && (
+            <>
+              <button
+                type="button"
+                onClick={openPalette}
+                title={`Ara ve git (${META}K)`}
+                className="press hidden h-[34px] min-w-[180px] items-center gap-2 rounded-full bg-elev2 pr-2 pl-3 text-[13px] text-faint shadow-[inset_0_0_0_0.5px_var(--color-line2)] hover:text-sub lg:flex"
+              >
+                <Icon name="search" size={17} />
+                <span className="flex-1 text-left">Ara ve git…</span>
+                <kbd className="rounded-[5px] bg-elev3 px-1.5 py-0.5 text-[10.5px]">{META}K</kbd>
+              </button>
+              <IconButton icon="search" label="Ara ve git" className="lg:hidden" onClick={openPalette} />
+              <Link
+                to="/canli/akis"
+                title={
+                  liveStatus === 'live'
+                    ? 'Canlı akış bağlı — olaylar anında geliyor'
+                    : liveStatus === 'connecting'
+                      ? 'Canlı akışa bağlanıyor'
+                      : "Canlı akış koptu — veriler 15 sn'de bir yoklanıyor"
+                }
+                className="hidden h-[34px] items-center gap-2 rounded-full bg-elev2 px-3 text-[12.5px] font-semibold whitespace-nowrap sm:flex"
+              >
+                <span
+                  className={cn(
+                    'h-[7px] w-[7px] rounded-full',
+                    liveStatus === 'live' ? 'ok-dot bg-up' : liveStatus === 'connecting' ? 'bg-yellow' : 'bg-faint',
+                  )}
+                />
+                {liveStatus === 'live' ? 'Canlı' : liveStatus === 'connecting' ? 'Bağlanıyor' : 'Çevrimdışı'}
+                {pulse > 0 && <span className="text-faint tabular">{pulse}/dk</span>}
+              </Link>
+              {counts && (
+                <span
+                  className="flex h-[34px] items-center gap-2 rounded-full bg-live/10 px-3 text-[12.5px] font-semibold whitespace-nowrap"
+                  title="Şu an uygulamada bağlı kişi"
+                >
+                  <span className="live-dot h-[7px] w-[7px] rounded-full bg-live" />
+                  <b className="tabular">{fmt(counts.online)}</b>
+                  <span className="hidden sm:inline">çevrimiçi</span>
+                </span>
               )}
-            />
-            {liveStatus === 'live' ? 'Canlı' : liveStatus === 'connecting' ? 'Bağlanıyor' : 'Çevrimdışı'}
-            {pulse > 0 && <span className="text-faint tabular">{pulse}/dk</span>}
-          </Link>
-          {counts && (
-            <span
-              className="flex h-[34px] items-center gap-2 rounded-full bg-live/10 px-3 text-[12.5px] font-semibold whitespace-nowrap"
-              title="Şu an uygulamada bağlı kişi"
-            >
-              <span className="live-dot h-[7px] w-[7px] rounded-full bg-live" />
-              <b className="tabular">{fmt(counts.online)}</b>
-              <span className="hidden sm:inline">çevrimiçi</span>
-            </span>
+              <IconButton icon="tv" label="TV ekranı" onClick={() => navigate('/tv')} />
+            </>
           )}
-          <IconButton icon="tv" label="TV ekranı" onClick={() => navigate('/tv')} />
           <IconButton
             icon={sound ? 'volume_up' : 'volume_off'}
             label={sound ? 'Sesli bildirimi kapat' : 'Sesli bildirimi aç'}
