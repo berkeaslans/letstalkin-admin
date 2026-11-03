@@ -180,6 +180,7 @@ export const NAV: NavGroup[] = [
     growth: true,
     subs: [
       { to: '/buyume', label: 'Genel bakış', desc: 'Kim, hangi kanaldan, ne kadar getirdi: günlük, haftalık, kalıcılık' },
+      { to: '/buyume/takvim', label: 'Takvim ve hedefler', desc: 'Hangi gün kaç kişiydik, ne yapıldı, ne planlı, hedefe ne kadar kaldı' },
       { to: '/buyume/gorevler', label: 'Görevler', desc: 'Ekibe atanan işler, durumları ve sonuçları' },
       { to: '/buyume/gunluk', label: 'Günlük', desc: 'Her gün ne yapıldı' },
       { to: '/buyume/baglantilar', label: 'Bağlantılar', desc: 'Kişi ve kampanyaya özel izlenen link ve QR' },

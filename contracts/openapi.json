@@ -69098,6 +69098,760 @@
         }
       }
     },
+    "/api/v1/admin/growth/calendar": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$"
+            },
+            "in": "query",
+            "name": "month",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "month": {
+                      "type": "string"
+                    },
+                    "today": {
+                      "type": "string"
+                    },
+                    "days": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "day": {
+                            "type": "string"
+                          },
+                          "totalUsers": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "newUsers": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "activeUsers": {
+                            "nullable": true,
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "day",
+                          "totalUsers",
+                          "newUsers",
+                          "activeUsers"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "day": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "done",
+                              "plan",
+                              "milestone"
+                            ]
+                          },
+                          "areaId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "ownerId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "createdById": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "day",
+                          "title",
+                          "note",
+                          "kind",
+                          "areaId",
+                          "ownerId",
+                          "createdById"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "tasks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "todo",
+                              "doing",
+                              "done",
+                              "dropped"
+                            ]
+                          },
+                          "assigneeId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "areaId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "dueDay": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "doneDay": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "status",
+                          "assigneeId",
+                          "areaId",
+                          "dueDay",
+                          "doneDay"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "logs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "userId": {
+                            "type": "string"
+                          },
+                          "day": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "areaId": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "userId",
+                          "day",
+                          "text",
+                          "areaId"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "goals": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "metric": {
+                            "type": "string",
+                            "enum": [
+                              "users",
+                              "active7",
+                              "signups",
+                              "campaign",
+                              "area",
+                              "custom"
+                            ]
+                          },
+                          "target": {
+                            "type": "number"
+                          },
+                          "startAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "dueAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "campaign": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "areaId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "ownerId": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "archived": {
+                            "type": "boolean"
+                          },
+                          "current": {
+                            "type": "number"
+                          },
+                          "baseline": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "perDay": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "needPerDay": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "daysLeft": {
+                            "type": "number"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "done",
+                              "on",
+                              "behind",
+                              "late"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "metric",
+                          "target",
+                          "startAt",
+                          "dueAt",
+                          "campaign",
+                          "areaId",
+                          "ownerId",
+                          "note",
+                          "archived",
+                          "current",
+                          "baseline",
+                          "perDay",
+                          "needPerDay",
+                          "daysLeft",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "month",
+                    "today",
+                    "days",
+                    "events",
+                    "tasks",
+                    "logs",
+                    "goals"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/growth/goals": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "metric": {
+                    "type": "string",
+                    "enum": [
+                      "users",
+                      "active7",
+                      "signups",
+                      "campaign",
+                      "area",
+                      "custom"
+                    ]
+                  },
+                  "target": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000
+                  },
+                  "startAt": {},
+                  "dueAt": {},
+                  "campaign": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 60
+                  },
+                  "areaId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "current": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "archived": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "title",
+                  "metric",
+                  "target",
+                  "dueAt"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/growth/goals/{id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "metric": {
+                    "type": "string",
+                    "enum": [
+                      "users",
+                      "active7",
+                      "signups",
+                      "campaign",
+                      "area",
+                      "custom"
+                    ]
+                  },
+                  "target": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000
+                  },
+                  "startAt": {},
+                  "dueAt": {},
+                  "campaign": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 60
+                  },
+                  "areaId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "current": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 1000
+                  },
+                  "archived": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/growth/events": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "day": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "kind": {
+                    "default": "plan",
+                    "type": "string",
+                    "enum": [
+                      "done",
+                      "plan",
+                      "milestone"
+                    ]
+                  },
+                  "areaId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "nullable": true,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "day",
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/growth/events/{id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "day": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "kind": {
+                    "default": "plan",
+                    "type": "string",
+                    "enum": [
+                      "done",
+                      "plan",
+                      "milestone"
+                    ]
+                  },
+                  "areaId": {
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "ownerId": {
+                    "nullable": true,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/reports": {
       "get": {
         "tags": [

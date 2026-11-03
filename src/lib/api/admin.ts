@@ -189,6 +189,11 @@ export type GrowthAreaInput = Body<'/api/v1/admin/growth/areas', 'post'>;
 export type GrowthTaskInput = Body<'/api/v1/admin/growth/tasks', 'post'>;
 export type GrowthLogInput = Body<'/api/v1/admin/growth/logs', 'post'>;
 export type GrowthLinkInput = Body<'/api/v1/admin/growth/links', 'post'>;
+export type GrowthCalendar = Res<'/api/v1/admin/growth/calendar', 'get'>;
+export type GrowthGoal = GrowthCalendar['goals'][number];
+export type GrowthEvent = GrowthCalendar['events'][number];
+export type GrowthGoalInput = Body<'/api/v1/admin/growth/goals', 'post'>;
+export type GrowthEventInput = Body<'/api/v1/admin/growth/events', 'post'>;
 /** İçerik taslağı (tohum içerik + otomatik editör onay kuyruğu). */
 export type Draft = {
   id: string;
@@ -633,6 +638,13 @@ export const adminApi = {
     createLink: (b: GrowthLinkInput) => api.post<{ ok: true }>('/admin/growth/links', b),
     updateLink: (id: string, b: { label?: string; archived?: boolean }) => api.patch<{ ok: true }>(`/admin/growth/links/${id}`, b),
     deleteLink: (id: string) => api.del<{ ok: true }>(`/admin/growth/links/${id}`),
+    calendar: (month?: string) => api.get<GrowthCalendar>('/admin/growth/calendar', { month }),
+    createGoal: (b: GrowthGoalInput) => api.post<{ ok: true }>('/admin/growth/goals', b),
+    updateGoal: (id: string, b: Partial<GrowthGoalInput>) => api.patch<{ ok: true }>(`/admin/growth/goals/${id}`, b),
+    deleteGoal: (id: string) => api.del<{ ok: true }>(`/admin/growth/goals/${id}`),
+    createEvent: (b: GrowthEventInput) => api.post<{ ok: true }>('/admin/growth/events', b),
+    updateEvent: (id: string, b: Partial<GrowthEventInput>) => api.patch<{ ok: true }>(`/admin/growth/events/${id}`, b),
+    deleteEvent: (id: string) => api.del<{ ok: true }>(`/admin/growth/events/${id}`),
   },
 
   flags: () => api.get<Flag[]>('/admin/flags'),

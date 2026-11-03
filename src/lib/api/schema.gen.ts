@@ -28865,6 +28865,371 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/growth/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    month?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            month: string;
+                            today: string;
+                            days: {
+                                day: string;
+                                totalUsers: number | null;
+                                newUsers: number | null;
+                                activeUsers: number | null;
+                            }[];
+                            events: {
+                                id: string;
+                                day: string;
+                                title: string;
+                                note: string | null;
+                                /** @enum {string} */
+                                kind: "done" | "plan" | "milestone";
+                                areaId: string | null;
+                                ownerId: string | null;
+                                createdById: string;
+                            }[];
+                            tasks: {
+                                id: string;
+                                title: string;
+                                /** @enum {string} */
+                                status: "todo" | "doing" | "done" | "dropped";
+                                assigneeId: string | null;
+                                areaId: string | null;
+                                dueDay: string | null;
+                                doneDay: string | null;
+                            }[];
+                            logs: {
+                                id: string;
+                                userId: string;
+                                day: string;
+                                text: string;
+                                areaId: string | null;
+                            }[];
+                            goals: {
+                                id: string;
+                                title: string;
+                                /** @enum {string} */
+                                metric: "users" | "active7" | "signups" | "campaign" | "area" | "custom";
+                                target: number;
+                                /** Format: date-time */
+                                startAt: string;
+                                /** Format: date-time */
+                                dueAt: string;
+                                campaign: string | null;
+                                areaId: string | null;
+                                ownerId: string | null;
+                                note: string | null;
+                                archived: boolean;
+                                current: number;
+                                baseline: number | null;
+                                perDay: number | null;
+                                needPerDay: number | null;
+                                daysLeft: number;
+                                /** @enum {string} */
+                                status: "done" | "on" | "behind" | "late";
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/goals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title: string;
+                        /** @enum {string} */
+                        metric: "users" | "active7" | "signups" | "campaign" | "area" | "custom";
+                        target: number;
+                        startAt?: unknown;
+                        dueAt: unknown;
+                        campaign?: string | null;
+                        areaId?: string | null;
+                        ownerId?: string | null;
+                        current?: number | null;
+                        note?: string | null;
+                        archived?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/goals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        title?: string;
+                        /** @enum {string} */
+                        metric?: "users" | "active7" | "signups" | "campaign" | "area" | "custom";
+                        target?: number;
+                        startAt?: unknown;
+                        dueAt?: unknown;
+                        campaign?: string | null;
+                        areaId?: string | null;
+                        ownerId?: string | null;
+                        current?: number | null;
+                        note?: string | null;
+                        archived?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/admin/growth/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        day: string;
+                        title: string;
+                        note?: string | null;
+                        /**
+                         * @default plan
+                         * @enum {string}
+                         */
+                        kind?: "done" | "plan" | "milestone";
+                        areaId?: string | null;
+                        ownerId?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/growth/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        day?: string;
+                        title?: string;
+                        note?: string | null;
+                        /**
+                         * @default plan
+                         * @enum {string}
+                         */
+                        kind?: "done" | "plan" | "milestone";
+                        areaId?: string | null;
+                        ownerId?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            ok: true;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/api/v1/admin/reports": {
         parameters: {
             query?: never;

@@ -70,6 +70,7 @@ const Team = page(() => import('@/pages/Team'), 'Team');
 const Users = page(() => import('@/pages/Users'), 'Users');
 const GrowthOverview = page(() => import('@/pages/Growth'), 'GrowthOverview');
 const GrowthTasks = page(() => import('@/pages/Growth'), 'GrowthTasks');
+const GrowthCalendar = page(() => import('@/pages/GrowthCalendar'), 'GrowthCalendar');
 const GrowthLogs = page(() => import('@/pages/Growth'), 'GrowthLogs');
 const GrowthLinks = page(() => import('@/pages/Growth'), 'GrowthLinks');
 const GrowthTeam = page(() => import('@/pages/Growth'), 'GrowthTeam');
@@ -120,6 +121,7 @@ const PAGES: Record<string, ComponentType> = {
   '/sistem/durum': Status,
   '/sistem/denetim': Audit,
   '/buyume': GrowthOverview,
+  '/buyume/takvim': GrowthCalendar,
   '/buyume/gorevler': GrowthTasks,
   '/buyume/gunluk': GrowthLogs,
   '/buyume/baglantilar': GrowthLinks,

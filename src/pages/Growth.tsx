@@ -28,11 +28,11 @@ import { cn } from '@/lib/cn';
 import { fmt, timeAgo } from '@/lib/format';
 import { confirmAction, toast } from '@/stores/ui';
 
-const KEY = ['admin', 'growth'] as const;
-const input =
+export const KEY = ['admin', 'growth'] as const;
+export const input =
   'h-10 w-full rounded-option bg-elev2 px-3 text-[14px] outline-none shadow-[inset_0_0_0_0.5px_var(--color-line2)] placeholder:text-faint focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.32)]';
-const area_ = `${input} h-auto min-h-[92px] py-2.5 leading-relaxed`;
-const label = 'mb-1.5 block text-[12.5px] font-semibold text-sub';
+export const area_ = `${input} h-auto min-h-[92px] py-2.5 leading-relaxed`;
+export const label = 'mb-1.5 block text-[12.5px] font-semibold text-sub';
 
 const DAYS = [
   { key: '7', label: '7 gün' },
@@ -66,24 +66,24 @@ const today = () => new Date(Date.now() + 3 * 3600 * 1000).toISOString().slice(0
 const dayLabel = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' });
 const shortDate = (d: string | Date) => new Date(d).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
 
-function useBoard() {
+export function useBoard() {
   return useQuery({ queryKey: [...KEY, 'board'], queryFn: adminApi.growth.board });
 }
-function useRefresh() {
+export function useRefresh() {
   const qc = useQueryClient();
   return () => qc.invalidateQueries({ queryKey: KEY });
 }
-function peopleMap(list: GrowthPerson[] | undefined) {
+export function peopleMap(list: GrowthPerson[] | undefined) {
   return new Map((list ?? []).map((p) => [p.id, p]));
 }
 /** Ekipteki herkes (bir alana üye olan), tekil. */
-function teamOf(board: GrowthBoard | undefined) {
+export function teamOf(board: GrowthBoard | undefined) {
   if (!board) return [];
   const ids = new Set(board.areas.flatMap((a) => a.members.map((m) => m.userId)));
   return board.people.filter((p) => ids.has(p.id)).sort((a, b) => a.username.localeCompare(b.username, 'tr'));
 }
 
-function Who({ p, size = 26, sub }: { p: GrowthPerson | undefined; size?: number; sub?: ReactNode }) {
+export function Who({ p, size = 26, sub }: { p: GrowthPerson | undefined; size?: number; sub?: ReactNode }) {
   if (!p) return <span className="text-faint">Atanmamış</span>;
   return (
     <span className="flex min-w-0 items-center gap-2">
@@ -96,7 +96,7 @@ function Who({ p, size = 26, sub }: { p: GrowthPerson | undefined; size?: number
   );
 }
 
-function Field({ id, title, hint, children }: { id?: string; title: string; hint?: string; children: ReactNode }) {
+export function Field({ id, title, hint, children }: { id?: string; title: string; hint?: string; children: ReactNode }) {
   return (
     <div>
       <label htmlFor={id} className={label}>
