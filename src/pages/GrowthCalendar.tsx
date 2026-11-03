@@ -3,16 +3,38 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { type ReactNode, useMemo, useState } from 'react';
 import { Button, IconButton } from '@/components/ui/Button';
+import { Gantt, type GanttGroup, MonthNav } from '@/components/ui/Gantt';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Tag } from '@/components/ui/misc';
 import { Drawer } from '@/components/ui/Overlays';
 import { Segment } from '@/components/ui/Tabs';
-import { adminApi, type GrowthCalendar as Cal, type GrowthBoard, type GrowthGoal, type GrowthGoalInput } from '@/lib/api/admin';
+import {
+  adminApi,
+  type GrowthCalendar as Cal,
+  type GrowthBoard,
+  type GrowthGoal,
+  type GrowthGoalInput,
+  type GrowthTask,
+} from '@/lib/api/admin';
 import { errorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/cn';
 import { fmt } from '@/lib/format';
 import { confirmAction, toast } from '@/stores/ui';
-import { area_, Field, input, KEY, peopleMap, teamOf, useBoard, useRefresh, Who } from './Growth';
+import {
+  area_,
+  Field,
+  GanttLegend,
+  input,
+  KEY,
+  peopleMap,
+  TaskEditor,
+  TaskRow,
+  taskTone,
+  teamOf,
+  useBoard,
+  useRefresh,
+  Who,
+} from './Growth';
 
 type Metric = GrowthGoal['metric'];
 type Kind = Cal['events'][number]['kind'];
@@ -38,14 +60,8 @@ const KIND: Record<Kind, { label: string; icon: 'check_circle' | 'event' | 'star
 };
 const WEEK = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
-const monthLabel = (m: string) => new Date(`${m}-15T12:00:00`).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
 const dayLong = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' });
 const shortDate = (d: string | Date) => new Date(d).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-const shift = (m: string, by: number) => {
-  const [y, mo] = m.split('-').map(Number);
-  const d = new Date(Date.UTC(y, mo - 1 + by, 1));
-  return d.toISOString().slice(0, 7);
-};
 const one = (n: number | null) => (n === null ? '—' : n.toLocaleString('tr-TR', { maximumFractionDigits: 1 }));
 const istDay = (d: string | Date) => new Date(new Date(d).getTime() + 3 * 3600 * 1000).toISOString().slice(0, 10);
 
@@ -456,28 +472,79 @@ function DayDrawer({ day, cal, board, onClose }: { day: string; cal: Cal; board:
 
 // ─────────────────────────── Sayfa ───────────────────────────
 
+/** Kompakt hedef kartı: başlık, durum, çubuk, sayı; tıklayınca ayrıntı. */
+function GoalCard({ g, onOpen }: { g: GrowthGoal; onOpen: () => void }) {
+  const from = g.baseline ?? 0;
+  const p = Math.max(0, Math.min(1, (g.current - from) / Math.max(1, g.target - from)));
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="press flex w-[248px] flex-none flex-col gap-2 rounded-card bg-elev px-4 py-3 text-left shadow-[inset_0_0_0_0.5px_var(--color-line)] transition-shadow hover:shadow-[inset_0_0_0_0.5px_var(--color-line2)]"
+    >
+      <span className="flex items-start gap-2">
+        <span className="line-clamp-2 min-w-0 flex-1 text-[13.5px] leading-snug font-semibold">{g.title}</span>
+        <Tag tone={STATUS[g.status].tone}>{STATUS[g.status].label}</Tag>
+      </span>
+      <span className="flex items-baseline gap-1 tabular">
+        <b className="text-[22px] leading-none tracking-[-0.5px]">{fmt(g.current)}</b>
+        <span className="text-[13px] text-faint">/ {fmt(g.target)}</span>
+      </span>
+      <span className="h-[6px] overflow-hidden rounded-full bg-white/6">
+        <span
+          className={cn('block h-full rounded-full', g.status === 'done' ? 'bg-up' : 'bg-yellow/85')}
+          style={{ width: `${p * 100}%` }}
+        />
+      </span>
+      <span className="text-[11.5px] text-sub">
+        {g.status === 'done'
+          ? `Ulaşıldı · son gün ${shortDate(g.dueAt)}`
+          : g.daysLeft > 0
+            ? `${g.daysLeft} gün kaldı${g.needPerDay !== null ? ` · günde ${one(g.needPerDay)} gerekiyor` : ''}`
+            : `Süre ${shortDate(g.dueAt)} doldu`}
+      </span>
+    </button>
+  );
+}
+
+type Chip = { key: string; label: string; cls: string; icon?: 'check_circle' | 'event' | 'star' | 'flag' | 'schedule' | 'task_alt' };
+
 export function GrowthCalendar() {
   const board = useBoard();
   const [month, setMonth] = useState<string | undefined>(undefined);
+  const [view, setView] = useState<'month' | 'gantt'>('month');
   const q = useQuery({ queryKey: [...KEY, 'calendar', month ?? 'now'], queryFn: () => adminApi.growth.calendar(month) });
   const [open, setOpen] = useState<string | null>(null);
+  const [goalOpen, setGoalOpen] = useState<string | null>(null);
+  const [taskOpen, setTaskOpen] = useState<string | null>(null);
   const [goalEdit, setGoalEdit] = useState<GrowthGoal | 'new' | null>(null);
+  const [taskEdit, setTaskEdit] = useState<GrowthTask | null>(null);
   const c = q.data;
   const b = board.data;
 
-  const byDay = useMemo(() => {
-    const m = new Map<string, { events: Cal['events']; done: number; due: number; logs: number; goals: number }>();
+  // Her gün için takvim kutucuğundaki satırlar: hedef son günü, olaylar, görev son günleri.
+  const chips = useMemo(() => {
+    const m = new Map<string, Chip[]>();
     if (!c) return m;
-    for (const d of c.days) m.set(d.day, { events: [], done: 0, due: 0, logs: 0, goals: 0 });
-    for (const e of c.events) m.get(e.day)?.events.push(e);
+    const push = (d: string, x: Chip) => m.set(d, [...(m.get(d) ?? []), x]);
+    for (const g of c.goals) push(istDay(g.dueAt), { key: `g${g.id}`, label: g.title, icon: 'flag', cls: 'bg-yellow/14 text-yellow' });
+    for (const e of c.events)
+      push(e.day, {
+        key: `e${e.id}`,
+        label: e.title,
+        icon: KIND[e.kind].icon,
+        cls: e.kind === 'done' ? 'bg-up/12 text-up' : e.kind === 'milestone' ? 'bg-yellow/10 text-yellow' : 'bg-white/7 text-text',
+      });
     for (const t of c.tasks) {
-      if (t.doneDay && m.has(t.doneDay)) m.get(t.doneDay)!.done += 1;
-      if (t.dueDay && t.status !== 'done' && t.status !== 'dropped' && m.has(t.dueDay)) m.get(t.dueDay)!.due += 1;
-    }
-    for (const l of c.logs) if (m.has(l.day)) m.get(l.day)!.logs += 1;
-    for (const g of c.goals) {
-      const k = istDay(g.dueAt);
-      if (m.has(k)) m.get(k)!.goals += 1;
+      if (t.status === 'done' && t.doneDay)
+        push(t.doneDay, { key: `d${t.id}`, label: t.title, icon: 'task_alt', cls: 'bg-up/8 text-up/80 line-through' });
+      else if (t.dueDay && t.status !== 'dropped')
+        push(t.dueDay, {
+          key: `t${t.id}`,
+          label: t.title,
+          icon: 'schedule',
+          cls: t.dueDay < c.today ? 'bg-live/12 text-live' : 'bg-elev3 text-sub',
+        });
     }
     return m;
   }, [c]);
@@ -495,166 +562,291 @@ export function GrowthCalendar() {
       </Card>
     );
 
+  const days = c.days.map((d) => d.day);
+  const stat = new Map(c.days.map((d) => [d.day, d]));
+  const lead = (new Date(`${days[0]}T12:00:00Z`).getUTCDay() + 6) % 7;
+  const trail = (7 - ((lead + days.length) % 7)) % 7;
+  const people = peopleMap(b.people);
+  const goal = c.goals.find((g) => g.id === goalOpen);
+  const task = b.tasks.find((t) => t.id === taskOpen);
   const past = c.days.filter((d) => d.totalUsers !== null);
-  const first = past[0];
-  const last = past.at(-1);
   const newSum = past.reduce((n, d) => n + (d.newUsers ?? 0), 0);
-  const avgActive = past.length ? Math.round(past.reduce((n, d) => n + (d.activeUsers ?? 0), 0) / past.length) : 0;
-  const lead = (new Date(`${c.days[0].day}T12:00:00Z`).getUTCDay() + 6) % 7;
-  const upcoming = [
-    ...c.events
-      .filter((e) => e.day >= c.today && e.kind !== 'done')
-      .map((e) => ({ day: e.day, title: e.title, icon: KIND[e.kind].icon, cls: KIND[e.kind].cls })),
-    ...c.tasks
-      .filter((t) => t.dueDay && t.dueDay >= c.today && t.status !== 'done' && t.status !== 'dropped')
-      .map((t) => ({ day: t.dueDay!, title: t.title, icon: 'schedule' as const, cls: 'text-sub' })),
-    ...c.goals
-      .filter((g) => istDay(g.dueAt) >= c.today && istDay(g.dueAt).startsWith(c.month))
-      .map((g) => ({ day: istDay(g.dueAt), title: `Hedef: ${g.title}`, icon: 'flag' as const, cls: 'text-yellow' })),
-  ].sort((x, y) => x.day.localeCompare(y.day));
+
+  // Gantt: üstte hedefler, sonra alan alan görevler ve o alanın takvim olayları.
+  const groups: GanttGroup[] = [
+    {
+      key: 'goals',
+      label: 'Hedefler',
+      items: c.goals.map((g) => {
+        const from = g.baseline ?? 0;
+        return {
+          id: g.id,
+          label: g.title,
+          start: istDay(g.startAt),
+          end: istDay(g.dueAt),
+          tone: g.status === 'done' ? ('goal-done' as const) : ('goal' as const),
+          progress: Math.max(0, (g.current - from) / Math.max(1, g.target - from)),
+          value: `${fmt(g.current)} / ${fmt(g.target)}`,
+          meta: `${STATUS[g.status].label}${g.daysLeft > 0 ? ` · ${g.daysLeft} gün kaldı` : ''}`,
+          onClick: () => setGoalOpen(g.id),
+        };
+      }),
+    },
+    ...[...b.areas, { id: '', name: 'Alansız' }].map((a) => ({
+      key: a.id || 'none',
+      label: a.name,
+      items: [
+        ...c.tasks
+          .filter((t) => (t.areaId ?? '') === a.id)
+          .sort((x, y) => x.startDay.localeCompare(y.startDay))
+          .map((t) => ({
+            id: t.id,
+            label: t.title,
+            start: [t.startDay, t.dueDay ?? t.startDay].sort()[0],
+            end: t.dueDay ?? t.startDay,
+            tone: taskTone(t, c.today),
+            meta: [
+              t.assigneeId ? (people.get(t.assigneeId)?.displayName ?? people.get(t.assigneeId)?.username) : 'Atanmamış',
+              t.dueDay ? `son gün ${shortDate(t.dueDay)}` : null,
+            ]
+              .filter(Boolean)
+              .join(' · '),
+            onClick: () => setTaskOpen(t.id),
+          })),
+        ...c.events
+          .filter((e) => (e.areaId ?? '') === a.id)
+          .map((e) => ({
+            id: e.id,
+            label: e.title,
+            start: e.day,
+            end: e.day,
+            tone: 'todo' as const,
+            point: { icon: KIND[e.kind].icon, cls: KIND[e.kind].cls },
+            meta: `${KIND[e.kind].label} · ${shortDate(e.day)}`,
+            onClick: () => setOpen(e.day),
+          })),
+      ],
+    })),
+  ].map((g) => (g.key === 'none' ? { ...g, label: 'Genel' } : g));
+
+  const upcoming = [...days.filter((d) => d >= c.today)].flatMap((d) =>
+    (chips.get(d) ?? []).filter((x) => !x.key.startsWith('d')).map((x) => ({ ...x, day: d })),
+  );
 
   return (
     <>
-      <Card
-        title="Hedefler"
-        sub={c.goals.length ? `${c.goals.filter((g) => g.status === 'done').length} / ${c.goals.length} ulaşıldı` : undefined}
-        right={
-          b.canManage && (
-            <Button size="sm" variant="primary" icon="add" onClick={() => setGoalEdit('new')}>
-              Yeni hedef
-            </Button>
-          )
-        }
-      >
-        {c.goals.length === 0 ? (
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="w-[250px]">
+          <Segment
+            items={[
+              { key: 'month', label: 'Takvim' },
+              { key: 'gantt', label: 'Zaman çizelgesi' },
+            ]}
+            value={view}
+            onChange={setView}
+          />
+        </div>
+        <MonthNav month={c.month} current={c.today.slice(0, 7)} onChange={setMonth} />
+        <span className="text-[12.5px] text-sub">
+          {past.length ? `${fmt(past.at(-1)!.totalUsers ?? 0)} kullanıcı · bu ay ${fmt(newSum)} yeni` : 'Henüz gelmedi'}
+        </span>
+        {b.canManage && (
+          <Button className="ml-auto" size="sm" variant="primary" icon="add" onClick={() => setGoalEdit('new')}>
+            Yeni hedef
+          </Button>
+        )}
+      </div>
+
+      {c.goals.length > 0 ? (
+        <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 md:-mx-6 md:px-6">
+          {c.goals.map((g) => (
+            <GoalCard key={g.id} g={g} onOpen={() => setGoalOpen(g.id)} />
+          ))}
+        </div>
+      ) : (
+        <Card>
           <EmptyState
             icon="flag"
             title="Henüz hedef yok"
             body="Sayıyla ve tarihle: 30 Kasım'a kadar 200 kullanıcı, haftalık 100 aktif, 5 kulüple anlaşma."
           />
-        ) : (
-          <div className="pb-1">
-            {c.goals.map((g) => (
-              <GoalRow key={g.id} g={g} board={b} onEdit={() => setGoalEdit(g)} />
-            ))}
-          </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
-      <Card
-        title={<span className="capitalize">{monthLabel(c.month)}</span>}
-        sub={
-          first && last
-            ? `${fmt((first.totalUsers ?? 0) - (first.newUsers ?? 0))} → ${fmt(last.totalUsers ?? 0)} kullanıcı · ${fmt(newSum)} yeni · günde ortalama ${fmt(avgActive)} kişi kullandı`
-            : 'henüz gelmedi'
-        }
-        right={
-          <span className="flex items-center gap-1">
-            <IconButton icon="chevron_left" label="Önceki ay" onClick={() => setMonth(shift(c.month, -1))} />
-            {c.month !== c.today.slice(0, 7) && (
-              <Button size="xs" variant="ghost" onClick={() => setMonth(undefined)}>
-                Bugün
-              </Button>
-            )}
-            <IconButton icon="chevron_right" label="Sonraki ay" onClick={() => setMonth(shift(c.month, 1))} />
-          </span>
-        }
-      >
-        <div className="px-2 pb-3 sm:px-[18px] sm:pb-4">
-          <div className="grid grid-cols-7 gap-1 pb-1 text-center text-[11.5px] font-semibold text-faint">
-            {WEEK.map((w) => (
-              <span key={w}>{w}</span>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {Array.from({ length: lead }, (_, i) => (
-              <span key={`b${i}`} />
-            ))}
-            {c.days.map((d) => {
-              const x = byDay.get(d.day)!;
-              const isToday = d.day === c.today;
-              const future = d.day > c.today;
-              return (
-                <button
-                  key={d.day}
-                  type="button"
-                  onClick={() => setOpen(d.day)}
-                  aria-label={`${dayLong(d.day)}${d.totalUsers !== null ? `, ${d.totalUsers} kullanıcı, ${d.newUsers} yeni` : ''}`}
-                  className={cn(
-                    'press flex min-h-[64px] min-w-0 flex-col items-stretch gap-0.5 rounded-[10px] p-1.5 text-left transition-colors sm:min-h-[96px] sm:p-2',
-                    future ? 'bg-white/[0.02] hover:bg-white/5' : 'bg-elev2 hover:bg-elev3',
-                    isToday && 'shadow-[inset_0_0_0_1.5px_var(--color-yellow)]',
-                  )}
-                >
-                  <span className={cn('text-[12px] font-semibold', isToday ? 'text-yellow' : future ? 'text-faint' : 'text-sub')}>
-                    {Number(d.day.slice(8))}
-                  </span>
-                  {d.totalUsers !== null && (
-                    <span className="flex flex-wrap items-baseline gap-x-1">
-                      <b className="text-[13px] tabular sm:text-[16px]">{fmt(d.totalUsers)}</b>
-                      {!!d.newUsers && <span className="text-[11px] font-semibold text-yellow tabular">+{d.newUsers}</span>}
+      {view === 'month' ? (
+        <>
+          <Card>
+            <div className="grid grid-cols-7 border-b-[0.5px] border-line">
+              {WEEK.map((w, i) => (
+                <span key={w} className={cn('py-2 text-center text-[11.5px] font-semibold', i >= 5 ? 'text-faint' : 'text-sub')}>
+                  {w}
+                </span>
+              ))}
+            </div>
+            <div className="grid grid-cols-7">
+              {Array.from({ length: lead }, (_, i) => (
+                <span
+                  key={`b${i}`}
+                  className="min-h-[60px] border-r-[0.5px] border-b-[0.5px] border-line bg-white/[0.015] sm:min-h-[120px]"
+                />
+              ))}
+              {days.map((d, i) => {
+                const st = stat.get(d)!;
+                const list = chips.get(d) ?? [];
+                const isToday = d === c.today;
+                const col = (lead + i) % 7;
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setOpen(d)}
+                    aria-label={`${dayLong(d)}${st.totalUsers !== null ? `, ${st.totalUsers} kullanıcı` : ''}${list.length ? `, ${list.length} kayıt` : ''}`}
+                    className={cn(
+                      'press flex min-h-[60px] min-w-0 flex-col gap-1 border-b-[0.5px] border-line p-1 text-left transition-colors hover:bg-white/[0.035] sm:min-h-[120px] sm:p-1.5',
+                      col < 6 && 'border-r-[0.5px]',
+                      col >= 5 && 'bg-white/[0.015]',
+                    )}
+                  >
+                    <span className="flex items-center gap-1">
+                      <span
+                        className={cn(
+                          'flex h-6 w-6 flex-none items-center justify-center rounded-full text-[12.5px] font-semibold tabular',
+                          isToday ? 'bg-yellow text-black' : d > c.today ? 'text-faint' : 'text-text',
+                        )}
+                      >
+                        {Number(d.slice(8))}
+                      </span>
+                      {st.totalUsers !== null && (
+                        <span
+                          className="ml-auto hidden text-[10.5px] text-faint tabular sm:inline"
+                          title={`Gün sonunda ${st.totalUsers} kullanıcı, ${st.newUsers} yeni, ${st.activeUsers} kişi kullandı`}
+                        >
+                          {fmt(st.totalUsers)}
+                          {!!st.newUsers && <span className="ml-0.5 font-semibold text-up">+{st.newUsers}</span>}
+                        </span>
+                      )}
                     </span>
-                  )}
-                  {d.activeUsers !== null && <span className="hidden text-[11px] text-faint sm:block">{fmt(d.activeUsers)} kullandı</span>}
-                  <span className="mt-auto flex flex-wrap items-center gap-0.5">
-                    {x.events.map((e) => (
-                      <Icon key={e.id} name={KIND[e.kind].icon} size={14} className={KIND[e.kind].cls} />
-                    ))}
-                    {x.goals > 0 && <Icon name="flag" size={14} className="text-yellow" />}
-                    {x.done > 0 && <Icon name="task_alt" size={14} className="text-up" />}
-                    {x.due > 0 && <Icon name="schedule" size={14} className={cn(d.day < c.today ? 'text-live' : 'text-sub')} />}
-                    {x.logs > 0 && (
-                      <span className="hidden items-center text-[10.5px] text-faint sm:flex">
-                        <Icon name="edit_note" size={14} />
-                        {x.logs}
+                    {/* Geniş ekranda başlıklar, telefonda noktalar */}
+                    <span className="hidden min-w-0 flex-col gap-[3px] sm:flex">
+                      {list.slice(0, 3).map((x) => (
+                        <span
+                          key={x.key}
+                          className={cn('flex min-w-0 items-center gap-1 rounded-[5px] px-1.5 py-[2px] text-[11px] font-medium', x.cls)}
+                        >
+                          {x.icon && <Icon name={x.icon} size={12} className="flex-none" />}
+                          <span className="truncate">{x.label}</span>
+                        </span>
+                      ))}
+                      {list.length > 3 && <span className="px-1.5 text-[10.5px] text-sub">+{list.length - 3} daha</span>}
+                    </span>
+                    {list.length > 0 && (
+                      <span className="flex flex-wrap gap-[3px] px-0.5 sm:hidden">
+                        {list.slice(0, 4).map((x) => (
+                          <i
+                            key={x.key}
+                            className={cn(
+                              'block h-[6px] w-[6px] rounded-full',
+                              x.cls
+                                .split(' ')
+                                .find((k) => k.startsWith('text-'))!
+                                .replace('text-', 'bg-'),
+                            )}
+                          />
+                        ))}
                       </span>
                     )}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-faint">
-            <span>Sayı: o günün sonunda toplam kullanıcı, sarı: o gün gelen</span>
-            <span className="flex items-center gap-1">
-              <Icon name="check_circle" size={13} className="text-up" /> yapıldı
-            </span>
-            <span className="flex items-center gap-1">
-              <Icon name="event" size={13} /> planlı
-            </span>
-            <span className="flex items-center gap-1">
-              <Icon name="star" size={13} className="text-yellow" /> dönüm noktası
-            </span>
-            <span className="flex items-center gap-1">
-              <Icon name="flag" size={13} className="text-yellow" /> hedefin son günü
-            </span>
-            <span className="flex items-center gap-1">
-              <Icon name="schedule" size={13} /> görev son günü
-            </span>
-          </p>
-        </div>
-      </Card>
+                  </button>
+                );
+              })}
+              {Array.from({ length: trail }, (_, i) => (
+                <span
+                  key={`a${i}`}
+                  className={cn(
+                    'min-h-[60px] border-b-[0.5px] border-line bg-white/[0.015] sm:min-h-[120px]',
+                    i < trail - 1 && 'border-r-[0.5px]',
+                  )}
+                />
+              ))}
+            </div>
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1 px-[18px] py-3 text-[11.5px] text-sub">
+              <span>Sağ üstte: gün sonundaki kullanıcı sayısı, yeşil: o gün gelen</span>
+              <span className="flex items-center gap-1 text-up">
+                <Icon name="check_circle" size={13} /> yapıldı
+              </span>
+              <span className="flex items-center gap-1">
+                <Icon name="event" size={13} /> planlı
+              </span>
+              <span className="flex items-center gap-1 text-yellow">
+                <Icon name="star" size={13} /> dönüm noktası
+              </span>
+              <span className="flex items-center gap-1 text-yellow">
+                <Icon name="flag" size={13} /> hedef son günü
+              </span>
+              <span className="flex items-center gap-1">
+                <Icon name="schedule" size={13} /> görev son günü
+              </span>
+            </p>
+          </Card>
 
-      {upcoming.length > 0 && (
-        <Card title="Bu ay sırada" sub="planlananlar, görev ve hedef son günleri">
-          <div className="pb-1">
-            {upcoming.map((u, i) => (
-              <button
-                key={`${u.day}-${i}`}
-                type="button"
-                onClick={() => setOpen(u.day)}
-                className="press flex w-full items-center gap-3 px-[18px] py-2.5 text-left shadow-[inset_0_0.5px_0_var(--color-line)] hover:bg-white/3"
-              >
-                <span className="w-[64px] flex-none text-[12.5px] font-semibold text-sub">{shortDate(u.day)}</span>
-                <Icon name={u.icon} size={17} className={u.cls} />
-                <span className="min-w-0 flex-1 truncate text-[13.5px]">{u.title}</span>
-              </button>
-            ))}
-          </div>
+          {upcoming.length > 0 && (
+            <Card title="Sırada" sub="bugünden ay sonuna">
+              <div className="pb-1">
+                {upcoming.map((u) => (
+                  <button
+                    key={`${u.day}-${u.key}`}
+                    type="button"
+                    onClick={() => setOpen(u.day)}
+                    className="press flex w-full items-center gap-3 px-[18px] py-2.5 text-left shadow-[inset_0_0.5px_0_var(--color-line)] hover:bg-white/3"
+                  >
+                    <span className="w-[64px] flex-none text-[12.5px] font-semibold text-sub">{shortDate(u.day)}</span>
+                    {u.icon && <Icon name={u.icon} size={17} className={u.cls.split(' ').find((k) => k.startsWith('text-'))} />}
+                    <span className="min-w-0 flex-1 truncate text-[13.5px]">{u.label}</span>
+                  </button>
+                ))}
+              </div>
+            </Card>
+          )}
+        </>
+      ) : (
+        <Card>
+          <Gantt
+            days={days}
+            today={c.today}
+            groups={groups}
+            metric={{ label: 'Kullanıcı', value: (d) => (stat.get(d)?.totalUsers != null ? String(stat.get(d)!.totalUsers) : null) }}
+            empty={<EmptyState icon="calendar_month" title="Bu ayda planlı bir şey yok" />}
+          />
+          <GanttLegend goals />
         </Card>
       )}
 
       {open && <DayDrawer day={open} cal={c} board={b} onClose={() => setOpen(null)} />}
+      {goal && !goalEdit && (
+        <Drawer open title="Hedef" onClose={() => setGoalOpen(null)}>
+          <GoalRow
+            g={goal}
+            board={b}
+            onEdit={() => {
+              setGoalOpen(null);
+              setGoalEdit(goal);
+            }}
+          />
+        </Drawer>
+      )}
+      {task && !taskEdit && (
+        <Drawer open title="Görev" onClose={() => setTaskOpen(null)}>
+          <TaskRow
+            t={task}
+            board={b}
+            canManage={b.canManage}
+            onEdit={() => {
+              setTaskOpen(null);
+              setTaskEdit(task);
+            }}
+          />
+        </Drawer>
+      )}
+      {taskEdit && <TaskEditor board={b} task={taskEdit} onClose={() => setTaskEdit(null)} />}
       {goalEdit && <GoalEditor board={b} goal={goalEdit === 'new' ? null : goalEdit} onClose={() => setGoalEdit(null)} />}
     </>
   );

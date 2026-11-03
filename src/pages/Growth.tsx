@@ -8,6 +8,7 @@ import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from 're
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { DailyBars, Delta } from '@/components/ui/Chart';
+import { Gantt, type GanttGroup, type GanttTone, MonthNav, monthDays } from '@/components/ui/Gantt';
 import { Icon } from '@/components/ui/Icon';
 import { Card, EmptyState, ErrorState, Rows, Stat, Tag } from '@/components/ui/misc';
 import { Drawer } from '@/components/ui/Overlays';
@@ -61,6 +62,8 @@ const SOURCES = [
 ] as const;
 const sourceLabel = (k: string) => SOURCES.find((s) => s.key === k)?.label ?? k;
 
+/** İstanbul günü (YYYY-MM-DD). */
+export const istDay = (d: string | Date) => new Date(new Date(d).getTime() + 3 * 3600 * 1000).toISOString().slice(0, 10);
 const pct = (a: number, b: number) => (b ? `%${Math.round((a / b) * 100)}` : '—');
 const today = () => new Date(Date.now() + 3 * 3600 * 1000).toISOString().slice(0, 10);
 const dayLabel = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' });
@@ -338,6 +341,7 @@ type TaskDraft = {
   description: string;
   areaId: string;
   assigneeId: string;
+  startAt: string;
   dueAt: string;
   target: string;
   campaign: string;
@@ -348,13 +352,14 @@ const emptyTask: TaskDraft = {
   description: '',
   areaId: '',
   assigneeId: '',
+  startAt: '',
   dueAt: '',
   target: '',
   campaign: '',
   status: 'todo',
 };
 
-function TaskEditor({ board, task, onClose }: { board: GrowthBoard; task: GrowthTask | null; onClose: () => void }) {
+export function TaskEditor({ board, task, onClose }: { board: GrowthBoard; task: GrowthTask | null; onClose: () => void }) {
   const refresh = useRefresh();
   const [f, setF] = useState<TaskDraft>(
     task
@@ -363,12 +368,13 @@ function TaskEditor({ board, task, onClose }: { board: GrowthBoard; task: Growth
           description: task.description ?? '',
           areaId: task.areaId ?? '',
           assigneeId: task.assigneeId ?? '',
-          dueAt: task.dueAt ? String(task.dueAt).slice(0, 10) : '',
+          startAt: istDay(task.startAt ?? task.createdAt),
+          dueAt: task.dueAt ? istDay(task.dueAt) : '',
           target: task.target ?? '',
           campaign: task.campaign ?? '',
           status: task.status,
         }
-      : emptyTask,
+      : { ...emptyTask, startAt: istDay(new Date()) },
   );
   const set = <K extends keyof TaskDraft>(k: K, v: TaskDraft[K]) => setF((s) => ({ ...s, [k]: v }));
   // Atanacak kişi: seçilen alanın üyeleri önce, sonra tüm ekip.
@@ -380,7 +386,8 @@ function TaskEditor({ board, task, onClose }: { board: GrowthBoard; task: Growth
         description: f.description || null,
         areaId: f.areaId || null,
         assigneeId: f.assigneeId || null,
-        dueAt: f.dueAt ? `${f.dueAt}T20:59:00.000Z` : null,
+        startAt: f.startAt ? `${f.startAt}T00:00:00+03:00` : null,
+        dueAt: f.dueAt ? `${f.dueAt}T23:59:00+03:00` : null,
         target: f.target || null,
         campaign: f.campaign || null,
         status: f.status,
@@ -457,6 +464,9 @@ function TaskEditor({ board, task, onClose }: { board: GrowthBoard; task: Growth
               ))}
             </select>
           </Field>
+          <Field id="g-start" title="Başlangıç">
+            <input id="g-start" type="date" className={input} value={f.startAt} onChange={(e) => set('startAt', e.target.value)} />
+          </Field>
           <Field id="g-due" title="Son gün">
             <input id="g-due" type="date" className={input} value={f.dueAt} onChange={(e) => set('dueAt', e.target.value)} />
           </Field>
@@ -490,7 +500,7 @@ function TaskEditor({ board, task, onClose }: { board: GrowthBoard; task: Growth
   );
 }
 
-function TaskRow({ t, board, canManage, onEdit }: { t: GrowthTask; board: GrowthBoard; canManage: boolean; onEdit: () => void }) {
+export function TaskRow({ t, board, canManage, onEdit }: { t: GrowthTask; board: GrowthBoard; canManage: boolean; onEdit: () => void }) {
   const refresh = useRefresh();
   const people = peopleMap(board.people);
   const area = board.areas.find((a) => a.id === t.areaId);
@@ -599,11 +609,23 @@ function TaskRow({ t, board, canManage, onEdit }: { t: GrowthTask; board: Growth
   );
 }
 
+/** Görevin Gantt çubuğu rengi: gecikmiş (son günü geçti, bitmedi) kırmızı. */
+export function taskTone(t: { status: GrowthTaskStatus; dueAt?: string | Date | null; dueDay?: string | null }, today: string): GanttTone {
+  if (t.status === 'done' || t.status === 'dropped') return t.status;
+  const due = t.dueDay ?? (t.dueAt ? istDay(t.dueAt) : null);
+  if (due && due < today) return 'late';
+  return t.status;
+}
+
 export function GrowthTasks() {
   const q = useBoard();
+  const [view, setView] = useState<'gantt' | 'list'>('gantt');
+  const [group, setGroup] = useState<'person' | 'area'>('person');
+  const [month, setMonth] = useState<string | undefined>(undefined);
   const [who, setWho] = useState<'mine' | 'all'>('all');
   const [areaId, setAreaId] = useState('');
   const [edit, setEdit] = useState<GrowthTask | 'new' | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
   const b = q.data;
   useEffect(() => {
     // Ekip üyesi kendi görevleriyle açar; admin herkesinkiyle.
@@ -621,10 +643,73 @@ export function GrowthTasks() {
         <Rows n={6} />
       </Card>
     );
+  const today = istDay(new Date());
+  const m = month ?? today.slice(0, 7);
+  const days = monthDays(m);
+  const people = peopleMap(b.people);
   const list = b.tasks.filter((t) => (who === 'all' || t.assigneeId === b.meId) && (!areaId || t.areaId === areaId));
+  const openTask = b.tasks.find((t) => t.id === open);
+
+  // Gantt: ayla kesişen görevler, kişiye ya da alana göre gruplu; grupta önce başlayan üstte.
+  const span = (t: GrowthTask) => {
+    const start = istDay(t.startAt ?? t.createdAt);
+    const end = t.dueAt ? istDay(t.dueAt) : start;
+    // Başlangıç son günden sonra girildiyse çubuk tek gün.
+    return { start: [start, end].sort()[0], end };
+  };
+  const inMonth = list.filter((t) => {
+    const s = span(t);
+    return s.end >= days[0] && s.start <= days.at(-1)!;
+  });
+  const keyOf = (t: GrowthTask) => (group === 'person' ? (t.assigneeId ?? '') : (t.areaId ?? ''));
+  const labelOf = (k: string) =>
+    group === 'person'
+      ? k
+        ? (people.get(k)?.displayName ?? `@${people.get(k)?.username ?? '—'}`)
+        : 'Atanmamış'
+      : (b.areas.find((a) => a.id === k)?.name ?? 'Alansız');
+  const keys = [...new Set(inMonth.map(keyOf))].sort((x, y) =>
+    x === b.meId ? -1 : y === b.meId ? 1 : labelOf(x).localeCompare(labelOf(y), 'tr'),
+  );
+  const groups: GanttGroup[] = keys.map((k) => ({
+    key: k || 'none',
+    label: labelOf(k),
+    items: inMonth
+      .filter((t) => keyOf(t) === k)
+      .sort((x, y) => span(x).start.localeCompare(span(y).start))
+      .map((t) => {
+        const area = b.areas.find((a) => a.id === t.areaId);
+        const other =
+          group === 'person'
+            ? area?.name
+            : t.assigneeId
+              ? (people.get(t.assigneeId)?.displayName ?? people.get(t.assigneeId)?.username)
+              : 'Atanmamış';
+        return {
+          id: t.id,
+          label: t.title,
+          ...span(t),
+          tone: taskTone(t, today),
+          meta: [STATUS[t.status].label, other, t.dueAt ? `son gün ${shortDate(t.dueAt)}` : 'son gün yok'].filter(Boolean).join(' · '),
+          value: t.campaign && t.signups ? `${t.signups} kayıt` : undefined,
+          onClick: () => setOpen(t.id),
+        };
+      }),
+  }));
+
   return (
     <>
       <div className="flex flex-wrap items-center gap-3">
+        <div className="w-[230px]">
+          <Segment
+            items={[
+              { key: 'gantt', label: 'Zaman çizelgesi' },
+              { key: 'list', label: 'Liste' },
+            ]}
+            value={view}
+            onChange={setView}
+          />
+        </div>
         <Pills
           items={[
             {
@@ -656,7 +741,36 @@ export function GrowthTasks() {
           </Button>
         )}
       </div>
-      {list.length === 0 ? (
+
+      {view === 'gantt' ? (
+        <Card
+          title={<MonthNav month={m} current={today.slice(0, 7)} onChange={setMonth} />}
+          right={
+            <Pills
+              items={[
+                { key: 'person', label: 'Kişiye göre' },
+                { key: 'area', label: 'Alana göre' },
+              ]}
+              value={group}
+              onChange={setGroup}
+            />
+          }
+        >
+          <Gantt
+            days={days}
+            today={today}
+            groups={groups}
+            empty={
+              <EmptyState
+                icon="task_alt"
+                title="Bu ayda görev yok"
+                body={b.canManage ? 'Yeni görev ekleyip başlangıç ve son gün ver; burada çubuk olarak görünür.' : undefined}
+              />
+            }
+          />
+          <GanttLegend />
+        </Card>
+      ) : list.length === 0 ? (
         <Card>
           <EmptyState
             icon="task_alt"
@@ -683,8 +797,46 @@ export function GrowthTasks() {
           );
         })
       )}
+      {openTask && !edit && (
+        <Drawer open title="Görev" onClose={() => setOpen(null)}>
+          <TaskRow
+            t={openTask}
+            board={b}
+            canManage={b.canManage}
+            onEdit={() => {
+              setOpen(null);
+              setEdit(openTask);
+            }}
+          />
+        </Drawer>
+      )}
       {edit && <TaskEditor board={b} task={edit === 'new' ? null : edit} onClose={() => setEdit(null)} />}
     </>
+  );
+}
+
+/** Gantt renk açıklaması. */
+export function GanttLegend({ goals }: { goals?: boolean }) {
+  const items: Array<[string, string]> = [
+    ['bg-elev3 shadow-[inset_0_0_0_0.5px_var(--color-line2)]', 'Yapılacak'],
+    ['bg-yellow', 'Sürüyor'],
+    ['bg-up/40', 'Bitti'],
+    ['bg-live/40', 'Gecikti'],
+  ];
+  if (goals) items.push(['bg-yellow/25 shadow-[inset_0_0_0_0.5px_rgb(255_216_0/0.5)]', 'Hedef (dolu kısım ilerleme)']);
+  return (
+    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 px-[18px] py-3 text-[11.5px] text-sub">
+      {items.map(([c, l]) => (
+        <span key={l} className="flex items-center gap-1.5">
+          <i className={cn('block h-2.5 w-4 rounded-[3px]', c)} />
+          {l}
+        </span>
+      ))}
+      <span className="flex items-center gap-1.5">
+        <i className="block h-3 w-[2px] bg-yellow/70" />
+        Bugün
+      </span>
+    </p>
   );
 }
 

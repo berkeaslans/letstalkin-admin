@@ -67355,6 +67355,11 @@
                               "dropped"
                             ]
                           },
+                          "startAt": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "date-time"
+                          },
                           "dueAt": {
                             "nullable": true,
                             "type": "string",
@@ -67400,6 +67405,7 @@
                           "areaId",
                           "assigneeId",
                           "status",
+                          "startAt",
                           "dueAt",
                           "target",
                           "campaign",
@@ -67852,6 +67858,9 @@
                       "dropped"
                     ]
                   },
+                  "startAt": {
+                    "nullable": true
+                  },
                   "dueAt": {
                     "nullable": true
                   },
@@ -67943,6 +67952,9 @@
                       "done",
                       "dropped"
                     ]
+                  },
+                  "startAt": {
+                    "nullable": true
                   },
                   "dueAt": {
                     "nullable": true
@@ -69237,6 +69249,9 @@
                             "nullable": true,
                             "type": "string"
                           },
+                          "startDay": {
+                            "type": "string"
+                          },
                           "dueDay": {
                             "nullable": true,
                             "type": "string"
@@ -69252,6 +69267,7 @@
                           "status",
                           "assigneeId",
                           "areaId",
+                          "startDay",
                           "dueDay",
                           "doneDay"
                         ],

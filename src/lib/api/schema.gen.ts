@@ -27972,6 +27972,8 @@ export interface paths {
                                 /** @enum {string} */
                                 status: "todo" | "doing" | "done" | "dropped";
                                 /** Format: date-time */
+                                startAt: string | null;
+                                /** Format: date-time */
                                 dueAt: string | null;
                                 target: string | null;
                                 campaign: string | null;
@@ -28270,6 +28272,7 @@ export interface paths {
                         assigneeId?: string | null;
                         /** @enum {string} */
                         status?: "todo" | "doing" | "done" | "dropped";
+                        startAt?: unknown;
                         dueAt?: unknown;
                         target?: string | null;
                         campaign?: string | null;
@@ -28353,6 +28356,7 @@ export interface paths {
                         assigneeId?: string | null;
                         /** @enum {string} */
                         status?: "todo" | "doing" | "done" | "dropped";
+                        startAt?: unknown;
                         dueAt?: unknown;
                         target?: string | null;
                         campaign?: string | null;
@@ -28916,6 +28920,7 @@ export interface paths {
                                 status: "todo" | "doing" | "done" | "dropped";
                                 assigneeId: string | null;
                                 areaId: string | null;
+                                startDay: string;
                                 dueDay: string | null;
                                 doneDay: string | null;
                             }[];
