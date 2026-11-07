@@ -755,6 +755,7 @@ export interface paths {
                         /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform */
                         attribution?: unknown;
                         trustedDevice?: string;
+                        signupForm?: boolean;
                     };
                 };
             };
@@ -790,6 +791,15 @@ export interface paths {
                                 expiresIn: number;
                             };
                             isNew?: boolean;
+                        } | {
+                            signup: {
+                                token: string;
+                                /** @enum {string} */
+                                provider: "google" | "apple";
+                                email: string;
+                                name: string | null;
+                                suggestedUsername: string;
+                            };
                         };
                     };
                 };
@@ -826,6 +836,7 @@ export interface paths {
                         /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform */
                         attribution?: unknown;
                         trustedDevice?: string;
+                        signupForm?: boolean;
                     };
                 };
             };
@@ -861,6 +872,131 @@ export interface paths {
                                 expiresIn: number;
                             };
                             isNew?: boolean;
+                        } | {
+                            signup: {
+                                token: string;
+                                /** @enum {string} */
+                                provider: "google" | "apple";
+                                email: string;
+                                name: string | null;
+                                suggestedUsername: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/oauth/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        token: string;
+                        username: string;
+                        displayName?: string;
+                        /** Format: date */
+                        birthDate: string;
+                        /** @enum {boolean} */
+                        acceptTerms: true;
+                        /** @enum {boolean} */
+                        acceptPrivacy: true;
+                        marketingConsent?: boolean;
+                        /** @enum {string} */
+                        accountType?: "person" | "fan";
+                        /** @enum {string} */
+                        preferredLang?: "tr" | "en" | "es" | "pt" | "de" | "fr" | "it" | "ru" | "ar" | "hi" | "id" | "zh" | "ja" | "ko" | "pl" | "el";
+                        /** @description Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform */
+                        attribution?: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            access: string;
+                            refresh: string;
+                            user: {
+                                id: string;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                                tick: string;
+                                accountType: string;
+                                emailVerified: boolean;
+                                founderNo: number | null;
+                            };
+                            isNew?: boolean;
+                            restored?: boolean;
+                            trustedDevice?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/profile/birth-date": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: date */
+                        birthDate: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ok: boolean;
                         };
                     };
                 };
@@ -1749,6 +1885,7 @@ export interface paths {
                             })[] | null;
                             emailVerified: boolean;
                             hasPassword: boolean;
+                            needsBirthDate?: boolean;
                             twoFactorEnabled: boolean;
                             /** @enum {string|null} */
                             twoFactorMethod: "totp" | "email" | null;
@@ -1832,6 +1969,7 @@ export interface paths {
                             })[] | null;
                             emailVerified: boolean;
                             hasPassword: boolean;
+                            needsBirthDate?: boolean;
                             twoFactorEnabled: boolean;
                             /** @enum {string|null} */
                             twoFactorMethod: "totp" | "email" | null;
@@ -16741,6 +16879,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    lang?: string;
                     show?: string;
                 };
                 header?: never;
@@ -16775,6 +16914,14 @@ export interface paths {
                             startsAt: string | null;
                             /** Format: date-time */
                             createdAt: string;
+                            externalId?: string | null;
+                            seriesKey?: string | null;
+                            category?: string | null;
+                            seq?: number | null;
+                            locales?: string[];
+                            lang?: string | null;
+                            slug?: string | null;
+                            listed?: boolean;
                         } & {
                             [key: string]: unknown;
                         })[];
@@ -16838,6 +16985,14 @@ export interface paths {
                             startsAt: string | null;
                             /** Format: date-time */
                             createdAt: string;
+                            externalId?: string | null;
+                            seriesKey?: string | null;
+                            category?: string | null;
+                            seq?: number | null;
+                            locales?: string[];
+                            lang?: string | null;
+                            slug?: string | null;
+                            listed?: boolean;
                         } & {
                             [key: string]: unknown;
                         };
@@ -16860,7 +17015,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    lang?: string;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -16895,6 +17052,14 @@ export interface paths {
                             startsAt: string | null;
                             /** Format: date-time */
                             createdAt: string;
+                            externalId?: string | null;
+                            seriesKey?: string | null;
+                            category?: string | null;
+                            seq?: number | null;
+                            locales?: string[];
+                            lang?: string | null;
+                            slug?: string | null;
+                            listed?: boolean;
                             isCreator: boolean;
                             myRank?: number | null;
                             myCorrect?: number | null;
@@ -16929,10 +17094,20 @@ export interface paths {
                                 order: number;
                                 text: string;
                                 options: unknown;
+                                explanation?: string | null;
                                 correctIndex?: number;
                             } & {
                                 [key: string]: unknown;
                             })[];
+                            seo?: {
+                                title: string;
+                                h1: string;
+                                description: string;
+                                slug: string;
+                            } | null;
+                            slugs?: {
+                                [key: string]: string;
+                            };
                         } & {
                             [key: string]: unknown;
                         };
@@ -17041,7 +17216,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    lang?: string;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -17068,6 +17245,7 @@ export interface paths {
                             gained: number;
                             correctIndex: number;
                             score?: number;
+                            explanation?: string | null;
                         } & {
                             [key: string]: unknown;
                         };
@@ -17092,7 +17270,9 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    lang?: string;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -17110,6 +17290,7 @@ export interface paths {
                         "application/json": {
                             /** @enum {boolean} */
                             done: false;
+                            lang?: string | null;
                             question: {
                                 order: number;
                                 text: string;
@@ -18387,6 +18568,7 @@ export interface paths {
                             marketingConsent: boolean;
                             /** @enum {string} */
                             spoilerMode: "off" | "tagged" | "smart";
+                            hideAdult?: boolean;
                             /** @enum {string} */
                             tagPolicy?: "everyone" | "following" | "none";
                             localeEn: boolean;
@@ -18442,6 +18624,7 @@ export interface paths {
                         marketingConsent?: boolean;
                         /** @enum {string} */
                         spoilerMode?: "off" | "tagged" | "smart";
+                        hideAdult?: boolean;
                         localeEn?: boolean;
                         region?: string | null;
                         privateAccount?: boolean;
@@ -18485,6 +18668,7 @@ export interface paths {
                             marketingConsent: boolean;
                             /** @enum {string} */
                             spoilerMode: "off" | "tagged" | "smart";
+                            hideAdult?: boolean;
                             /** @enum {string} */
                             tagPolicy?: "everyone" | "following" | "none";
                             localeEn: boolean;
@@ -22275,6 +22459,10 @@ export interface paths {
                                     /** @enum {string} */
                                     tick: "none" | "yellow" | "blue";
                                 } | null;
+                                locales: string[];
+                                category: string | null;
+                                seq: number | null;
+                                listed: boolean;
                             }[];
                             nextCursor: string | null;
                         };
@@ -22338,6 +22526,10 @@ export interface paths {
                                 /** @enum {string} */
                                 tick: "none" | "yellow" | "blue";
                             } | null;
+                            locales: string[];
+                            category: string | null;
+                            seq: number | null;
+                            listed: boolean;
                             questions: {
                                 text: string;
                                 options: string[];
@@ -33738,7 +33930,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    lang?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -33756,6 +33950,7 @@ export interface paths {
                             showTmdbId: string;
                             showName: string;
                             title: string;
+                            quizCount: number;
                             difficulty: string;
                             questionCount: number;
                             playerCount: number;
@@ -33785,7 +33980,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    lang?: string;
+                };
                 header?: never;
                 path: {
                     tmdbId: string;
@@ -33805,6 +34002,7 @@ export interface paths {
                             showTmdbId: string;
                             showName: string;
                             title: string;
+                            lang: string | null;
                             about: string | null;
                             difficulty: string;
                             secondsPerQuestion: number;
@@ -33824,6 +34022,17 @@ export interface paths {
                                 text: string;
                                 options: string[];
                             }[];
+                            quizzes: {
+                                id: string;
+                                title: string;
+                                lang: string | null;
+                                slug: string | null;
+                                category: string | null;
+                                seq: number | null;
+                                difficulty: string;
+                                questionCount: number;
+                                playerCount: number;
+                            }[];
                             top: {
                                 rank: number;
                                 score: number;
@@ -33838,6 +34047,143 @@ export interface paths {
                                 posterPath: string | null;
                             }[];
                         };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/quizzes/page/{lang}/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    lang: "tr" | "en" | "es" | "pt" | "de";
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            redirect: {
+                                lang: string;
+                                slug: string;
+                            };
+                        } | {
+                            /** @enum {string|null} */
+                            redirect: null;
+                            id: string;
+                            lang: string;
+                            showTmdbId: string;
+                            showName: string;
+                            title: string;
+                            h1: string;
+                            description: string;
+                            keywords: string[];
+                            slug: string;
+                            slugs: {
+                                [key: string]: string;
+                            };
+                            category: string | null;
+                            seq: number | null;
+                            difficulty: string;
+                            secondsPerQuestion: number;
+                            questionCount: number;
+                            playerCount: number;
+                            posterPath: string | null;
+                            backdropPath: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            sample: {
+                                text: string;
+                                options: string[];
+                            }[];
+                            top: {
+                                rank: number;
+                                score: number;
+                                username: string;
+                                displayName: string | null;
+                                avatarPath: string | null;
+                            }[];
+                            siblings: {
+                                id: string;
+                                title: string;
+                                lang: string | null;
+                                slug: string | null;
+                                category: string | null;
+                                seq: number | null;
+                                difficulty: string;
+                                questionCount: number;
+                                playerCount: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/quizzes/sitemap/{lang}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    lang: "tr" | "en" | "es" | "pt" | "de";
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            slug: string;
+                            showTmdbId: string;
+                            /** Format: date-time */
+                            lastmod: string;
+                            slugs: {
+                                [key: string]: string;
+                            };
+                        }[];
                     };
                 };
             };

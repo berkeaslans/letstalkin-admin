@@ -758,6 +758,8 @@ const STATUS: Record<QuizStatus, [string, 'yellow' | 'live' | undefined]> = {
   finished: ['Bitti', undefined],
 };
 
+const CATEGORY: Record<string, string> = { easy: 'Kolay', medium: 'Orta', hard: 'Zor', fun: 'Eğlenceli' };
+
 export function Quizzes() {
   const [status, setStatus] = useState<QuizStatus | 'all'>('all');
   const res = useInfiniteQuery({
@@ -815,9 +817,17 @@ export function Quizzes() {
                     onClick={() => go(paths.quiz(r.id))}
                   >
                     <td className="px-[18px] py-2.5">
-                      <p className="font-semibold">{r.title}</p>
+                      <p className="flex flex-wrap items-center gap-1.5 font-semibold">
+                        {r.title}
+                        {/* Çok dilli paket: dilleri; listeden çıkarılmış eski quiz (adresiyle oynanır). */}
+                        {(r.locales ?? []).length > 1 && <Tag>{(r.locales ?? []).map((l) => l.toUpperCase()).join(' ')}</Tag>}
+                        {r.listed === false && <Tag>Listede değil</Tag>}
+                      </p>
                       <p className="text-[12px] text-faint">
-                        {DIFF[r.difficulty as Difficulty] ?? r.difficulty} · {r.secondsPerQuestion} sn ·{' '}
+                        {r.category
+                          ? `${CATEGORY[r.category] ?? r.category} ${r.seq ?? ''}`
+                          : (DIFF[r.difficulty as Difficulty] ?? r.difficulty)}{' '}
+                        · {r.secondsPerQuestion} sn ·{' '}
                         {r.status === 'scheduled' && r.startsAt
                           ? `başlangıç ${new Date(r.startsAt).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}`
                           : timeAgo(r.createdAt)}

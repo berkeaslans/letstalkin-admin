@@ -1276,6 +1276,9 @@
                     "type": "string",
                     "minLength": 20,
                     "maxLength": 200
+                  },
+                  "signupForm": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -1399,6 +1402,48 @@
                       },
                       "required": [
                         "twoFactor"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "signup": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string"
+                            },
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "google",
+                                "apple"
+                              ]
+                            },
+                            "email": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "suggestedUsername": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "token",
+                            "provider",
+                            "email",
+                            "name",
+                            "suggestedUsername"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "signup"
                       ],
                       "additionalProperties": false
                     }
@@ -1442,6 +1487,9 @@
                     "type": "string",
                     "minLength": 20,
                     "maxLength": 200
+                  },
+                  "signupForm": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -1567,8 +1615,268 @@
                         "twoFactor"
                       ],
                       "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "signup": {
+                          "type": "object",
+                          "properties": {
+                            "token": {
+                              "type": "string"
+                            },
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "google",
+                                "apple"
+                              ]
+                            },
+                            "email": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "nullable": true,
+                              "type": "string"
+                            },
+                            "suggestedUsername": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "token",
+                            "provider",
+                            "email",
+                            "name",
+                            "suggestedUsername"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "signup"
+                      ],
+                      "additionalProperties": false
                     }
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/oauth/complete": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 20,
+                    "maxLength": 2000
+                  },
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 24,
+                    "pattern": "^[a-z0-9_.]+$"
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "birthDate": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  },
+                  "acceptPrivacy": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  },
+                  "marketingConsent": {
+                    "type": "boolean"
+                  },
+                  "accountType": {
+                    "type": "string",
+                    "enum": [
+                      "person",
+                      "fan"
+                    ]
+                  },
+                  "preferredLang": {
+                    "type": "string",
+                    "enum": [
+                      "tr",
+                      "en",
+                      "es",
+                      "pt",
+                      "de",
+                      "fr",
+                      "it",
+                      "ru",
+                      "ar",
+                      "hi",
+                      "id",
+                      "zh",
+                      "ja",
+                      "ko",
+                      "pl",
+                      "el"
+                    ]
+                  },
+                  "attribution": {
+                    "description": "Kayıt kaynağı: referrer, landing, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, inApp, ref, firstSeenAt, platform"
+                  }
+                },
+                "required": [
+                  "token",
+                  "username",
+                  "birthDate",
+                  "acceptTerms",
+                  "acceptPrivacy"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access": {
+                      "type": "string"
+                    },
+                    "refresh": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "displayName": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "avatarPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "tick": {
+                          "type": "string"
+                        },
+                        "accountType": {
+                          "type": "string"
+                        },
+                        "emailVerified": {
+                          "type": "boolean"
+                        },
+                        "founderNo": {
+                          "nullable": true,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "username",
+                        "displayName",
+                        "avatarPath",
+                        "tick",
+                        "accountType",
+                        "emailVerified",
+                        "founderNo"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "isNew": {
+                      "type": "boolean"
+                    },
+                    "restored": {
+                      "type": "boolean"
+                    },
+                    "trustedDevice": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "access",
+                    "refresh",
+                    "user"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/profile/birth-date": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "birthDate": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  }
+                },
+                "required": [
+                  "birthDate"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -2769,6 +3077,9 @@
                     "hasPassword": {
                       "type": "boolean"
                     },
+                    "needsBirthDate": {
+                      "type": "boolean"
+                    },
                     "twoFactorEnabled": {
                       "type": "boolean"
                     },
@@ -3028,6 +3339,9 @@
                       "type": "boolean"
                     },
                     "hasPassword": {
+                      "type": "boolean"
+                    },
+                    "needsBirthDate": {
                       "type": "boolean"
                     },
                     "twoFactorEnabled": {
@@ -42693,6 +43007,16 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 2,
+              "maxLength": 8
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
               "maxLength": 20
             },
             "in": "query",
@@ -42768,6 +43092,39 @@
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      "externalId": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "seriesKey": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "category": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "seq": {
+                        "nullable": true,
+                        "type": "number"
+                      },
+                      "locales": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "lang": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "slug": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "listed": {
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -42949,6 +43306,39 @@
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "externalId": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "seriesKey": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "category": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "seq": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "lang": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "slug": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "listed": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -42980,6 +43370,16 @@
           "quiz"
         ],
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 8
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
           {
             "schema": {
               "type": "string"
@@ -43055,6 +43455,39 @@
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "externalId": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "seriesKey": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "category": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "seq": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "lang": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "slug": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "listed": {
+                      "type": "boolean"
                     },
                     "isCreator": {
                       "type": "boolean"
@@ -43178,6 +43611,10 @@
                             "type": "string"
                           },
                           "options": {},
+                          "explanation": {
+                            "nullable": true,
+                            "type": "string"
+                          },
                           "correctIndex": {
                             "type": "number"
                           }
@@ -43188,6 +43625,37 @@
                           "options"
                         ],
                         "additionalProperties": {}
+                      }
+                    },
+                    "seo": {
+                      "nullable": true,
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "h1": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "h1",
+                        "description",
+                        "slug"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "slugs": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
                       }
                     }
                   },
@@ -43330,6 +43798,16 @@
         "parameters": [
           {
             "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 8
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
+          {
+            "schema": {
               "type": "string"
             },
             "in": "path",
@@ -43356,6 +43834,10 @@
                     },
                     "score": {
                       "type": "number"
+                    },
+                    "explanation": {
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -43377,6 +43859,16 @@
           "quiz"
         ],
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 8
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
           {
             "schema": {
               "type": "string"
@@ -43401,6 +43893,10 @@
                           "enum": [
                             false
                           ]
+                        },
+                        "lang": {
+                          "nullable": true,
+                          "type": "string"
                         },
                         "question": {
                           "type": "object",
@@ -46329,6 +46825,9 @@
                         "smart"
                       ]
                     },
+                    "hideAdult": {
+                      "type": "boolean"
+                    },
                     "tagPolicy": {
                       "type": "string",
                       "enum": [
@@ -46470,6 +46969,9 @@
                       "smart"
                     ]
                   },
+                  "hideAdult": {
+                    "type": "boolean"
+                  },
                   "localeEn": {
                     "type": "boolean"
                   },
@@ -46593,6 +47095,9 @@
                         "tagged",
                         "smart"
                       ]
+                    },
+                    "hideAdult": {
+                      "type": "boolean"
                     },
                     "tagPolicy": {
                       "type": "string",
@@ -54767,6 +55272,23 @@
                               "tick"
                             ],
                             "additionalProperties": false
+                          },
+                          "locales": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "category": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "seq": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "listed": {
+                            "type": "boolean"
                           }
                         },
                         "required": [
@@ -54782,7 +55304,11 @@
                           "createdAt",
                           "questionCount",
                           "attemptCount",
-                          "creator"
+                          "creator",
+                          "locales",
+                          "category",
+                          "seq",
+                          "listed"
                         ],
                         "additionalProperties": false
                       }
@@ -54911,6 +55437,23 @@
                       ],
                       "additionalProperties": false
                     },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "category": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "seq": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "listed": {
+                      "type": "boolean"
+                    },
                     "questions": {
                       "type": "array",
                       "items": {
@@ -55032,6 +55575,10 @@
                     "questionCount",
                     "attemptCount",
                     "creator",
+                    "locales",
+                    "category",
+                    "seq",
+                    "listed",
                     "questions",
                     "leaderboard"
                   ],
@@ -82146,6 +82693,18 @@
         "tags": [
           "public"
         ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 8
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -82167,6 +82726,9 @@
                       },
                       "title": {
                         "type": "string"
+                      },
+                      "quizCount": {
+                        "type": "number"
                       },
                       "difficulty": {
                         "type": "string"
@@ -82195,6 +82757,7 @@
                       "showTmdbId",
                       "showName",
                       "title",
+                      "quizCount",
                       "difficulty",
                       "questionCount",
                       "playerCount",
@@ -82217,6 +82780,16 @@
           "public"
         ],
         "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 8
+            },
+            "in": "query",
+            "name": "lang",
+            "required": false
+          },
           {
             "schema": {
               "type": "string",
@@ -82245,6 +82818,10 @@
                       "type": "string"
                     },
                     "title": {
+                      "type": "string"
+                    },
+                    "lang": {
+                      "nullable": true,
                       "type": "string"
                     },
                     "about": {
@@ -82324,6 +82901,57 @@
                         "additionalProperties": false
                       }
                     },
+                    "quizzes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "lang": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "slug": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "category": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "seq": {
+                            "nullable": true,
+                            "type": "number"
+                          },
+                          "difficulty": {
+                            "type": "string"
+                          },
+                          "questionCount": {
+                            "type": "number"
+                          },
+                          "playerCount": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "lang",
+                          "slug",
+                          "category",
+                          "seq",
+                          "difficulty",
+                          "questionCount",
+                          "playerCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "top": {
                       "type": "array",
                       "items": {
@@ -82391,6 +83019,7 @@
                     "showTmdbId",
                     "showName",
                     "title",
+                    "lang",
                     "about",
                     "difficulty",
                     "secondsPerQuestion",
@@ -82401,10 +83030,363 @@
                     "createdAt",
                     "creator",
                     "sample",
+                    "quizzes",
                     "top",
                     "others"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/quizzes/page/{lang}/{slug}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tr",
+                "en",
+                "es",
+                "pt",
+                "de"
+              ]
+            },
+            "in": "path",
+            "name": "lang",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,160}$"
+            },
+            "in": "path",
+            "name": "slug",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "redirect": {
+                          "type": "object",
+                          "properties": {
+                            "lang": {
+                              "type": "string"
+                            },
+                            "slug": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "lang",
+                            "slug"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "redirect"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "redirect": {
+                          "type": "string",
+                          "nullable": true,
+                          "enum": [
+                            null
+                          ]
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string"
+                        },
+                        "showTmdbId": {
+                          "type": "string"
+                        },
+                        "showName": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "h1": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "keywords": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "slugs": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "category": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "seq": {
+                          "nullable": true,
+                          "type": "number"
+                        },
+                        "difficulty": {
+                          "type": "string"
+                        },
+                        "secondsPerQuestion": {
+                          "type": "number"
+                        },
+                        "questionCount": {
+                          "type": "number"
+                        },
+                        "playerCount": {
+                          "type": "number"
+                        },
+                        "posterPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "backdropPath": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "sample": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "options"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "top": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "rank": {
+                                "type": "number"
+                              },
+                              "score": {
+                                "type": "number"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "avatarPath": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "rank",
+                              "score",
+                              "username",
+                              "displayName",
+                              "avatarPath"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "siblings": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "slug": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "category": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "seq": {
+                                "nullable": true,
+                                "type": "number"
+                              },
+                              "difficulty": {
+                                "type": "string"
+                              },
+                              "questionCount": {
+                                "type": "number"
+                              },
+                              "playerCount": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "lang",
+                              "slug",
+                              "category",
+                              "seq",
+                              "difficulty",
+                              "questionCount",
+                              "playerCount"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "redirect",
+                        "id",
+                        "lang",
+                        "showTmdbId",
+                        "showName",
+                        "title",
+                        "h1",
+                        "description",
+                        "keywords",
+                        "slug",
+                        "slugs",
+                        "category",
+                        "seq",
+                        "difficulty",
+                        "secondsPerQuestion",
+                        "questionCount",
+                        "playerCount",
+                        "posterPath",
+                        "backdropPath",
+                        "createdAt",
+                        "updatedAt",
+                        "sample",
+                        "top",
+                        "siblings"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/quizzes/sitemap/{lang}": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tr",
+                "en",
+                "es",
+                "pt",
+                "de"
+              ]
+            },
+            "in": "path",
+            "name": "lang",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "slug": {
+                        "type": "string"
+                      },
+                      "showTmdbId": {
+                        "type": "string"
+                      },
+                      "lastmod": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "slugs": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "slug",
+                      "showTmdbId",
+                      "lastmod",
+                      "slugs"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               }
             }
