@@ -647,6 +647,12 @@ export const adminApi = {
     deleteEvent: (id: string) => api.del<{ ok: true }>(`/admin/growth/events/${id}`),
   },
 
+  /** Yetişkin (+18) işareti: TMDB'den gelir, panelden düzeltilir. */
+  adultState: (kind: 'movie' | 'tv' | 'person', id: string) =>
+    api.get<{ adult: boolean; source: string | null }>(`/admin/adult/${kind}/${id}`),
+  setAdult: (kind: 'movie' | 'tv' | 'person', id: string, adult: boolean) =>
+    api.put<{ adult: boolean; source: string | null }>(`/admin/adult/${kind}/${id}`, { adult }),
+
   flags: () => api.get<Flag[]>('/admin/flags'),
   setFlag: (key: Flag['key'], enabled: boolean | null) => api.put<Flag[]>(`/admin/flags/${key}`, { enabled }),
 };

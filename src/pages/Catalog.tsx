@@ -16,7 +16,7 @@ import { compact, fmt, timeAgo } from '@/lib/format';
 import { go, paths } from '@/lib/go';
 import { playSound } from '@/lib/sound';
 import { useIsAdmin } from '@/stores/session';
-import { toast } from '@/stores/ui';
+import { confirmAction, toast } from '@/stores/ui';
 import { field } from './Publish';
 
 const poster = (p: string | null | undefined, w = 185) => (p ? (p.startsWith('http') ? p : `https://image.tmdb.org/t/p/w${w}${p}`) : null);
@@ -226,6 +226,7 @@ export function ShowPage() {
                 {!s.custom && s.edited && <Tag>Düzenlendi</Tag>}
                 {s.featured && <Tag tone="yellow">Vitrinde</Tag>}
                 {s.isFinale && <Tag tone="live">Final</Tag>}
+                {!s.custom && <AdultTag tmdbId={s.tmdbId} canEdit={isAdmin} />}
                 {s.nextAirDate && (
                   <Tag>Sonraki bölüm {new Date(s.nextAirDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</Tag>
                 )}
@@ -507,5 +508,53 @@ export function Showcase() {
         </Card>
       )}
     </div>
+  );
+}
+
+/** Yetişkin (+18) işareti: TMDB'nin listesinden gelir; yanlışsa buradan düzeltilir. +18 yapım
+ *  sitede, Google'da ve mobilde görünmez; yalnız web'de 18+ kullanıcıya onayla açılır. */
+function AdultTag({ tmdbId, canEdit }: { tmdbId: string; canEdit: boolean }) {
+  const kind = tmdbId.startsWith('m:') ? 'movie' : 'tv';
+  const id = tmdbId.replace(/^m:/, '');
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ['admin', 'adult', kind, id], queryFn: () => adminApi.adultState(kind, id) });
+  const set = useMutation({
+    mutationFn: (adult: boolean) => adminApi.setAdult(kind, id, adult),
+    onSuccess: (r) => {
+      qc.setQueryData(['admin', 'adult', kind, id], r);
+      toast(
+        r.adult ? '+18 olarak işaretlendi' : '+18 işareti kaldırıldı',
+        'success',
+        r.adult ? 'Sitede, Google’da ve mobilde artık görünmez' : 'Herkese açık katalogda görünür',
+      );
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  if (!q.data) return null;
+  const on = q.data.adult;
+  return (
+    <>
+      {on && <Tag tone="live">+18{q.data.source === 'manual' ? ' · elle' : ''}</Tag>}
+      {canEdit && (
+        <Button
+          size="xs"
+          variant="ghost"
+          busy={set.isPending}
+          onClick={async () => {
+            const c = await confirmAction({
+              title: on ? '+18 işareti kaldırılsın mı?' : '+18 olarak işaretlensin mi?',
+              body: on
+                ? 'Yapım herkese açık katalogda, Google’da ve mobilde yeniden görünür. TMDB ileride işaretlese de bu karar geçerli kalır.'
+                : 'Yapım sitede, Google’da ve mobilde görünmez; yalnız web’de 18 yaşından büyüklere onayla açılır.',
+              ok: on ? 'Kaldır' : 'İşaretle',
+              danger: !on,
+            });
+            if (c.ok) set.mutate(!on);
+          }}
+        >
+          {on ? '+18 değil' : '+18 işaretle'}
+        </Button>
+      )}
+    </>
   );
 }
